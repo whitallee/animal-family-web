@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -11,6 +12,8 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+const queryClient = new QueryClient();
 
 export const metadata: Metadata = {
   title: "Brindle - Animal Family",
@@ -25,15 +28,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-stone-900 text-stone-50`}>
-        {/* emerald, teal, and stone palettes */}
-        <main className="flex flex-col items-center h-[calc(100vh-2rem)] p-4">
-          {children}
-        </main>
-        <footer className="text-center text-xs text-stone-500">
-          <p>
-            &copy; {new Date().getFullYear()} Brindle - Animal Family. All rights reserved.
-          </p>
-        </footer>
+        <QueryClientProvider client={queryClient}>
+          {/* emerald, teal, and stone palettes */}
+          <main className="flex flex-col items-center h-[calc(100vh-2rem)] overflow-y-auto overflow-x-hidden p-4">
+            {children}
+          </main>
+          <footer className="text-center text-xs text-stone-500">
+            <p>
+              &copy; {new Date().getFullYear()} Brindle - Animal Family. All rights reserved.
+            </p>
+          </footer>
+        </QueryClientProvider>
       </body>
     </html>
   );
