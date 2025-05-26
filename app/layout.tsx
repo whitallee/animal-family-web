@@ -17,9 +17,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Brindle - Animal Family",
   description: "Brindle helps you manage your countless pets' needs.",
-  other: {
-    "content": "minimal-ui",
-  },
 };
 
 export default function RootLayout({
@@ -29,7 +26,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-stone-900 text-stone-50`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-stone-900 text-stone-50 h-[100.1vh]`}>
+        <script dangerouslySetInnerHTML={{ __html: `window.scrollBy(0, 1);` }} />
         <Providers>
           {/* emerald, teal, and stone palettes */}
           <main className="flex flex-col items-center h-[calc(100vh-2rem)] overflow-y-auto overflow-x-hidden p-4">
