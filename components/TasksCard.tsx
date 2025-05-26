@@ -1,7 +1,7 @@
-import { Check, Circle, Square, SquareDashed } from "lucide-react";
+import { Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
+import type { Task } from "@/types/db-types";
 const tasks = [
     {
         taskId: 1,

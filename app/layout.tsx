@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Providers from "@/components/Providers";
 import BottomNav from "@/components/BottomNav";
 
@@ -14,8 +13,6 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
-const queryClient = new QueryClient();
 
 export const metadata: Metadata = {
   title: "Brindle - Animal Family",
