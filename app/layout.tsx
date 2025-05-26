@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Providers from "@/components/Providers";
+import BottomNav from "@/components/BottomNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,17 +30,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-stone-900 text-stone-50`}>
-        <QueryClientProvider client={queryClient}>
+        <Providers>
           {/* emerald, teal, and stone palettes */}
           <main className="flex flex-col items-center h-[calc(100vh-2rem)] overflow-y-auto overflow-x-hidden p-4">
             {children}
+            <BottomNav />
           </main>
-          <footer className="text-center text-xs text-stone-500">
+          {/* <footer className="text-center text-xs text-stone-500">
             <p>
               &copy; {new Date().getFullYear()} Brindle - Animal Family. All rights reserved.
             </p>
-          </footer>
-        </QueryClientProvider>
+          </footer> */}
+        </Providers>
       </body>
     </html>
   );
