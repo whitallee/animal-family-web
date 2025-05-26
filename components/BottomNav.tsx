@@ -14,8 +14,8 @@ function NavItem({ href, children }: { href: string, children: React.ReactNode }
 
 export default function BottomNav() {
     return (
-        <div className="w-full fixed items-center bottom-0 left-0 right-0 bg-stone-800">
-        <div className=" max-w-md flex justify-between items-center h-16 px-4 mx-auto">
+        <div className="w-full fixed items-center bottom-0 left-0 right-0">
+        <div className=" max-w-md flex justify-between items-center h-16 px-4 mx-auto bg-stone-800 sm:rounded-full sm:px-8 sm:-translate-y-2">
             <NavItem href="/">
                 <HomeIcon className="w-6 h-6" />
             </NavItem>

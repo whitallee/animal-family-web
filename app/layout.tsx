@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Brindle - Animal Family",
   description: "Brindle helps you manage your countless pets' needs.",
+  other: {
+    "content": "minimal-ui",
+  },
 };
 
 export default function RootLayout({
