@@ -1,6 +1,6 @@
 "use client";
 
-import { HomeIcon, ListIcon, PawPrintIcon, UserIcon } from "lucide-react";
+import { HomeIcon, ListIcon, PawPrintIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import UserDrawer from "./UserDrawer";
