@@ -3,8 +3,9 @@
 import { HomeIcon, ListIcon, PawPrintIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import UserDrawer from "./UserDrawer";
 
-function NavItem({ href, children }: { href: string, children: React.ReactNode }) {
+function NavPathItem({ href, children }: { href: string, children: React.ReactNode }) {
     const pathname = usePathname();
     const isActive = pathname === href;
     return (
@@ -16,18 +17,16 @@ export default function BottomNav() {
     return (
         <div className="w-full fixed items-center bottom-0 left-0 right-0">
         <div className=" max-w-md flex justify-between items-center h-16 px-4 mx-auto bg-stone-800 sm:rounded-full sm:px-8 sm:-translate-y-2">
-            <NavItem href="/">
+            <NavPathItem href="/">
                 <HomeIcon className="w-6 h-6" />
-            </NavItem>
-            <NavItem href="/animal-family">
+            </NavPathItem>
+            <NavPathItem href="/animal-family">
                 <PawPrintIcon className="w-6 h-6" />
-            </NavItem>
-            <NavItem href="/tasks">
+            </NavPathItem>
+            <NavPathItem href="/tasks">
                 <ListIcon className="w-6 h-6" />
-            </NavItem>
-            <NavItem href="/user">
-                <UserIcon className="w-6 h-6" />
-            </NavItem>
+            </NavPathItem>
+            <UserDrawer />
         </div>
         </div>
     );
