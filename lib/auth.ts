@@ -1,14 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
+import { User } from "@/types/db-types";
 
 interface LoginResponse {
   token: string;
+  user: User;
 }
 
 export async function loginUser(email: string, password: string): Promise<LoginResponse> {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/user/login`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/user/login`, {
     method: 'POST',
+    credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json',
+      'Origin': 'http://localhost:3000',
     },
     body: JSON.stringify({ email, password }),
   });
@@ -18,12 +22,6 @@ export async function loginUser(email: string, password: string): Promise<LoginR
   }
 
   const data = await response.json();
-  
-  // Store the token in localStorage
-  if (data.token) {
-    localStorage.setItem('auth_token', data.token);
-  }
-
   return data;
 }
 

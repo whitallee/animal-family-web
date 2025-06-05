@@ -14,20 +14,22 @@ import { useLogin } from "@/lib/auth";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function UserDrawer() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [open, setOpen] = useState(false);
+    const { isLoggedIn, user, login, logout } = useAuth();
     const loginMutation = useLogin();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await loginMutation.mutateAsync({ email, password });
-            // Close the drawer on successful login
-            const closeButton = document.querySelector('[data-drawer-close]');
-            if (closeButton instanceof HTMLElement) {
-                closeButton.click();
+            const data = await loginMutation.mutateAsync({ email, password });
+            if (data.token && data.user) {
+                login(data.token, data.user);
+                setOpen(false); // Close the drawer
             }
         } catch (error) {
             console.error('Login failed:', error);
@@ -35,14 +37,24 @@ export default function UserDrawer() {
     };
 
     return (
-        <Drawer>
-            <DrawerTrigger><UserIcon className="w-6 h-6 text-stone-500" /></DrawerTrigger>
+        <Drawer open={open} onOpenChange={setOpen}>
+            <DrawerTrigger asChild>
+                <UserIcon className="w-6 h-6 text-stone-500" />
+            </DrawerTrigger>
             <DrawerContent className="bg-stone-700 text-stone-50">
                 <DrawerHeader>
                     <DrawerTitle className="text-stone-50">User Profile</DrawerTitle>
-                    <DrawerDescription className="text-stone-400">You are not logged in.</DrawerDescription>
+                    <DrawerDescription className="text-stone-400">{isLoggedIn ? `Logged in as ${user?.email}` : "You are not logged in."}</DrawerDescription>
                 </DrawerHeader>
-                <form onSubmit={handleLogin} className="px-4 space-y-4">
+                {isLoggedIn ?
+                <div className="px-4 flex flex-col gap-2">
+                    <p>First Name: {user?.firstName}</p>
+                    <p>Last Name: {user?.lastName}</p>
+                    <p>Email: {user?.email}</p>
+                    <p>Phone: {"Not provided"}</p>
+                    <Button className="mt-4" onClick={() => logout()}>Logout</Button>
+                </div> 
+                : <form onSubmit={handleLogin} className="px-4 space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="email" className="text-stone-50">Email</Label>
                         <Input
@@ -74,10 +86,10 @@ export default function UserDrawer() {
                     >
                         {loginMutation.isPending ? "Logging in..." : "Login"}
                     </Button>
-                </form>
+                    <Button disabled className="text-stone-50 w-full">Signup</Button>
+                </form>}
                 <DrawerFooter className="max-w-md min-w-[20rem] sm:min-w-[24rem] mx-auto">
-                    <Button className="text-stone-50">Signup</Button>
-                    <DrawerClose>
+                    <DrawerClose asChild>
                         <Button variant="outline" className="text-stone-800">Cancel</Button>
                     </DrawerClose>
                 </DrawerFooter>
