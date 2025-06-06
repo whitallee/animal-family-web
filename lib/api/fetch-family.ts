@@ -10,7 +10,6 @@ export const fetchAnimals = async (token: string) => {
             "Authorization": `${token}`
         }
     });
-    console.log(res);
     return res.json();
 };
 
@@ -31,7 +30,6 @@ export const fetchEnclosures = async (token: string) => {
             "Authorization": `${token}`
         }
     });
-    console.log(res);
     return res.json();
 };
 
@@ -52,7 +50,6 @@ export const fetchTasks = async (token: string) => {
             "Authorization": `${token}`
         }
     });
-    console.log(res);
     return res.json();
 };
 
