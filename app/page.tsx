@@ -15,9 +15,9 @@ export default function Home() {
   const { data: tasks } = useTasks();
 
   if (isLoggedIn) {
-    // console.log('animals', animals);
-    // console.log('enclosures', enclosures);
-    console.log('tasks', tasks); // currently empty so not worrying about it
+    console.log('animals', animals?.data);
+    console.log('enclosures', enclosures?.data);
+    console.log('tasks', tasks?.data);
   }
   return (
     <div className="max-w-md w-full pt-4 px-4 overflow-y-hidden">
