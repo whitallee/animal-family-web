@@ -22,6 +22,7 @@ export async function loginUser(email: string, password: string): Promise<LoginR
   }
 
   const data = await response.json();
+  localStorage.setItem("auth_token", data.token);
   return data;
 }
 
