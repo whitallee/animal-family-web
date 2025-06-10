@@ -1,44 +1,52 @@
 import { Animal, Enclosure, Habitat, Species } from "@/types/db-types";
 import Image from "next/image";
+import { Subject, AnimalWithSpecies } from "@/types/subject-types";
+import AnimalsInEnclosure from "./AnimalsInEnclosure";
 
-type AnimalWithSpecies = Animal & { species: Species };
-type EnclosureWithData = Enclosure & { 
-    animals: AnimalWithSpecies[];
-    habitat: Habitat;
-};
-
-function organizeAnimalFamily(enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[]): EnclosureWithData[] {
-    const unassignedEnclosure: EnclosureWithData = {
-        enclosureId: -1,
-        enclosureName: "Unassigned",
-        image: "",
-        notes: "Animals without an assigned enclosure",
-        habitatId: 1,
-        animals: animals
-            .filter(animal => !animal.enclosureId)
-            .map(animal => ({
-                ...animal,
-                species: species.find(s => s.speciesId === animal.speciesId)!
-            })),
-        habitat: habitats.find(h => h.habitatId === 1)!
-    };
+function organizeAnimalFamily(enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[]): Subject[] {
+    const unassignedAnimals: AnimalWithSpecies[] = animals.filter(animal => !animal.enclosureId).map(animal => ({
+        animalId: animal.animalId,
+        animalName: animal.animalName,
+        animalImage: animal.image,
+        species: {
+            speciesId: animal.speciesId,
+            speciesName: species.find(s => s.speciesId === animal.speciesId)!.comName,
+            speciesImage: species.find(s => s.speciesId === animal.speciesId)!.image
+        }
+    }));
 
     const assignedEnclosures = enclosures.map(enclosure => {
-        const enclosureAnimals = animals
+        const enclosureAnimals: AnimalWithSpecies[] = animals
             .filter(animal => animal.enclosureId === enclosure.enclosureId)
             .map(animal => ({
-                ...animal,
-                species: species.find(s => s.speciesId === animal.speciesId)!
+                animalId: animal.animalId,
+                animalName: animal.animalName,
+                animalImage: animal.image,
+                species: {
+                    speciesId: animal.speciesId,
+                    speciesName: species.find(s => s.speciesId === animal.speciesId)!.comName,
+                    speciesImage: species.find(s => s.speciesId === animal.speciesId)!.image
+                }
             }));
         
         return {
-            ...enclosure,
+            enclosureId: enclosure.enclosureId,
+            enclosureName: enclosure.enclosureName,
+            enclosureImage: enclosure.image,
             animals: enclosureAnimals,
-            habitat: habitats.find(h => h.habitatId === enclosure.habitatId)!
+            habitat: {
+                habitatId: enclosure.habitatId,
+                habitatName: habitats.find(h => h.habitatId === enclosure.habitatId)!.habitatName,
+                habitatImage: habitats.find(h => h.habitatId === enclosure.habitatId)!.image
+            }
         };
     });
 
-    return [unassignedEnclosure,...assignedEnclosures];
+    const sortedEnclosures = assignedEnclosures.sort((b, a) => 
+        a.habitat.habitatName.localeCompare(b.habitat.habitatName)
+    );
+
+    return [...unassignedAnimals, ...sortedEnclosures];
 }
 
 function SubjectSkeletonList() {
@@ -61,12 +69,13 @@ function SubjectSkeletonList() {
     )
 }
 
-function SubjectList({ subjects }: { subjects: EnclosureWithData[] }) {
+function SubjectList({ subjects }: { subjects: Subject[] }) {
     const modifiedSubjects = subjects.map((subject, index) => ({
         ...subject,
         shift: (index + 1) % 5 === 4 || (index + 1) % 5 === 0
     }));
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const subjectsWithPlaceholders = modifiedSubjects.reduce((accumulator: any[], subject, index) => {
         accumulator.push(subject);
         if ((index + 1) % 5 === 0) {
@@ -74,57 +83,66 @@ function SubjectList({ subjects }: { subjects: EnclosureWithData[] }) {
         }
         return accumulator;
     }, []);
-
     return (
         <>
             {subjectsWithPlaceholders.map((subject, index) => (
                 <SubjectCircle
                     className="text-xs"
-                    subject={subject.enclosureId ? subject : undefined} 
+                    subject={subject.enclosureId || subject.animalId ? subject as Subject : undefined} 
                     shift={subject.shift} 
                     placeholder={subject.placeholder} 
-                    key={subject.enclosureId || `placeholder-${index}`}
+                    key={subject.enclosureId ? `enclosure-${subject.enclosureId}` : subject.animalId ? `animal-${subject.animalId}` : `placeholder-${index}`}
                 />
             ))}
         </>
     )
 }
 
-function SubjectCircle({ subject, shift, placeholder, className }: { subject?: EnclosureWithData, shift?: boolean, placeholder?: boolean, className?: string }) {
-    if (placeholder) {
+function SubjectCircle({ subject, shift, placeholder, className }: { subject?: Subject, shift?: boolean, placeholder?: boolean, className?: string }) {
+    if (placeholder || !subject ) {
         return (
-            <div className={`bg-stone-700 rounded-full aspect-square flex items-center justify-center relative overflow-hidden ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${placeholder ? "opacity-0" : ""} ${className || ""}`}>
-                <p className="text-white relative z-10"></p>
+            <div className={`bg-stone-700 rounded-full aspect-square relative overflow-hidden ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${placeholder ? "opacity-0" : ""} ${className || ""}`}>
             </div>
         )
     }
-    if (subject?.enclosureId === -1) {
+    if ("animalId" in subject) {
         return (
-            <div className={`bg-stone-700 rounded-full aspect-square flex items-center justify-center relative overflow-hidden ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${placeholder ? "opacity-0" : ""} ${className || ""}`}>
-                <p className="text-white relative z-10">{subject?.enclosureName}<br/>{subject?.animals.length}</p>
-            </div>
-        )
-    }
-    return (
-        <div 
-            className={`bg-stone-700 rounded-full aspect-square flex items-center justify-center relative overflow-hidden ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${placeholder ? "opacity-0" : ""} ${className || ""}`}
-        >
-            {subject?.enclosureId && (
+            <div 
+                className={`bg-stone-700 rounded-full aspect-square flex items-center justify-center relative overflow-hidden ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${className || ""}`}
+            >
                 <Image 
-                    // src={subject.enclosureId !== -1 ? subject.image : subject.habitat.image}
-                    src={subject.habitat.image}
-                    alt=""
+                    src={subject.animalImage === "" ? subject.species.speciesImage : subject.animalImage}
+                    alt={subject.animalName}
                     fill
-                    // unoptimized
+                    sizes="(max-width: 512px) 100vw, (max-width: 128px) 50vw, 33vw"
                     className="object-cover"
-                    onError={(e) => {
-                        console.error('Image failed to load:', subject.habitat.image);
+                    onError={() => {
+                        console.error('Image failed to load:', subject.animalImage);
                     }}
-                />
-            )}
-            <p className="text-white relative z-10">{subject?.enclosureName}<br/>{subject?.animals.length}</p>
-        </div>
-    )
+                    />
+                {/* <p className="text-white relative z-10">{subject.animalName}<br/>{subject.species.speciesName}</p> */}
+            </div>
+        )
+    }
+    if ("enclosureId" in subject) {
+        return (
+            <div 
+                className={`bg-stone-700 rounded-full aspect-square flex items-center justify-center relative overflow-hidden ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${className || ""}`}
+            >
+                <Image 
+                    src={subject.enclosureImage === "" ? subject.habitat.habitatImage : subject.enclosureImage}
+                    alt={subject.enclosureName}
+                    fill
+                    sizes="(max-width: 512px) 100vw, (max-width: 128px) 50vw, 33vw"
+                    className="object-cover"
+                    onError={() => {
+                        console.error('Image failed to load:', subject.enclosureImage);
+                    }}
+                    />
+                <AnimalsInEnclosure animals={subject.animals} />
+            </div>
+        )
+    }
 }
 
 export default function SubjectSection({ enclosures, animals, habitats, species, isPending }: { enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[], isPending: boolean }) {
