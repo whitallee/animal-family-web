@@ -6,25 +6,36 @@ import SubjectSection from "@/components/SubjectSection";
 import TasksCard from "@/components/TasksCard";
 import { useEnclosures, useAnimals } from "@/lib/api/fetch-family";
 import { useTasks } from "@/lib/api/fetch-family";
-import { useAuth } from "@/lib/AuthContext";
+import { useHabitats } from "@/lib/api/fetch-species-habitats";
+import { useSpecies } from "@/lib/api/fetch-species-habitats";
+// import { useAuth } from "@/lib/AuthContext";
 
 export default function Home() {
-  const { isLoggedIn } = useAuth();
-  const { data: animals } = useAnimals();
-  const { data: enclosures } = useEnclosures();
-  const { data: tasks } = useTasks();
+  // const { isLoggedIn } = useAuth();
+  const { data: animals, isPending: animalsPending } = useAnimals();
+  const { data: enclosures, isPending: enclosuresPending } = useEnclosures();
+  const { data: tasks, isPending: tasksPending } = useTasks();
+  const { data: species, isPending: speciesPending } = useSpecies();
+  const { data: habitats, isPending: habitatsPending } = useHabitats();
 
-  if (isLoggedIn) {
-    console.log('animals', animals);
-    console.log('enclosures', enclosures);
-    console.log('tasks', tasks);
-  }
+  // if (isLoggedIn) {
+  //   console.log('animals', animals);
+  //   console.log('enclosures', enclosures);
+  //   console.log('tasks', tasks);
+  //   console.log('species', species);
+  //   console.log('habitats', habitats);
+  // }
   return (
     <div className="max-w-md w-full pt-4 px-4 overflow-y-hidden">
-      <h1>{isLoggedIn ? "Logged in" : "Logged out"}</h1>
-      <TasksCard />
+      <TasksCard tasks={tasks} isPending={tasksPending} />
       {/* TasksPage */}
-      <SubjectSection />
+      <SubjectSection 
+        enclosures={enclosures ?? []} 
+        animals={animals ?? []} 
+        habitats={habitats ?? []} 
+        species={species ?? []} 
+        isPending={animalsPending || enclosuresPending || speciesPending || habitatsPending} 
+      />
       {/* SubjectInfoPage */}
       <NavBarGap />
       <BottomNav />
