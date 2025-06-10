@@ -1,4 +1,3 @@
-import { unstable_ViewTransition as ViewTransition } from 'react'
 import { Check, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -48,7 +47,7 @@ function TaskListSkeleton() {
 
 function TaskList({ tasks }: { tasks: Task[] | undefined }) {
     if (tasks && tasks.length === 0) {
-        return <div>No tasks found... Maybe you're forgetting something?</div>
+        return <div>No tasks found... Maybe you&apos;re forgetting something?</div>
     }
     return (
         <>
