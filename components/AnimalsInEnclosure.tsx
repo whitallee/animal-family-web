@@ -5,24 +5,24 @@ export default function AnimalsInEnclosure({ animals, className }: { animals: An
     if (animals.length === 0) {
         return null;
     // } else if (animals.length === 1) {
-    } else {
+    } else  {
         return (
             <div 
-                className={`w-[80%] h-[80%] p-10 rounded-full aspect-square grid gap-2 ${className || ""}`}
+                className={`rounded-full aspect-square gap-2 relative flex items-center justify-center flex-wrap content-center ${className || ""}`}
             >
             {animals.map((animal) => (
-
-                <Image 
-                    key={animal.animalId}
-                    src={animal.animalImage === "" ? animal.species.speciesImage : animal.animalImage}
-                    alt={animal.animalName}
-                    fill
-                    sizes="(max-width: 512px) 100vw, (max-width: 128px) 50vw, 33vw"
-                    className="object-cover rounded-full aspect-square scale-50"
-                    onError={() => {
-                        console.error('Image failed to load:', animal.animalImage);
-                    }}
+                <div key={animal.animalId} className={`relative aspect-square overflow-hidden ${animals.length === 1 ? "h-20 w-20" : animals.length === 2 ? "h-10 w-10" : "h-8 w-8 min-[400px]:h-10 min-[400px]:w-10"}`}>
+                    <Image 
+                        src={animal.animalImage === "" ? animal.species.speciesImage : animal.animalImage}
+                        alt={animal.animalName}
+                        fill
+                        sizes="(max-width: 512px) 100vw, (max-width: 128px) 50vw, 33vw"
+                        className="object-cover rounded-full"
+                        onError={() => {
+                            console.error('Image failed to load:', animal.animalImage);
+                        }}
                     />
+                </div>
             ))}
             </div>
         )    

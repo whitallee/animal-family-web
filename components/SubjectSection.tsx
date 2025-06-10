@@ -115,7 +115,7 @@ function SubjectCircle({ subject, shift, placeholder, className }: { subject?: S
                     alt={subject.animalName}
                     fill
                     sizes="(max-width: 512px) 100vw, (max-width: 128px) 50vw, 33vw"
-                    className="object-cover"
+                    className="object-cover relative"
                     onError={() => {
                         console.error('Image failed to load:', subject.animalImage);
                     }}

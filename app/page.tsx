@@ -8,6 +8,7 @@ import { useEnclosures, useAnimals } from "@/lib/api/fetch-family";
 import { useTasks } from "@/lib/api/fetch-family";
 import { useHabitats } from "@/lib/api/fetch-species-habitats";
 import { useSpecies } from "@/lib/api/fetch-species-habitats";
+import { unstable_ViewTransition as ViewTransition } from 'react'
 // import { useAuth } from "@/lib/AuthContext";
 
 export default function Home() {
@@ -27,7 +28,9 @@ export default function Home() {
   // }
   return (
     <div className="max-w-md w-full pt-4 px-4 overflow-y-hidden">
-      <TasksCard tasks={tasks} isPending={tasksPending} />
+      <ViewTransition name="tasks">
+        <TasksCard tasks={tasks} isPending={tasksPending} />
+      </ViewTransition>
       {/* TasksPage */}
       <SubjectSection 
         enclosures={enclosures ?? []} 
