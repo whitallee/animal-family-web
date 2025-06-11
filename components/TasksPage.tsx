@@ -22,7 +22,10 @@ function TaskItem({ task }: { task: Task }) {
             <div className="w-full flex items-center gap-2">
                 <Button 
                     className="w-6 h-6 p-0"
-                    onClick={() => markComplete.mutate(task)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        markComplete.mutate(task);
+                    }}
                     disabled={markComplete.isPending}
                 >
                      {markComplete.isPending ? (
@@ -69,14 +72,16 @@ function TaskList({ tasks }: { tasks: Task[] | undefined }) {
                 .sort((a, b) => Number(a.complete) - Number(b.complete))
                 .map((task) => (
             <AccordionItem value={task.taskId.toString()} key={task.taskId}>
-                <AccordionTrigger><TaskItem task={task} /></AccordionTrigger>
+                <div className="flex items-center">
+                    <TaskItem task={task} />
+                    <AccordionTrigger className="flex-1" />
+                </div>
                 <AccordionContent>
                     <p>{task.taskDesc}</p>
                 </AccordionContent>
             </AccordionItem>
             ))}
         </Accordion>
-
     )
 }
 //p-4 flex flex-col gap-3 bg-stone-700 text-stone-50 shadow-lg border-stone-600 transition-all duration-300

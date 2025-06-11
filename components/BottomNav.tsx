@@ -19,11 +19,11 @@ export default function BottomNav() {
         <div className="w-full fixed items-center bottom-0 left-0 right-0">
         <div className=" max-w-md flex justify-between items-center h-16 px-4 mx-auto bg-stone-800 sm:rounded-full sm:px-8 sm:-translate-y-2">
             <AddAnythingDrawer />
-            <NavPathItem href="/">
-                <HomeIcon className="w-6 h-6" />
-            </NavPathItem>
             <NavPathItem href="/animal-family">
                 <PawPrintIcon className="w-6 h-6" />
+            </NavPathItem>
+            <NavPathItem href="/">
+                <HomeIcon className="w-6 h-6" />
             </NavPathItem>
             <NavPathItem href="/tasks">
                 <ListIcon className="w-6 h-6" />
