@@ -50,6 +50,7 @@ export const fetchTasks = async (token: string) => {
             "Authorization": `${token}`
         }
     });
+    
     return res.json();
 };
 

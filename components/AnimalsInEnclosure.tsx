@@ -27,12 +27,4 @@ export default function AnimalsInEnclosure({ animals, className }: { animals: An
             </div>
         )    
     }
-    //     return (
-    //         <div className={`flex ${className || ""}`}>
-    //             {animals.map((animal) => (
-    //                 <p className="text-white relative z-10" key={animal.animalId}>{animal.animalName}</p>
-    //             ))}
-    //         </div>
-    //     )
-    // }
 }

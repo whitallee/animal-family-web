@@ -52,7 +52,11 @@ function TaskList({ tasks }: { tasks: Task[] | undefined }) {
     return (
         <>
             {tasks && tasks.map((task) => (
-                <TaskItem key={task.taskId} task={task} />
+                task.complete ? (
+                    null
+                ) : (
+                    <TaskItem key={task.taskId} task={task} />
+                )
             ))}
         </>
     )
