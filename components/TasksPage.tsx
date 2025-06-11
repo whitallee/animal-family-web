@@ -1,3 +1,12 @@
+"use client"
+
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+  } from "@/components/ui/accordion"
+
 import { useMarkTaskComplete } from '@/lib/api/task-mutations';
 import { Task } from '@/types/db-types';
 import { unstable_ViewTransition as ViewTransition } from 'react'
@@ -55,11 +64,19 @@ function TaskList({ tasks }: { tasks: Task[] | undefined }) {
         return <div>No tasks found... Maybe you&apos;re forgetting something?</div>
     }
     return (
-        <>
-            {tasks && tasks.map((task) => (
-                <TaskItem key={task.taskId} task={task} />
+        <Accordion type="single" collapsible className="w-full">
+            {tasks && [...tasks]
+                .sort((a, b) => Number(a.complete) - Number(b.complete))
+                .map((task) => (
+            <AccordionItem value={task.taskId.toString()} key={task.taskId}>
+                <AccordionTrigger><TaskItem task={task} /></AccordionTrigger>
+                <AccordionContent>
+                    <p>{task.taskDesc}</p>
+                </AccordionContent>
+            </AccordionItem>
             ))}
-        </>
+        </Accordion>
+
     )
 }
 //p-4 flex flex-col gap-3 bg-stone-700 text-stone-50 shadow-lg border-stone-600 transition-all duration-300
