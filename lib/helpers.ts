@@ -1,4 +1,4 @@
-import { Animal, Enclosure, Habitat, Species, Task } from "@/types/db-types";
+import { Animal, Enclosure, Habitat, Species } from "@/types/db-types";
 import { AnimalWithSpecies, Subject } from "@/types/subject-types";
 
 export function organizeAnimalFamily(enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[]): Subject[] {

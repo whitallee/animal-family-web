@@ -1,6 +1,6 @@
 import { Animal, Enclosure, Habitat, Species } from "@/types/db-types";
+import { Subject } from "@/types/subject-types";
 import Image from "next/image";
-import { Subject, AnimalWithSpecies } from "@/types/subject-types";
 import AnimalsInEnclosure from "./AnimalsInEnclosure";
 import { organizeAnimalFamily } from "@/lib/helpers";
 
