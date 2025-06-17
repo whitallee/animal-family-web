@@ -29,8 +29,13 @@ const progress = (task: Task) => {
 //     return Math.abs(new Date(task.lastCompleted).getTime() - new Date().getTime());
 // }
 
-// const timeSinceDue = (task: Task) => {
-//     return Math.abs((new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000) - new Date().getTime());
+const hoursSinceDue = (task: Task): number => {
+    return ((new Date().getTime() - new Date(task.lastCompleted).getTime()) / 1000 / 60 / 60);
+}
+
+// TODO: Add this back in
+// const hoursUntilDue = (task: Task) => {
+//     return ((new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000) - new Date().getTime()) / 1000 / 60 / 60;
 // }
 
 function TaskItem({ task }: { task: Task }) {    
@@ -54,10 +59,14 @@ function TaskItem({ task }: { task: Task }) {
                 </Button>
                 <h3>{task.taskName}</h3>
                 <div className="flex-1"></div>
-                <CircularProgressbarWithChildren className="w-6 h-6 mr-2" value={progress(task)}>
-                    {/* <p>{ReadableTime(timeSinceDue(task))}</p> */}
-                    {/* <p>{progress(task)}%</p> */}
-                </CircularProgressbarWithChildren>
+                {task.complete ?
+                    <CircularProgressbarWithChildren className="w-6 h-6 mr-2" value={progress(task)}>
+                        {/* <p>{ReadableTime(hoursUntilDue(task))}</p> */}
+                        {/* <p>{progress(task)}%</p> */}
+                    </CircularProgressbarWithChildren>
+                    :
+                    hoursSinceDue(task) > 24 ? <span className="text-red-400 text-nowrap">{ReadableTime(hoursSinceDue(task))} overdue</span> : null
+                }
             </div>
     )
 }
@@ -85,28 +94,28 @@ function TaskListSkeleton() {
 }
 
 function ReadableTime(interval: number) {
-    if (interval > 8760) {
-        return `${(interval / 8760).toFixed(1)} years`;
-    } else if (interval === 8760) {
-        return `1 year`;
-    } else if (interval > 720) {
-        return `${(interval / 720).toFixed(1)} months`;
-    } else if (interval === 720) {
-        return `1 month`;
-    } else if (interval > 168) {
-        return `${(interval / 168).toFixed(1)} weeks`;
-    } else if (interval === 168) {
-        return `1 week`;
-    } else if (interval > 24) {
-        return `${(interval / 24).toFixed(1)} days`;
-    } else if (interval === 24) {
-        return `1 day`;
-    } else if (interval > 1) {
-        return `${interval.toFixed(1)} hours`;
-    } else if (interval === 1) {
-        return `1 hour`;
+    if (Math.round((interval/8760)*10)/10 > 1) {
+        return `${(interval / 8760).toFixed(1)} yrs`;
+    } else if ((interval/8760).toFixed(1) === "1.0") {
+        return `1 yr`;
+    } else if (Math.round((interval/720)*10)/10 > 1) {
+        return `${(interval / 720).toFixed(1)} mos`;
+    } else if ((interval/720).toFixed(1) === "1.0") {
+        return `1 mo`;
+    } else if (Math.round((interval/168)*10)/10 > 1) {
+        return `${(interval / 168).toFixed(1)} wks`;
+    } else if ((interval/168).toFixed(1) === "1.0") {
+        return `1 wk`;
+    } else if (Math.round((interval/24)*10)/10 > 1) {
+        return `${(interval / 24).toFixed(1)} d`;
+    } else if ((interval/24).toFixed(1) === "1.0") {
+        return `1 d`;
+    } else if (Math.round((interval/1)*10)/10 > 1) {
+        return `${interval.toFixed(1)} hrs`;
+    } else if ((interval/1).toFixed(1) === "1.0") {
+        return `1 hr`;
     } else {
-        return `${(interval * 60).toFixed(1)} minutes`;
+        return `${(interval * 60).toFixed(1)} mins`;
     }
 }
 
