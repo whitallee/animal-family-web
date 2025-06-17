@@ -64,6 +64,8 @@ export type Task = {
     taskName: string;
     taskDesc: string;
     complete: boolean;
-    lastCompleted: Date;
+    lastCompleted: string; // TODO: change to Date
     repeatIntervHours: number;
+    animalId?: number;
+    enclosureId?: number;
 }
