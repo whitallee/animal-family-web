@@ -1,9 +1,10 @@
-import { Check, ChevronRight, Loader2 } from "lucide-react";
+import { Check, ChevronRight, Loader2, TriangleAlert } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Task } from "@/types/db-types";
 import { useMarkTaskComplete } from "@/lib/api/task-mutations";
 import Link from "next/link";
+import { hoursSinceDue } from "@/components/TasksPage";
 
 function TaskItem({ task }: { task: Task }) {
     const markComplete = useMarkTaskComplete();
@@ -22,7 +23,8 @@ function TaskItem({ task }: { task: Task }) {
                      ) : null}
                 </Button>
                 <h3>{task.taskName}</h3>
-                {/* <p>{task.taskDesc}</p> */}
+                <div className="flex-1"></div>
+                {hoursSinceDue(task) > 24 ? <TriangleAlert className="w-5 h-5 text-red-400 mr-4" /> : null}
             </div>
     )
 }
@@ -52,7 +54,20 @@ function TaskList({ tasks }: { tasks: Task[] | undefined }) {
     }
     return (
         <>
-            {tasks && tasks.map((task) => (
+            {tasks && [...tasks]
+                .sort((a, b) => {
+                    // First sort by completion status (incomplete first)
+                    if (a.complete !== b.complete) {
+                        return Number(a.complete) - Number(b.complete);
+                    }
+                    
+                    // For incomplete tasks, sort by highest hoursSinceDue first
+                    if (!a.complete && !b.complete) {
+                        return hoursSinceDue(b) - hoursSinceDue(a);
+                    }
+                    
+                    return 0;
+                }).map((task) => (
                 task.complete ? (
                     null
                 ) : (
