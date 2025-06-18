@@ -25,6 +25,7 @@ import { animalToSubject, enclosureToSubject } from "@/lib/helpers";
 import { useSpecies, useHabitats } from "@/lib/api/fetch-species-habitats";
 import { Subject } from "@/types/subject-types";
 import Link from "next/link";
+import { TaskListSkeleton } from "@/components/Skeletons";
 
 // const progress = (task: Task) => {
 //     if (!task.complete) {
@@ -77,28 +78,6 @@ function TaskItem({ task }: { task: Task }) {
                     hoursSinceDue(task) > 24 ? <TriangleAlert className="w-5 h-5 text-red-400 mr-2" /> : null
                 }
             </div>
-    )
-}
-
-function TaskItemSkeleton() {
-    return (
-        <div className="flex items-center gap-4 w-full">
-            <div className="w-6 h-6 aspect-square bg-stone-900 rounded-full animate-pulse" />
-            <div className="w-full h-4 bg-stone-900 rounded-full animate-pulse" />
-        </div>
-    )
-}
-
-function TaskListSkeleton() {
-    return (
-        <>
-            <TaskItemSkeleton />
-            <TaskItemSkeleton />
-            <TaskItemSkeleton />
-            <TaskItemSkeleton />
-            <TaskItemSkeleton />
-            <TaskItemSkeleton />
-        </>
     )
 }
 

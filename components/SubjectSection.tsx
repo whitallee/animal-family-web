@@ -3,26 +3,8 @@ import { Subject } from "@/types/subject-types";
 import Image from "next/image";
 import AnimalsInEnclosure from "./AnimalsInEnclosure";
 import { organizeAnimalFamily } from "@/lib/helpers";
+import { SubjectSkeletonList } from "@/components/Skeletons";
 
-function SubjectSkeletonList() {
-    return (
-        <>
-            <SubjectCircle className="animate-pulse" />
-            <SubjectCircle className="animate-pulse" />
-            <SubjectCircle className="animate-pulse" />
-            <SubjectCircle shift={true} className="animate-pulse" />
-            <SubjectCircle shift={true} className="animate-pulse" />
-            <SubjectCircle shift={true} placeholder={true} />
-            {/* repeat this pattern in a map */}
-            <SubjectCircle className="animate-pulse" />
-            <SubjectCircle className="animate-pulse" />
-            <SubjectCircle className="animate-pulse" />
-            <SubjectCircle shift={true} className="animate-pulse" />
-            <SubjectCircle shift={true} className="animate-pulse" />
-            <SubjectCircle shift={true} placeholder={true} />
-        </>
-    )
-}
 
 function SubjectList({ subjects }: { subjects: Subject[] }) {
     const modifiedSubjects = subjects.map((subject, index) => ({

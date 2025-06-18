@@ -5,6 +5,7 @@ import type { Task } from "@/types/db-types";
 import { useMarkTaskComplete } from "@/lib/api/task-mutations";
 import Link from "next/link";
 import { hoursSinceDue } from "@/components/TasksPage";
+import { ShortTaskListSkeleton } from "@/components/Skeletons";
 
 function TaskItem({ task }: { task: Task }) {
     const markComplete = useMarkTaskComplete();
@@ -26,25 +27,6 @@ function TaskItem({ task }: { task: Task }) {
                 <div className="flex-1"></div>
                 {hoursSinceDue(task) > 24 ? <TriangleAlert className="w-5 h-5 text-red-400 mr-4" /> : null}
             </div>
-    )
-}
-
-function TaskItemSkeleton() {
-    return (
-        <div className="flex items-center gap-2">
-            <div className="w-6 h-6 aspect-square bg-stone-900 rounded-full animate-pulse" />
-            <div className="w-full h-4 bg-stone-900 rounded-full animate-pulse" />
-        </div>
-    )
-}
-
-function TaskListSkeleton() {
-    return (
-        <>
-            <TaskItemSkeleton />
-            <TaskItemSkeleton />
-            <TaskItemSkeleton />
-        </>
     )
 }
 
@@ -82,7 +64,7 @@ export default function TasksCard({ tasks, isPending }: { tasks: Task[] | undefi
     return (
             <Card className="w-full max-w-md max-h-[30vh] overflow-y-scroll p-4 flex flex-col gap-3 bg-stone-700 text-stone-50 shadow-lg border-stone-600 transition-all duration-300">
                 <Link href="/tasks" className="absolute top-6 right-6 w-6 h-6 p-0"><ChevronRight className="w-6 h-6" /></Link>
-                {isPending ? <TaskListSkeleton /> : <TaskList tasks={tasks} />}
+                {isPending ? <ShortTaskListSkeleton /> : <TaskList tasks={tasks} />}
             </Card>
     )
 }
