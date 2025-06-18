@@ -1,55 +1,39 @@
 "use client"
 
+import { unstable_ViewTransition as ViewTransition } from 'react'
+import Link from "next/link";
+import moment from 'moment';
+
+// UI Components
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
-  } from "@/components/ui/accordion"
-
+} from "@/components/ui/accordion"
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-  } from "@/components/ui/popover"
-
-import { useMarkTaskComplete } from '@/lib/api/task-mutations';
-import { Animal, Enclosure, Habitat, Species, Task } from '@/types/db-types';
-import { unstable_ViewTransition as ViewTransition } from 'react'
+} from "@/components/ui/popover"
 import { Button } from '@/components/ui/button';
-import { CalendarDays, Check, ChevronLeft, Loader2, TriangleAlert } from 'lucide-react';
-import { useAnimals, useEnclosures, useTasks } from '@/lib/api/fetch-family';
-import moment from 'moment';
 import { SubjectCircle } from "./SubjectSection";
-import { animalToSubject, enclosureToSubject } from "@/lib/helpers";
-import { useSpecies, useHabitats } from "@/lib/api/fetch-species-habitats";
-import { Subject } from "@/types/subject-types";
-import Link from "next/link";
 import { TaskListSkeleton } from "@/components/Skeletons";
 
-// const progress = (task: Task) => {
-//     if (!task.complete) {
-//         return 100;
-//     } else {
-//         return ((new Date().getTime() - new Date(task.lastCompleted).getTime()) / 1000 / 60 / 60)/task.repeatIntervHours*100;
-//     }
-// }
+// Icons
+import { CalendarDays, Check, ChevronLeft, Loader2, TriangleAlert } from 'lucide-react';
 
-// const timeSinceLastCompleted = (task: Task) => {
-//     return Math.abs(new Date(task.lastCompleted).getTime() - new Date().getTime());
-// }
+// API Hooks
+import { useMarkTaskComplete } from '@/lib/api/task-mutations';
+import { useAnimals, useEnclosures, useTasks } from '@/lib/api/fetch-family';
+import { useSpecies, useHabitats } from "@/lib/api/fetch-species-habitats";
 
-export const hoursSinceDue = (task: Task): number => {
-    return ((new Date().getTime() - (new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000)) / 1000 / 60 / 60);
-}
+// Types
+import { Animal, Enclosure, Habitat, Species, Task } from '@/types/db-types';
+import { Subject } from "@/types/subject-types";
 
-export const hoursUntilDue = (task: Task) => {
-    return ((new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000) - new Date().getTime()) / 1000 / 60 / 60;
-}
-
-export const dateDue = (task: Task) => {
-    return new Date(new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000);
-}
+// Utilities
+import { animalToSubject, enclosureToSubject, ReadableTime, hoursSinceDue, hoursUntilDue, dateDue } from "@/lib/helpers";
 
 function TaskItem({ task }: { task: Task }) {    
     const markComplete = useMarkTaskComplete();
@@ -79,32 +63,6 @@ function TaskItem({ task }: { task: Task }) {
                 }
             </div>
     )
-}
-
-function ReadableTime(interval: number) {
-    if (Math.round((interval/8760)*10)/10 > 1) {
-        return `${(interval / 8760).toFixed(1)} years`;
-    } else if ((interval/8760).toFixed(1) === "1.0") {
-        return `1 year`;
-    } else if (Math.round((interval/720)*10)/10 > 1) {
-        return `${(interval / 720).toFixed(1)} months`;
-    } else if ((interval/720).toFixed(1) === "1.0") {
-        return `1 month`;
-    } else if (Math.round((interval/168)*10)/10 > 1) {
-        return `${(interval / 168).toFixed(1)} weeks`;
-    } else if ((interval/168).toFixed(1) === "1.0") {
-        return `1 week`;
-    } else if (Math.round((interval/24)*10)/10 > 1) {
-        return `${(interval / 24).toFixed(1)} days`;
-    } else if ((interval/24).toFixed(1) === "1.0") {
-        return `1 day`;
-    } else if (Math.round((interval/1)*10)/10 > 1) {
-        return `${interval.toFixed(1)} hours`;
-    } else if ((interval/1).toFixed(1) === "1.0") {
-        return `1 hour`;
-    } else {
-        return `${(interval * 60).toFixed(1)} minutes`;
-    }
 }
 
 function TaskDetails({ task, animals, enclosures, habitats, species }: { task: Task, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined, habitats: Habitat[] | undefined, species: Species[] | undefined }) {

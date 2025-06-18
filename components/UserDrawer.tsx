@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { UserIcon } from "lucide-react";
 import { useLogin } from "@/lib/auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/AuthContext";
@@ -22,6 +22,18 @@ export default function UserDrawer() {
     const [open, setOpen] = useState(false);
     const { isLoggedIn, user, login, logout } = useAuth();
     const loginMutation = useLogin();
+
+    useEffect(() => {
+        if (isLoggedIn) {
+            setEmail("");
+            setPassword("");
+            setOpen(false);
+        } else {
+            setEmail("");
+            setPassword("");
+            setOpen(true);
+        }
+    }, [isLoggedIn]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -39,7 +51,7 @@ export default function UserDrawer() {
     return (
         <Drawer open={open} onOpenChange={setOpen}>
             <DrawerTrigger asChild>
-                <UserIcon className="w-6 h-6 text-stone-500" />
+                <UserIcon className={`w-6 h-6 text-stone-500`} />
             </DrawerTrigger>
             <DrawerContent className="bg-stone-700 text-stone-50">
                 <DrawerHeader>
@@ -52,7 +64,7 @@ export default function UserDrawer() {
                     <p>Last Name: {user?.lastName}</p>
                     <p>Email: {user?.email}</p>
                     <p>Phone: {"Not provided"}</p>
-                    <Button className="mt-4" onClick={() => logout()}>Logout</Button>
+                    <Button className="mt-4" onClick={() => {logout(); setEmail(""); setPassword(""); setOpen(false);}}>Logout</Button>
                 </div> 
                 : <form onSubmit={handleLogin} className="px-4 space-y-4">
                     <div className="space-y-2">

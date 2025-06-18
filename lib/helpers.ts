@@ -1,5 +1,5 @@
-import { Animal, Enclosure, Habitat, Species } from "@/types/db-types";
-import { AnimalWithSpecies, EnclosureWithData, Subject } from "@/types/subject-types";
+import { Animal, Enclosure, Habitat, Species, Task } from "@/types/db-types";
+import { AnimalSubjectLong, AnimalWithSpecies, EnclosureWithData, Subject } from "@/types/subject-types";
 
 export function organizeAnimalFamily(enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[]): Subject[] {
     const unassignedAnimals: AnimalWithSpecies[] = animals.filter(animal => !animal.enclosureId).map(animal => animalToSubject(animal, species.find(s => s.speciesId === animal.speciesId)!));
@@ -28,6 +28,18 @@ export function animalToSubject(animal: Animal, species: Species): AnimalWithSpe
     }
 }
 
+export function animalToSubjectLong(animal: Animal, species: Species, tasks: Task[], enclosures: Enclosure[], habitats: Habitat[]): AnimalSubjectLong {
+    const enclosure = enclosures.find(enclosure => enclosure.enclosureId === animal.enclosureId);
+    const habitat = habitats.find(habitat => habitat.habitatId === enclosure?.habitatId) || null;
+    return {
+        ...animal,
+        species: species,
+        tasks: tasks.filter(task => task.animalId === animal.animalId),
+        enclosure: enclosure || undefined,
+        habitat: habitat || undefined
+    }
+}
+
 export function enclosureToSubject(enclosure: Enclosure, animals: Animal[], habitats: Habitat[], species: Species[]): EnclosureWithData {
     const enclosureAnimals = animals
         .filter(animal => animal.enclosureId === enclosure.enclosureId)
@@ -43,6 +55,44 @@ export function enclosureToSubject(enclosure: Enclosure, animals: Animal[], habi
             habitatImage: habitats.find(h => h.habitatId === enclosure.habitatId)!.image
         }
     }
+}
+
+export function ReadableTime(interval: number) {
+    if (Math.round((interval/8760)*10)/10 > 1) {
+        return `${(interval / 8760).toFixed(1)} years`;
+    } else if ((interval/8760).toFixed(1) === "1.0") {
+        return `1 year`;
+    } else if (Math.round((interval/720)*10)/10 > 1) {
+        return `${(interval / 720).toFixed(1)} months`;
+    } else if ((interval/720).toFixed(1) === "1.0") {
+        return `1 month`;
+    } else if (Math.round((interval/168)*10)/10 > 1) {
+        return `${(interval / 168).toFixed(1)} weeks`;
+    } else if ((interval/168).toFixed(1) === "1.0") {
+        return `1 week`;
+    } else if (Math.round((interval/24)*10)/10 > 1) {
+        return `${(interval / 24).toFixed(1)} days`;
+    } else if ((interval/24).toFixed(1) === "1.0") {
+        return `1 day`;
+    } else if (Math.round((interval/1)*10)/10 > 1) {
+        return `${interval.toFixed(1)} hours`;
+    } else if ((interval/1).toFixed(1) === "1.0") {
+        return `1 hour`;
+    } else {
+        return `${(interval * 60).toFixed(1)} minutes`;
+    }
+}
+
+export const hoursSinceDue = (task: Task): number => {
+    return ((new Date().getTime() - (new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000)) / 1000 / 60 / 60);
+}
+
+export const hoursUntilDue = (task: Task) => {
+    return ((new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000) - new Date().getTime()) / 1000 / 60 / 60;
+}
+
+export const dateDue = (task: Task) => {
+    return new Date(new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000);
 }
 
 // TODO: attach tasks to subjects by using the joining table taskSubject

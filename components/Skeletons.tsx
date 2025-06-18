@@ -65,7 +65,10 @@ export function FamilyItemSkeleton() {
     return (
         <div className="flex items-center gap-4 w-full">
             <div className="w-20 h-20 aspect-square bg-stone-900 rounded-full animate-pulse" />
-            <div className="w-full h-4 bg-stone-900 rounded-full animate-pulse" />
+            <div className="flex flex-col gap-4 w-full">
+                <div className="w-full h-4 bg-stone-900 rounded-full animate-pulse" />
+                <div className="w-2/3 h-4 bg-stone-900 rounded-full animate-pulse" />
+            </div>
         </div>
     )
 }

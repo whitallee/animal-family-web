@@ -29,7 +29,7 @@ export default function Home() {
   return (
     <div className="max-w-md w-full pt-4 px-4 overflow-y-hidden">
       <ViewTransition name="tasks">
-        <TasksCard tasks={tasks} isPending={tasksPending} />
+        <TasksCard tasks={tasks} isPending={tasksPending} home/>
       </ViewTransition>
       {/* TasksPage */}
       <SubjectSection 

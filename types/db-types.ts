@@ -15,7 +15,7 @@ export type Animal = {
     animalName: string;
     image: string;
     gender: string;
-    dob: Date;
+    dob: string; // TODO: change to Date
     personalityDesc: string;
     dietDesc: string;
     routineDesc: string;

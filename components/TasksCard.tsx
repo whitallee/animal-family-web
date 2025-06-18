@@ -1,11 +1,21 @@
-import { Check, ChevronRight, Loader2, TriangleAlert } from "lucide-react";
+import Link from "next/link";
+
+// UI Components
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import type { Task } from "@/types/db-types";
-import { useMarkTaskComplete } from "@/lib/api/task-mutations";
-import Link from "next/link";
-import { hoursSinceDue } from "@/components/TasksPage";
 import { ShortTaskListSkeleton } from "@/components/Skeletons";
+
+// Icons
+import { Check, ChevronRight, Loader2, TriangleAlert } from "lucide-react";
+
+// API Hooks
+import { useMarkTaskComplete } from "@/lib/api/task-mutations";
+
+// Types
+import type { Task } from "@/types/db-types";
+
+// Utilities
+import { hoursSinceDue } from "@/lib/helpers";
 
 function TaskItem({ task }: { task: Task }) {
     const markComplete = useMarkTaskComplete();
@@ -32,7 +42,10 @@ function TaskItem({ task }: { task: Task }) {
 
 function TaskList({ tasks }: { tasks: Task[] | undefined }) {
     if (tasks && tasks.length === 0) {
-        return <div>No tasks found... Maybe you&apos;re forgetting something?</div>
+        return <div className="text-center text-stone-400">No tasks assigned!</div>
+    }
+    if (tasks && tasks.every(task => task.complete)) {
+        return <div className="text-center text-stone-400">All tasks are complete!</div>
     }
     return (
         <>
@@ -60,10 +73,10 @@ function TaskList({ tasks }: { tasks: Task[] | undefined }) {
     )
 }
 
-export default function TasksCard({ tasks, isPending }: { tasks: Task[] | undefined, isPending: boolean }) {
+export default function TasksCard({ tasks, isPending, className, home }: { tasks: Task[] | undefined, isPending: boolean, className?: string, home?: boolean }) {
     return (
-            <Card className="w-full max-w-md max-h-[30vh] overflow-y-scroll p-4 flex flex-col gap-3 bg-stone-700 text-stone-50 shadow-lg border-stone-600 transition-all duration-300">
-                <Link href="/tasks" className="absolute top-6 right-6 w-6 h-6 p-0"><ChevronRight className="w-6 h-6" /></Link>
+            <Card className={`w-full max-w-md max-h-[30vh] overflow-y-scroll p-4 flex flex-col gap-3 bg-stone-700 text-stone-50 shadow-lg border-stone-600 transition-all duration-300 ${className}`}>
+                {home ? <Link href="/tasks" className="absolute top-6 right-6 w-6 h-6 p-0"><ChevronRight className="w-6 h-6" /></Link> : null}
                 {isPending ? <ShortTaskListSkeleton /> : <TaskList tasks={tasks} />}
             </Card>
     )

@@ -1,3 +1,5 @@
+import { Animal, Enclosure, Habitat, Species, Task } from "./db-types";
+
 export type AnimalBrief = {
     animalId: number;
     animalName: string;
@@ -29,6 +31,45 @@ export type AnimalWithSpecies = AnimalBrief & { species: SpeciesBrief };
         speciesId: number;
         speciesName: string;
         speciesImage: string;
+    }
+}
+*/
+
+export type AnimalSubjectLong = Animal & {
+    species: Species;
+    enclosure?: Enclosure;
+    habitat?: Habitat;
+    tasks: Task[];
+}
+
+/*
+{
+    animalId: number;
+    animalName: string;
+    image: string;
+    gender: string;
+    dob: Date;
+    personalityDesc: string;
+    dietDesc: string;
+    routineDesc: string;
+    extraNotes: string;
+    speciesId: number;
+    enclosureId: number;
+    species: {
+        speciesId: number;
+        comName: string;
+        sciName: string;
+        image: string;
+        speciesDesc: string;
+        habitatId: number;
+        baskTemp: string;
+        diet: string;
+        sociality: string;
+        lifespan: string;
+        size: string;
+        weight: string;
+        conservationStatus: string;
+        extraCare: string;
     }
 }
 */

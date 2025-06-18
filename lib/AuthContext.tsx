@@ -1,5 +1,6 @@
 import { User } from '@/types/db-types';
 import { createContext, useContext, useState, useEffect } from 'react';
+import { getQueryClient } from '@/lib/get-query-client';
 
 type AuthContextType = {
   token: string | null;
@@ -14,6 +15,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const queryClient = getQueryClient();
 
   useEffect(() => {
     const storedToken = localStorage.getItem('auth_token');
@@ -47,6 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('auth_token');
+    queryClient.clear();
   };
 
   return (
