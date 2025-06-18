@@ -7,14 +7,14 @@ import {
     AccordionTrigger,
   } from "@/components/ui/accordion"
 
-import { CircularProgressbarWithChildren } from 'react-circular-progressbar';
+import { buildStyles, CircularProgressbarWithChildren } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 
 import { useMarkTaskComplete } from '@/lib/api/task-mutations';
 import { Animal, Enclosure, Task } from '@/types/db-types';
 import { unstable_ViewTransition as ViewTransition } from 'react'
 import { Button } from '@/components/ui/button';
-import { Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, TimerReset } from 'lucide-react';
 import { useAnimals, useEnclosures, useTasks } from '@/lib/api/fetch-family';
 
 const progress = (task: Task) => {
@@ -29,14 +29,13 @@ const progress = (task: Task) => {
 //     return Math.abs(new Date(task.lastCompleted).getTime() - new Date().getTime());
 // }
 
-const hoursSinceDue = (task: Task): number => {
-    return ((new Date().getTime() - new Date(task.lastCompleted).getTime()) / 1000 / 60 / 60);
+export const hoursSinceDue = (task: Task): number => {
+    return ((new Date().getTime() - (new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000)) / 1000 / 60 / 60);
 }
 
-// TODO: Add this back in
-// const hoursUntilDue = (task: Task) => {
-//     return ((new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000) - new Date().getTime()) / 1000 / 60 / 60;
-// }
+export const hoursUntilDue = (task: Task) => {
+    return ((new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000) - new Date().getTime()) / 1000 / 60 / 60;
+}
 
 function TaskItem({ task }: { task: Task }) {    
     const markComplete = useMarkTaskComplete();
@@ -60,12 +59,14 @@ function TaskItem({ task }: { task: Task }) {
                 <h3>{task.taskName}</h3>
                 <div className="flex-1"></div>
                 {task.complete ?
-                    <CircularProgressbarWithChildren className="w-6 h-6 mr-2" value={progress(task)}>
-                        {/* <p>{ReadableTime(hoursUntilDue(task))}</p> */}
-                        {/* <p>{progress(task)}%</p> */}
-                    </CircularProgressbarWithChildren>
+                    <>
+                        <span className="text-stone-400 text-nowrap text-xs">-{ReadableTime(hoursUntilDue(task))}</span>
+                        <CircularProgressbarWithChildren counterClockwise className="w-5 h-5 min-w-5 min-h-5 mr-1" styles={buildStyles({pathColor: "#047857", trailColor: "#292524"})} value={100-progress(task)} strokeWidth={16}>
+                            {/* <TimerReset className="w-4 h-4 text-stone-900" /> */}
+                        </CircularProgressbarWithChildren>
+                    </>
                     :
-                    hoursSinceDue(task) > 24 ? <span className="text-red-400 text-nowrap">{ReadableTime(hoursSinceDue(task))} overdue</span> : null
+                    hoursSinceDue(task) > 24 ? <span className="text-red-400 text-xs text-nowrap mr-1">{ReadableTime(hoursSinceDue(task))} overdue</span> : <span className="text-stone-400 text-nowrap text-xs">+{ReadableTime(hoursSinceDue(task))}</span>
                 }
             </div>
     )
@@ -126,7 +127,24 @@ function TaskList({ tasks, animals, enclosures }: { tasks: Task[] | undefined, a
     return (
         <Accordion type="single" collapsible className="w-full">
             {tasks && [...tasks]
-                .sort((a, b) => Number(a.complete) - Number(b.complete))
+                .sort((a, b) => {
+                    // First sort by completion status (incomplete first)
+                    if (a.complete !== b.complete) {
+                        return Number(a.complete) - Number(b.complete);
+                    }
+                    
+                    // For incomplete tasks, sort by highest hoursSinceDue first
+                    if (!a.complete && !b.complete) {
+                        return hoursSinceDue(b) - hoursSinceDue(a);
+                    }
+                    
+                    // For complete tasks, sort by smallest hoursUntilDue first
+                    if (a.complete && b.complete) {
+                        return hoursUntilDue(a) - hoursUntilDue(b);
+                    }
+                    
+                    return 0;
+                })
                 .map((task) => (
             <AccordionItem value={task.taskId.toString()} key={task.taskId}>
                 <div className="flex items-center">
@@ -137,7 +155,8 @@ function TaskList({ tasks, animals, enclosures }: { tasks: Task[] | undefined, a
                     <p><span className="font-bold text-stone-400">Subject:</span> {task.animalId ? animals?.find(animal => animal.animalId === task.animalId)?.animalName : enclosures?.find(enclosure => enclosure.enclosureId === task.enclosureId)?.enclosureName}</p>
                     <p><span className="font-bold text-stone-400">Description:</span> {task.taskDesc}</p>
                     <p><span className="font-bold text-stone-400">Last Completed:</span> {new Date(task.lastCompleted).toLocaleDateString()} {new Date(task.lastCompleted).toLocaleTimeString()}</p>
-                    <p><span className="font-bold text-stone-400">Next Due:</span> {new Date(new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000).toLocaleDateString()} {new Date(new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000).toLocaleTimeString()}</p>
+                    <p><span className="font-bold text-stone-400">{task.complete ? "Resets On:" : "Was Due:"}</span> {new Date(new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000).toLocaleDateString()} {new Date(new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000).toLocaleTimeString()}</p>
+                    {task.complete ? <p><span className="font-bold text-stone-400">Time Until Reset:</span> {ReadableTime(hoursUntilDue(task))}</p> : null}
                     <p><span className="font-bold text-stone-400">Repeat Interval:</span> {ReadableTime(task.repeatIntervHours)}</p>
                 </AccordionContent>
             </AccordionItem>

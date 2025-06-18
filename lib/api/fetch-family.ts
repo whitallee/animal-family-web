@@ -55,9 +55,9 @@ export const fetchTasks = async (token: string) => {
 };
 
 export const useTasks = () => {
-    const { token } = useAuth();
+    const { user, token } = useAuth();
     return useQuery({ 
-        queryKey: ["tasks", { token }], 
+        queryKey: ["tasks", { user: user?.userId }], 
         queryFn: () => fetchTasks(token!), 
         enabled: !!token 
     });

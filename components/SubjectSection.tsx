@@ -100,12 +100,10 @@ function SubjectCircle({ subject, shift, placeholder, className }: { subject?: S
     }
 }
 
-export default function SubjectSection({ enclosures, animals, habitats, species, isPending }: { enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[], isPending: boolean }) {
-    const animalFamily = organizeAnimalFamily(enclosures, animals, habitats, species);
-    
+export default function SubjectSection({ enclosures, animals, habitats, species, isPending }: { enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[], isPending: boolean }) {    
     return (
         <div className="grid max-w-md my-6 grid-cols-3 w-full content-center gap-x-4 gap-y-0 overflow-y-scroll overflow-x-hidden">
-            {isPending ? <SubjectSkeletonList /> : <SubjectList subjects={animalFamily} />}
+            {isPending ? <SubjectSkeletonList /> : <SubjectList subjects={organizeAnimalFamily(enclosures, animals, habitats, species)} />}
         </div>
     )
 }

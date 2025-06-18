@@ -22,13 +22,13 @@ export const markTaskComplete = async (token: string, task: Task) => {
 };
 
 export const useMarkTaskComplete = () => {
-    const { token } = useAuth();
+    const { user, token } = useAuth();
     const queryClient = useQueryClient();
     
     return useMutation({
         mutationFn: (task: Task) => markTaskComplete(token!, task),
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["tasks", { token }] });
+            queryClient.invalidateQueries({ queryKey: ["tasks", { user: user?.userId }] });
         }
     });
 };
