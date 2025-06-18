@@ -39,7 +39,7 @@ function AnimalDetails({ animalLong }: { animalLong: AnimalSubjectLong }) {
             <div className="flex flex-col bg-stone-800 p-4 rounded-lg justify-between">
                 <TasksCard tasks={animalLong.tasks} isPending={false} className="mb-2"/>
                 <p><span className="font-bold text-stone-400">Common Name:</span> {animalLong.species.comName}</p>
-                <div className="flex flex-row gap-2 items-center">
+                <div className="flex flex-row gap-2 items-center mb-2">
                     <span className="font-bold text-stone-400">Scientific Name:</span> {animalLong.species.sciName}
                     <Popover>
                         <PopoverTrigger><BookOpenText className="w-4 h-4 inline-block text-emerald-400" /></PopoverTrigger>
@@ -50,9 +50,9 @@ function AnimalDetails({ animalLong }: { animalLong: AnimalSubjectLong }) {
                 </div>
                 <p><span className="font-bold text-stone-400">Gender:</span> {animalLong.gender}</p>
                 <p><span className="font-bold text-stone-400">Date of Birth:</span> {moment(new Date(animalLong.dob)).format('MM/DD/YYYY')} - {moment(new Date(animalLong.dob)).fromNow()}</p>
-                <p><span className="font-bold text-stone-400">Personality:</span> {animalLong.personalityDesc}</p>
-                <p><span className="font-bold text-stone-400">Diet:</span> {animalLong.dietDesc}</p>
-                <p><span className="font-bold text-stone-400">Routine:</span> {animalLong.routineDesc}</p>
+                <p className="mb-2"><span className="font-bold text-stone-400">Personality:</span> {animalLong.personalityDesc}</p>
+                <p className=""><span className="font-bold text-stone-400">Diet:</span> {animalLong.dietDesc}</p>
+                <p className=""><span className="font-bold text-stone-400">Routine:</span> {animalLong.routineDesc}</p>
                 {animalLong.enclosure ?
                     <>
                         <p><span className="font-bold text-stone-400">Enclosure:</span> {animalLong.enclosure?.enclosureName}</p>
@@ -69,7 +69,7 @@ function AnimalDetails({ animalLong }: { animalLong: AnimalSubjectLong }) {
                 :
                     null
                 }
-                <p><span className="font-bold text-stone-400">Extra Notes:</span> {animalLong.extraNotes}</p>
+                <p className="mt-2"><span className="font-bold text-stone-400">Extra Notes:</span> {animalLong.extraNotes}</p>
             </div>
     )
 }
