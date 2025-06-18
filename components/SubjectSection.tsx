@@ -53,7 +53,7 @@ function SubjectList({ subjects }: { subjects: Subject[] }) {
     )
 }
 
-function SubjectCircle({ subject, shift, placeholder, className }: { subject?: Subject, shift?: boolean, placeholder?: boolean, className?: string }) {
+export function SubjectCircle({ subject, shift, placeholder, className }: { subject?: Subject, shift?: boolean, placeholder?: boolean, className?: string }) {
     if (placeholder || !subject ) {
         return (
             <div className={`bg-stone-700 rounded-full aspect-square relative overflow-hidden ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${placeholder ? "opacity-0" : ""} ${className || ""}`}>

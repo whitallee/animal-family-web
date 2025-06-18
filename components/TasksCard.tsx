@@ -1,8 +1,9 @@
-import { Check, Loader2 } from "lucide-react";
+import { Check, ChevronRight, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Task } from "@/types/db-types";
 import { useMarkTaskComplete } from "@/lib/api/task-mutations";
+import Link from "next/link";
 
 function TaskItem({ task }: { task: Task }) {
     const markComplete = useMarkTaskComplete();
@@ -65,6 +66,7 @@ function TaskList({ tasks }: { tasks: Task[] | undefined }) {
 export default function TasksCard({ tasks, isPending }: { tasks: Task[] | undefined, isPending: boolean }) {
     return (
             <Card className="w-full max-w-md max-h-[30vh] overflow-y-scroll p-4 flex flex-col gap-3 bg-stone-700 text-stone-50 shadow-lg border-stone-600 transition-all duration-300">
+                <Link href="/tasks" className="absolute top-6 right-6 w-6 h-6 p-0"><ChevronRight className="w-6 h-6" /></Link>
                 {isPending ? <TaskListSkeleton /> : <TaskList tasks={tasks} />}
             </Card>
     )

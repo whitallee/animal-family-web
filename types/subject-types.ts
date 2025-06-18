@@ -20,9 +20,47 @@ export type HabitatBrief = {
 }
 
 export type AnimalWithSpecies = AnimalBrief & { species: SpeciesBrief };
+/*
+{
+    animalId: number;
+    animalName: string;
+    animalImage: string;
+    species: {
+        speciesId: number;
+        speciesName: string;
+        speciesImage: string;
+    }
+}
+*/
+
 export type EnclosureWithData = EnclosureBrief & { 
     animals: AnimalWithSpecies[];
     habitat: HabitatBrief;
 };
+/*
+{
+    enclosureId: number;
+    enclosureName: string;
+    enclosureImage: string;
+    habitat: {
+        habitatId: number;
+        habitatName: string;
+        habitatImage: string;
+    }
+    animals: [
+        {
+            animalId: number;
+            animalName: string;
+            animalImage: string;
+            species: {
+                speciesId: number;
+                speciesName: string;
+                speciesImage: string;
+            }
+        },
+        ...
+    ]
+}
+*/
 
 export type Subject = AnimalWithSpecies | EnclosureWithData;

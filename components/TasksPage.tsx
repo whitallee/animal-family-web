@@ -7,23 +7,32 @@ import {
     AccordionTrigger,
   } from "@/components/ui/accordion"
 
-import { buildStyles, CircularProgressbarWithChildren } from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+  } from "@/components/ui/popover"
 
 import { useMarkTaskComplete } from '@/lib/api/task-mutations';
-import { Animal, Enclosure, Task } from '@/types/db-types';
+import { Animal, Enclosure, Habitat, Species, Task } from '@/types/db-types';
 import { unstable_ViewTransition as ViewTransition } from 'react'
 import { Button } from '@/components/ui/button';
-import { Check, Loader2, TimerReset } from 'lucide-react';
+import { CalendarDays, Check, ChevronLeft, Loader2, TriangleAlert } from 'lucide-react';
 import { useAnimals, useEnclosures, useTasks } from '@/lib/api/fetch-family';
+import moment from 'moment';
+import { SubjectCircle } from "./SubjectSection";
+import { animalToSubject, enclosureToSubject } from "@/lib/helpers";
+import { useSpecies, useHabitats } from "@/lib/api/fetch-species-habitats";
+import { Subject } from "@/types/subject-types";
+import Link from "next/link";
 
-const progress = (task: Task) => {
-    if (!task.complete) {
-        return 100;
-    } else {
-        return ((new Date().getTime() - new Date(task.lastCompleted).getTime()) / 1000 / 60 / 60)/task.repeatIntervHours*100;
-    }
-}
+// const progress = (task: Task) => {
+//     if (!task.complete) {
+//         return 100;
+//     } else {
+//         return ((new Date().getTime() - new Date(task.lastCompleted).getTime()) / 1000 / 60 / 60)/task.repeatIntervHours*100;
+//     }
+// }
 
 // const timeSinceLastCompleted = (task: Task) => {
 //     return Math.abs(new Date(task.lastCompleted).getTime() - new Date().getTime());
@@ -35,6 +44,10 @@ export const hoursSinceDue = (task: Task): number => {
 
 export const hoursUntilDue = (task: Task) => {
     return ((new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000) - new Date().getTime()) / 1000 / 60 / 60;
+}
+
+export const dateDue = (task: Task) => {
+    return new Date(new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000);
 }
 
 function TaskItem({ task }: { task: Task }) {    
@@ -59,14 +72,9 @@ function TaskItem({ task }: { task: Task }) {
                 <h3>{task.taskName}</h3>
                 <div className="flex-1"></div>
                 {task.complete ?
-                    <>
-                        <span className="text-stone-400 text-nowrap text-xs">-{ReadableTime(hoursUntilDue(task))}</span>
-                        <CircularProgressbarWithChildren counterClockwise className="w-5 h-5 min-w-5 min-h-5 mr-1" styles={buildStyles({pathColor: "#047857", trailColor: "#292524"})} value={100-progress(task)} strokeWidth={16}>
-                            {/* <TimerReset className="w-4 h-4 text-stone-900" /> */}
-                        </CircularProgressbarWithChildren>
-                    </>
+                    null
                     :
-                    hoursSinceDue(task) > 24 ? <span className="text-red-400 text-xs text-nowrap mr-1">{ReadableTime(hoursSinceDue(task))} overdue</span> : <span className="text-stone-400 text-nowrap text-xs">+{ReadableTime(hoursSinceDue(task))}</span>
+                    hoursSinceDue(task) > 24 ? <TriangleAlert className="w-5 h-5 text-red-400 mr-2" /> : null
                 }
             </div>
     )
@@ -96,31 +104,86 @@ function TaskListSkeleton() {
 
 function ReadableTime(interval: number) {
     if (Math.round((interval/8760)*10)/10 > 1) {
-        return `${(interval / 8760).toFixed(1)} yrs`;
+        return `${(interval / 8760).toFixed(1)} years`;
     } else if ((interval/8760).toFixed(1) === "1.0") {
-        return `1 yr`;
+        return `1 year`;
     } else if (Math.round((interval/720)*10)/10 > 1) {
-        return `${(interval / 720).toFixed(1)} mos`;
+        return `${(interval / 720).toFixed(1)} months`;
     } else if ((interval/720).toFixed(1) === "1.0") {
-        return `1 mo`;
+        return `1 month`;
     } else if (Math.round((interval/168)*10)/10 > 1) {
-        return `${(interval / 168).toFixed(1)} wks`;
+        return `${(interval / 168).toFixed(1)} weeks`;
     } else if ((interval/168).toFixed(1) === "1.0") {
-        return `1 wk`;
+        return `1 week`;
     } else if (Math.round((interval/24)*10)/10 > 1) {
-        return `${(interval / 24).toFixed(1)} d`;
+        return `${(interval / 24).toFixed(1)} days`;
     } else if ((interval/24).toFixed(1) === "1.0") {
-        return `1 d`;
+        return `1 day`;
     } else if (Math.round((interval/1)*10)/10 > 1) {
-        return `${interval.toFixed(1)} hrs`;
+        return `${interval.toFixed(1)} hours`;
     } else if ((interval/1).toFixed(1) === "1.0") {
-        return `1 hr`;
+        return `1 hour`;
     } else {
-        return `${(interval * 60).toFixed(1)} mins`;
+        return `${(interval * 60).toFixed(1)} minutes`;
     }
 }
 
-function TaskList({ tasks, animals, enclosures }: { tasks: Task[] | undefined, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined }) {
+function TaskDetails({ task, animals, enclosures, habitats, species }: { task: Task, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined, habitats: Habitat[] | undefined, species: Species[] | undefined }) {
+    let subject: Subject | undefined;
+    if (!animals || !enclosures || !habitats || !species) {
+        return <div>No subject found...</div>
+    }
+
+    if (task.animalId) {
+        subject = animalToSubject(animals.find(animal => animal.animalId === task.animalId)!, species.find(species => species.speciesId === animals.find(animal => animal.animalId === task.animalId)!.speciesId)!);
+    } else if (task.enclosureId) {
+        subject = enclosureToSubject(enclosures.find(enclosure => enclosure.enclosureId === task.enclosureId)!, animals, habitats, species);
+    }
+
+    if (!subject) {
+        return <div>No subject found...</div>
+    }
+
+    return (
+        <>
+            <div className="flex flex-row gap-4 bg-stone-800 p-4 rounded-lg">
+                <div className="flex flex-col gap-2 items-center text-center max-w-24">
+                    <SubjectCircle subject={subject as Subject} className="w-24 h-24" />
+                    <p className="text-stone-400 font-bold">{"animalName" in subject ? subject.animalName : subject.enclosureName}</p>
+                </div>
+                <div className="flex flex-col justify-between">
+                    <p><span className="font-bold text-stone-400">Description:</span> {task.taskDesc}</p>
+                    <p><span className="font-bold text-stone-400">Repeats every </span> {ReadableTime(task.repeatIntervHours)}</p>
+
+                    {
+                        task.complete ?
+                            <p className="w-full"><span className="font-bold text-stone-400">Resets in</span> {ReadableTime(hoursUntilDue(task))}
+                                <Popover>
+                                    <PopoverTrigger><CalendarDays className="w-4 h-4 inline-block -translate-y-0.5 text-emerald-400 ml-2" /></PopoverTrigger>
+                                    <PopoverContent className="bg-stone-700 text-stone-50 p-2 rounded-lg border-stone-500">
+                                        <p>Resets on {moment(dateDue(task)).format('MMMM Do YYYY, h:mm a')}</p>
+                                        <p className="text-nowrap">Completed {moment(task.lastCompleted).format('MMMM Do YYYY, h:mm a')}</p>
+                                    </PopoverContent>
+                                </Popover>
+                            </p>
+                        :
+                            <p><span className="font-bold text-stone-400">Reset</span><span className="ml-1">{ReadableTime(hoursSinceDue(task))} ago</span>
+                                <Popover>
+                                    <PopoverTrigger><CalendarDays className="w-4 h-4 inline-block -translate-y-0.5 text-emerald-400 ml-2" /></PopoverTrigger>
+                                    <PopoverContent className="bg-stone-700 text-stone-50 p-2 rounded-lg border-stone-500">
+                                        <p>Reset on {moment(dateDue(task)).format('MMMM Do YYYY, h:mm a')}</p>
+                                        <p className="text-nowrap">Completed {moment(task.lastCompleted).format('MMMM Do YYYY, h:mm a')}</p>
+                                    </PopoverContent>
+                                </Popover>
+                            </p>
+                    }
+                </div>
+            </div>
+        </>
+    )
+}
+
+function TaskList({ tasks, animals, enclosures, habitats, species }: { tasks: Task[] | undefined, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined, habitats: Habitat[] | undefined, species: Species[] | undefined }) {
     if (tasks && tasks.length === 0) {
         return <div>No tasks found... Maybe you&apos;re forgetting something?</div>
     }
@@ -152,12 +215,7 @@ function TaskList({ tasks, animals, enclosures }: { tasks: Task[] | undefined, a
                     <AccordionTrigger className="flex-1" />
                 </div>
                 <AccordionContent>
-                    <p><span className="font-bold text-stone-400">Subject:</span> {task.animalId ? animals?.find(animal => animal.animalId === task.animalId)?.animalName : enclosures?.find(enclosure => enclosure.enclosureId === task.enclosureId)?.enclosureName}</p>
-                    <p><span className="font-bold text-stone-400">Description:</span> {task.taskDesc}</p>
-                    <p><span className="font-bold text-stone-400">Last Completed:</span> {new Date(task.lastCompleted).toLocaleDateString()} {new Date(task.lastCompleted).toLocaleTimeString()}</p>
-                    <p><span className="font-bold text-stone-400">{task.complete ? "Resets On:" : "Was Due:"}</span> {new Date(new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000).toLocaleDateString()} {new Date(new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000).toLocaleTimeString()}</p>
-                    {task.complete ? <p><span className="font-bold text-stone-400">Time Until Reset:</span> {ReadableTime(hoursUntilDue(task))}</p> : null}
-                    <p><span className="font-bold text-stone-400">Repeat Interval:</span> {ReadableTime(task.repeatIntervHours)}</p>
+                    <TaskDetails task={task} animals={animals} enclosures={enclosures} habitats={habitats} species={species} />
                 </AccordionContent>
             </AccordionItem>
             ))}
@@ -169,12 +227,18 @@ export default function TasksPage() {
     const { data: animals, isPending: animalsPending } = useAnimals();
     const { data: enclosures, isPending: enclosuresPending } = useEnclosures();
     const { data: tasks, isPending: tasksPending } = useTasks();
-    
+    const { data: habitats, isPending: habitatsPending } = useHabitats();
+    const { data: species, isPending: speciesPending } = useSpecies();
+
+    // console.log(organizeAnimalFamily(enclosures || [], animals || [], habitats || [], species || []));
     return (
         <ViewTransition name="tasks">
             <div className="h-[calc(100vh-5rem)] w-[calc(100%-1rem)] flex flex-col gap-4 items-start bg-stone-700 text-stone-50 shadow-lg border-stone-600 rounded-lg p-4 mt-2 overflow-y-scroll">
-                <h1 className="text-2xl font-medium">Tasks</h1>
-                {animalsPending || enclosuresPending || tasksPending ? <TaskListSkeleton /> : <TaskList tasks={tasks} animals={animals} enclosures={enclosures} />}
+                <div className="flex flex-row justify-between items-center w-full">
+                    <h1 className="text-2xl font-medium">Tasks</h1>
+                    <Link href="/" className="w-6 h-6 p-0"><ChevronLeft className="w-6 h-6" /></Link>
+                </div>
+                {animalsPending || enclosuresPending || tasksPending || speciesPending || habitatsPending ? <TaskListSkeleton /> : <TaskList tasks={tasks} animals={animals} enclosures={enclosures} habitats={habitats} species={species} />}
             </div>
         </ViewTransition>
     );
