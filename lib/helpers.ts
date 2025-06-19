@@ -5,7 +5,7 @@ export function organizeAnimalFamily(enclosures: Enclosure[], animals: Animal[],
     const unassignedAnimals: AnimalWithSpecies[] = animals.filter(animal => !animal.enclosureId).map(animal => animalToSubject(animal, species.find(s => s.speciesId === animal.speciesId)!, tasks.filter(task => task.animalId === animal.animalId)));
 
     const assignedEnclosures = enclosures.map(enclosure => {
-        return enclosureToSubject(enclosure, animals, habitats, species, tasks.filter(task => task.enclosureId === enclosure.enclosureId));
+        return enclosureToSubject(enclosure, animals, habitats, species, tasks);
     });
 
     const sortedEnclosures = assignedEnclosures.sort((b, a) => 
@@ -103,7 +103,7 @@ export function hasIncompleteTasks(subject: Subject): boolean {
         return subject.tasks.some(task => !task.complete);
     }
     if ("enclosureId" in subject) {
-        return subject.tasks.some(task => !task.complete);
+        return subject.tasks.some(task => !task.complete) || subject.animals.some(animal => animal.tasks.some(task => !task.complete));
     }
     return false;
 }

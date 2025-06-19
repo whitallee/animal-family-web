@@ -32,6 +32,13 @@ export type AnimalWithSpecies = AnimalBrief & { species: SpeciesBrief; tasks: Ta
         speciesName: string;
         speciesImage: string;
     }
+    tasks: [
+        {
+            taskId: number;
+            taskName: string;
+            taskDesc: string;
+        }
+    ]
 }
 */
 

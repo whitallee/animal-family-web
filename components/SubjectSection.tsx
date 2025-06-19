@@ -2,7 +2,7 @@ import { Animal, Enclosure, Habitat, Species, Task } from "@/types/db-types";
 import { Subject } from "@/types/subject-types";
 import Image from "next/image";
 import AnimalsInEnclosure from "./AnimalsInEnclosure";
-import { organizeAnimalFamily } from "@/lib/helpers";
+import { hasIncompleteTasks, organizeAnimalFamily } from "@/lib/helpers";
 import { SubjectSkeletonList } from "@/components/Skeletons";
 
 
@@ -43,41 +43,59 @@ export function SubjectCircle({ subject, shift, placeholder, className }: { subj
         )
     }
     if ("animalId" in subject) {
+        const hasIncomplete = hasIncompleteTasks(subject);
         return (
             <>
             <div 
-                className={`bg-stone-700 rounded-full aspect-square flex items-center justify-center relative overflow-hidden ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${className || ""}`}
+                className={`bg-transparent aspect-square flex items-center justify-center relative ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${className || ""}`}
             >
                 <Image 
                     src={subject.animalImage === "" ? subject.species.speciesImage : subject.animalImage}
                     alt={subject.animalName}
                     fill
                     sizes="(max-width: 512px) 100vw, (max-width: 128px) 50vw, 33vw"
-                    className="object-cover relative"
+                    className="object-cover relative rounded-full"
                     onError={() => {
                         console.error('Image failed to load:', subject.animalImage);
                     }}
                     />
+                {hasIncomplete ? 
+                <>
+                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-emerald-400 rounded-full" />
+                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-emerald-400 rounded-full animate-ping" />
+                </> : null}
             </div>
             </>
         )
     }
     if ("enclosureId" in subject) {
+        const hasIncomplete = hasIncompleteTasks(subject);
         return (
             <div 
-                className={`bg-stone-700 rounded-full aspect-square flex items-center justify-center relative overflow-hidden ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${className || ""}`}
+                className={`bg-transparent aspect-square flex items-center justify-center relative ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${className || ""}`}
             >
                 <Image 
                     src={subject.enclosureImage === "" ? subject.habitat.habitatImage : subject.enclosureImage}
                     alt={subject.enclosureName}
                     fill
                     sizes="(max-width: 512px) 100vw, (max-width: 128px) 50vw, 33vw"
-                    className="object-cover"
+                    className="object-cover relative rounded-full"
                     onError={() => {
                         console.error('Image failed to load:', subject.enclosureImage);
                     }}
                     />
                 <AnimalsInEnclosure animals={subject.animals} />
+                {/* <div className="absolute top-0 left-0 w-full h-full flex flex-wrap gap-1 content-center justify-center">
+                    {subject.animals.map((animal, index) => (
+                        <SubjectCircle subject={animal} className="w-10 h-10" />
+                    ))}
+                </div> */}
+                {hasIncomplete ? 
+                <>
+                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-emerald-400 rounded-full" />
+                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-emerald-400 rounded-full animate-ping" />
+                </> : null}
+
             </div>
         )
     }

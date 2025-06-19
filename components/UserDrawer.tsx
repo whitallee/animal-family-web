@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { UserIcon } from "lucide-react";
 import { useLogin } from "@/lib/auth";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/AuthContext";
@@ -23,17 +23,17 @@ export default function UserDrawer() {
     const { isLoggedIn, user, login, logout } = useAuth();
     const loginMutation = useLogin();
 
-    useEffect(() => {
-        if (isLoggedIn) {
-            setEmail("");
-            setPassword("");
-            setOpen(false);
-        } else {
-            setEmail("");
-            setPassword("");
-            setOpen(true);
-        }
-    }, [isLoggedIn]);
+    // useEffect(() => {
+    //     if (isLoggedIn) {
+    //         setEmail("");
+    //         setPassword("");
+    //         setOpen(false);
+    //     } else {
+    //         setEmail("");
+    //         setPassword("");
+    //         setOpen(true);
+    //     }
+    // }, [isLoggedIn]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,7 +51,10 @@ export default function UserDrawer() {
     return (
         <Drawer open={open} onOpenChange={setOpen}>
             <DrawerTrigger asChild>
-                <UserIcon className={`w-6 h-6 text-stone-500`} />
+                <div className="relative">
+                    <UserIcon className={`w-6 h-6 text-stone-500`} />
+                    {!isLoggedIn ? <UserIcon className={`w-6 h-6 text-stone-500 absolute top-0 animate-ping`} /> : null}
+                </div>
             </DrawerTrigger>
             <DrawerContent className="bg-stone-700 text-stone-50">
                 <DrawerHeader>
