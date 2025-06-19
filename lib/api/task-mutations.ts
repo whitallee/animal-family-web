@@ -1,6 +1,7 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "../AuthContext";
 import { Task } from "@/types/db-types";
+import { getQueryClient } from "@/lib/get-query-client";
 
 export const markTaskComplete = async (token: string, task: Task) => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/task`, {
@@ -23,7 +24,7 @@ export const markTaskComplete = async (token: string, task: Task) => {
 
 export const useMarkTaskComplete = () => {
     const { user, token } = useAuth();
-    const queryClient = useQueryClient();
+    const queryClient = getQueryClient();
     
     return useMutation({
         mutationFn: (task: Task) => markTaskComplete(token!, task),
