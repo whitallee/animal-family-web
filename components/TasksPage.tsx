@@ -65,16 +65,16 @@ function TaskItem({ task }: { task: Task }) {
     )
 }
 
-function TaskDetails({ task, animals, enclosures, habitats, species }: { task: Task, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined, habitats: Habitat[] | undefined, species: Species[] | undefined }) {
+function TaskDetails({ task, animals, enclosures, habitats, species, tasks }: { task: Task, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined, habitats: Habitat[] | undefined, species: Species[] | undefined, tasks: Task[] | undefined }) {
     let subject: Subject | undefined;
     if (!animals || !enclosures || !habitats || !species) {
         return <div>No subject found...</div>
     }
 
     if (task.animalId) {
-        subject = animalToSubject(animals.find(animal => animal.animalId === task.animalId)!, species.find(species => species.speciesId === animals.find(animal => animal.animalId === task.animalId)!.speciesId)!);
+        subject = animalToSubject(animals.find(animal => animal.animalId === task.animalId)!, species.find(species => species.speciesId === animals.find(animal => animal.animalId === task.animalId)!.speciesId)!, tasks?.filter(task => task.animalId === task.animalId) || []);
     } else if (task.enclosureId) {
-        subject = enclosureToSubject(enclosures.find(enclosure => enclosure.enclosureId === task.enclosureId)!, animals, habitats, species);
+        subject = enclosureToSubject(enclosures.find(enclosure => enclosure.enclosureId === task.enclosureId)!, animals, habitats, species, tasks?.filter(task => task.enclosureId === task.enclosureId) || []);
     }
 
     if (!subject) {
@@ -152,7 +152,7 @@ function TaskList({ tasks, animals, enclosures, habitats, species }: { tasks: Ta
                     <AccordionTrigger className="flex-1" />
                 </div>
                 <AccordionContent>
-                    <TaskDetails task={task} animals={animals} enclosures={enclosures} habitats={habitats} species={species} />
+                    <TaskDetails task={task} animals={animals} enclosures={enclosures} habitats={habitats} species={species} tasks={tasks} />
                 </AccordionContent>
             </AccordionItem>
             ))}

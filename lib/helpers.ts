@@ -1,11 +1,11 @@
 import { Animal, Enclosure, Habitat, Species, Task } from "@/types/db-types";
 import { AnimalSubjectLong, AnimalWithSpecies, EnclosureWithData, Subject } from "@/types/subject-types";
 
-export function organizeAnimalFamily(enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[]): Subject[] {
-    const unassignedAnimals: AnimalWithSpecies[] = animals.filter(animal => !animal.enclosureId).map(animal => animalToSubject(animal, species.find(s => s.speciesId === animal.speciesId)!));
+export function organizeAnimalFamily(enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[], tasks: Task[]): Subject[] {
+    const unassignedAnimals: AnimalWithSpecies[] = animals.filter(animal => !animal.enclosureId).map(animal => animalToSubject(animal, species.find(s => s.speciesId === animal.speciesId)!, tasks.filter(task => task.animalId === animal.animalId)));
 
     const assignedEnclosures = enclosures.map(enclosure => {
-        return enclosureToSubject(enclosure, animals, habitats, species);
+        return enclosureToSubject(enclosure, animals, habitats, species, tasks.filter(task => task.enclosureId === enclosure.enclosureId));
     });
 
     const sortedEnclosures = assignedEnclosures.sort((b, a) => 
@@ -15,7 +15,7 @@ export function organizeAnimalFamily(enclosures: Enclosure[], animals: Animal[],
     return [...unassignedAnimals, ...sortedEnclosures];
 }
 
-export function animalToSubject(animal: Animal, species: Species): AnimalWithSpecies {
+export function animalToSubject(animal: Animal, species: Species, tasks: Task[]): AnimalWithSpecies {
     return {
         animalId: animal.animalId,
         animalName: animal.animalName,
@@ -24,7 +24,8 @@ export function animalToSubject(animal: Animal, species: Species): AnimalWithSpe
         speciesId: species.speciesId,
         speciesName: species.comName,
         speciesImage: species.image
-    }
+    },
+    tasks: tasks.filter(task => task.animalId === animal.animalId)
     }
 }
 
@@ -40,10 +41,10 @@ export function animalToSubjectLong(animal: Animal, species: Species, tasks: Tas
     }
 }
 
-export function enclosureToSubject(enclosure: Enclosure, animals: Animal[], habitats: Habitat[], species: Species[]): EnclosureWithData {
+export function enclosureToSubject(enclosure: Enclosure, animals: Animal[], habitats: Habitat[], species: Species[], tasks: Task[]): EnclosureWithData {
     const enclosureAnimals = animals
         .filter(animal => animal.enclosureId === enclosure.enclosureId)
-        .map(animal => animalToSubject(animal, species.find(s => s.speciesId === animal.speciesId)!));
+        .map(animal => animalToSubject(animal, species.find(s => s.speciesId === animal.speciesId)!, tasks));
     return {
         enclosureId: enclosure.enclosureId,
         enclosureName: enclosure.enclosureName,
@@ -53,7 +54,8 @@ export function enclosureToSubject(enclosure: Enclosure, animals: Animal[], habi
             habitatId: enclosure.habitatId,
             habitatName: habitats.find(h => h.habitatId === enclosure.habitatId)!.habitatName,
             habitatImage: habitats.find(h => h.habitatId === enclosure.habitatId)!.image
-        }
+        },
+        tasks: tasks.filter(task => task.enclosureId === enclosure.enclosureId)
     }
 }
 
@@ -93,6 +95,17 @@ export const hoursUntilDue = (task: Task) => {
 
 export const dateDue = (task: Task) => {
     return new Date(new Date(task.lastCompleted).getTime() + task.repeatIntervHours * 60 * 60 * 1000);
+}
+
+// Helper function to check if subject has incomplete tasks
+export function hasIncompleteTasks(subject: Subject): boolean {
+    if ("animalId" in subject) {
+        return subject.tasks.some(task => !task.complete);
+    }
+    if ("enclosureId" in subject) {
+        return subject.tasks.some(task => !task.complete);
+    }
+    return false;
 }
 
 // TODO: attach tasks to subjects by using the joining table taskSubject

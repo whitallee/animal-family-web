@@ -21,7 +21,7 @@ export type HabitatBrief = {
     habitatImage: string;
 }
 
-export type AnimalWithSpecies = AnimalBrief & { species: SpeciesBrief };
+export type AnimalWithSpecies = AnimalBrief & { species: SpeciesBrief; tasks: Task[] };
 /*
 {
     animalId: number;
@@ -77,6 +77,7 @@ export type AnimalSubjectLong = Animal & {
 export type EnclosureWithData = EnclosureBrief & { 
     animals: AnimalWithSpecies[];
     habitat: HabitatBrief;
+    tasks: Task[];
 };
 /*
 {
@@ -99,6 +100,14 @@ export type EnclosureWithData = EnclosureBrief & {
                 speciesImage: string;
             }
         },
+        ...
+    ],
+    tasks: [
+        {
+            taskId: number;
+            taskName: string;
+            taskDesc: string;
+        }
         ...
     ]
 }

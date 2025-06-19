@@ -1,4 +1,4 @@
-import { Animal, Enclosure, Habitat, Species } from "@/types/db-types";
+import { Animal, Enclosure, Habitat, Species, Task } from "@/types/db-types";
 import { Subject } from "@/types/subject-types";
 import Image from "next/image";
 import AnimalsInEnclosure from "./AnimalsInEnclosure";
@@ -44,6 +44,7 @@ export function SubjectCircle({ subject, shift, placeholder, className }: { subj
     }
     if ("animalId" in subject) {
         return (
+            <>
             <div 
                 className={`bg-stone-700 rounded-full aspect-square flex items-center justify-center relative overflow-hidden ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${className || ""}`}
             >
@@ -57,8 +58,8 @@ export function SubjectCircle({ subject, shift, placeholder, className }: { subj
                         console.error('Image failed to load:', subject.animalImage);
                     }}
                     />
-                {/* <p className="text-white relative z-10">{subject.animalName}<br/>{subject.species.speciesName}</p> */}
             </div>
+            </>
         )
     }
     if ("enclosureId" in subject) {
@@ -82,10 +83,10 @@ export function SubjectCircle({ subject, shift, placeholder, className }: { subj
     }
 }
 
-export default function SubjectSection({ enclosures, animals, habitats, species, isPending }: { enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[], isPending: boolean }) {    
+export default function SubjectSection({ tasks, enclosures, animals, habitats, species, isPending }: { tasks: Task[], enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[], isPending: boolean }) {    
     return (
         <div className="grid max-w-md my-6 grid-cols-3 w-full content-center gap-x-4 gap-y-0 overflow-y-scroll overflow-x-hidden">
-            {isPending ? <SubjectSkeletonList /> : <SubjectList subjects={organizeAnimalFamily(enclosures, animals, habitats, species)} />}
+            {isPending ? <SubjectSkeletonList /> : <SubjectList subjects={organizeAnimalFamily(enclosures, animals, habitats, species, tasks)} />}
         </div>
     )
 }

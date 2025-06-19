@@ -79,7 +79,7 @@ function AnimalList({ animals, enclosures, tasks, habitats, species }: { animals
         <Accordion type="single" collapsible className="w-full">
             {animals.map((animal) => {
                 const animalWithSpeciesLong = animalToSubjectLong(animal, species.find(s => s.speciesId === animal.speciesId)!, tasks, enclosures, habitats);
-                const animalWithSpeciesShort = animalToSubject(animal, species.find(s => s.speciesId === animal.speciesId)!);
+                const animalWithSpeciesShort = animalToSubject(animal, species.find(s => s.speciesId === animal.speciesId)!, tasks.filter(task => task.animalId === animal.animalId));
                 return (
                     <AccordionItem value={animal.animalId.toString()} key={animal.animalId}>
                         <div className="flex items-center">
