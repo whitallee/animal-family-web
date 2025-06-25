@@ -2,7 +2,7 @@ import { Animal, Enclosure, Habitat, Species, Task } from "@/types/db-types";
 import { Subject } from "@/types/subject-types";
 import Image from "next/image";
 import AnimalsInEnclosure from "./AnimalsInEnclosure";
-import { hasIncompleteTasks, organizeAnimalFamily } from "@/lib/helpers";
+import { hasIncompleteTasks, hasOverdueTasks, organizeAnimalFamily } from "@/lib/helpers";
 import { SubjectSkeletonList } from "@/components/Skeletons";
 
 
@@ -44,6 +44,7 @@ export function SubjectCircle({ subject, shift, placeholder, className }: { subj
     }
     if ("animalId" in subject) {
         const hasIncomplete = hasIncompleteTasks(subject);
+        const hasOverdue = hasOverdueTasks(subject);
         return (
             <>
             <div 
@@ -59,10 +60,14 @@ export function SubjectCircle({ subject, shift, placeholder, className }: { subj
                         console.error('Image failed to load:', subject.animalImage);
                     }}
                     />
-                {hasIncomplete ? 
+                {hasIncomplete && !hasOverdue ? 
                 <>
                     <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-emerald-400 rounded-full" />
                     <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-emerald-400 rounded-full animate-ping" />
+                </> : hasIncomplete && hasOverdue ?
+                <>
+                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-red-400 rounded-full" />
+                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-red-400 rounded-full animate-ping" />
                 </> : null}
             </div>
             </>
@@ -70,6 +75,7 @@ export function SubjectCircle({ subject, shift, placeholder, className }: { subj
     }
     if ("enclosureId" in subject) {
         const hasIncomplete = hasIncompleteTasks(subject);
+        const hasOverdue = hasOverdueTasks(subject);
         return (
             <div 
                 className={`bg-transparent aspect-square flex items-center justify-center relative ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${className || ""}`}
@@ -90,10 +96,14 @@ export function SubjectCircle({ subject, shift, placeholder, className }: { subj
                         <SubjectCircle subject={animal} className="w-10 h-10" />
                     ))}
                 </div> */}
-                {hasIncomplete ? 
+                {hasIncomplete && !hasOverdue ? 
                 <>
                     <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-emerald-400 rounded-full" />
                     <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-emerald-400 rounded-full animate-ping" />
+                </> :  hasIncomplete && hasOverdue ?
+                <>
+                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-red-400 rounded-full" />
+                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-red-400 rounded-full animate-ping" />
                 </> : null}
 
             </div>

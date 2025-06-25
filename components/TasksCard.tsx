@@ -9,7 +9,7 @@ import { ShortTaskListSkeleton } from "@/components/Skeletons";
 import { Check, ChevronRight, Loader2, TriangleAlert } from "lucide-react";
 
 // API Hooks
-import { useMarkTaskComplete } from "@/lib/api/task-mutations";
+import { useMarkTaskComplete, useMarkTaskIncomplete } from "@/lib/api/task-mutations";
 
 // Types
 import type { Task } from "@/types/db-types";
@@ -19,13 +19,13 @@ import { hoursSinceDue } from "@/lib/helpers";
 
 function TaskItem({ task }: { task: Task }) {
     const markComplete = useMarkTaskComplete();
-
+    const markIncomplete = useMarkTaskIncomplete();
     return (
             <div className="flex items-center gap-2">
                 <Button 
                     className="w-6 h-6 p-0"
-                    onClick={() => markComplete.mutate(task)}
-                    disabled={markComplete.isPending}
+                    onClick={() => task.complete ? markIncomplete.mutate(task) : markComplete.mutate(task)}
+                    disabled={markComplete.isPending || markIncomplete.isPending}
                 >
                      {markComplete.isPending ? (
                          <Loader2 className="w-4 h-4 animate-spin" />

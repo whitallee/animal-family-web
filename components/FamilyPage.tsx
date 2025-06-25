@@ -1,7 +1,6 @@
 import { useAnimals, useEnclosures, useTasks } from "@/lib/api/fetch-family";
 import { useHabitats, useSpecies } from "@/lib/api/fetch-species-habitats";
-import { BookOpenText, ChevronLeft } from "lucide-react";
-import Link from "next/link";
+import { BookOpenText } from "lucide-react";
 import { unstable_ViewTransition as ViewTransition } from 'react'
 import { FamilyListSkeleton } from "@/components/Skeletons";
 import { Animal, Enclosure, Habitat, Species, Task } from "@/types/db-types";
@@ -20,6 +19,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import TasksCard from "@/components/TasksCard";
 
 function AnimalItem({ animalShort }: { animalShort: AnimalWithSpecies }) {
@@ -106,11 +106,27 @@ export default function FamilyPage() {
     return (
         <ViewTransition name="family">
             <div className="h-[calc(100vh-5rem)] w-[calc(100%-1rem)] flex flex-col gap-4 items-start bg-stone-700 text-stone-50 shadow-lg border-stone-600 rounded-lg p-4 mt-2 overflow-y-scroll">
-                <div className="flex flex-row justify-between items-center w-full">
-                    <h1 className="text-2xl font-medium">Family ({animals?.length || 0})</h1>
-                    <Link href="/" className="w-6 h-6 p-0"><ChevronLeft className="w-6 h-6" /></Link>
-                </div>
-                {animalsPending || enclosuresPending || tasksPending || speciesPending || habitatsPending ? <FamilyListSkeleton /> : <AnimalList animals={animals || []} enclosures={enclosures || []} tasks={tasks || []} habitats={habitats || []} species={species || []} />}
+                <Tabs defaultValue="animals">
+                    <TabsList className="bg-stone-800 text-stone-50 w-full">
+                        <TabsTrigger value="animals">Animals ({animals?.length || 0})</TabsTrigger>
+                        <TabsTrigger value="enclosures">Enclosures ({enclosures?.length || 0})</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="animals">
+                    {/* <div className="flex flex-row justify-between items-center w-full">
+                        <h1 className="text-2xl font-medium">Family </h1>
+                        <Link href="/" className="w-6 h-6 p-0"><ChevronLeft className="w-6 h-6" /></Link>
+                    </div> */}
+                    {animalsPending || enclosuresPending || tasksPending || speciesPending || habitatsPending ?
+                        <FamilyListSkeleton />
+                        : 
+                        <AnimalList animals={animals || []} enclosures={enclosures || []} tasks={tasks || []} habitats={habitats || []} species={species || []} />}
+                    </TabsContent>
+
+                    <TabsContent value="enclosures">
+                        <div className="text-center text-stone-400 w-full">Enclosures page under construction</div>
+                    </TabsContent>
+                </Tabs>
             </div>
         </ViewTransition>
     );

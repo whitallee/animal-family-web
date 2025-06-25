@@ -24,7 +24,7 @@ import { TaskListSkeleton } from "@/components/Skeletons";
 import { CalendarDays, Check, ChevronLeft, Loader2, TriangleAlert } from 'lucide-react';
 
 // API Hooks
-import { useMarkTaskComplete } from '@/lib/api/task-mutations';
+import { useMarkTaskComplete, useMarkTaskIncomplete } from '@/lib/api/task-mutations';
 import { useAnimals, useEnclosures, useTasks } from '@/lib/api/fetch-family';
 import { useSpecies, useHabitats } from "@/lib/api/fetch-species-habitats";
 
@@ -37,18 +37,22 @@ import { animalToSubject, enclosureToSubject, ReadableTime, hoursSinceDue, hours
 
 function TaskItem({ task }: { task: Task }) {    
     const markComplete = useMarkTaskComplete();
-
+    const markIncomplete = useMarkTaskIncomplete();
     return (
             <div className="w-full flex items-center gap-2">
                 <Button 
                     className="w-6 h-6 p-0"
                     onClick={(e) => {
                         e.stopPropagation();
-                        markComplete.mutate(task);
+                        if (task.complete) {
+                            markIncomplete.mutate(task);
+                        } else {
+                            markComplete.mutate(task);
+                        }
                     }}
-                    disabled={markComplete.isPending}
+                    disabled={markComplete.isPending || markIncomplete.isPending}
                 >
-                     {markComplete.isPending ? (
+                     {markComplete.isPending || markIncomplete.isPending ? (
                          <Loader2 className="w-4 h-4 animate-spin" />
                      ) : task.complete ? (
                          <Check />

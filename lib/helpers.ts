@@ -108,6 +108,16 @@ export function hasIncompleteTasks(subject: Subject): boolean {
     return false;
 }
 
+// Helper function to check if subject has incomplete tasks that are overdue
+export function hasOverdueTasks(subject: Subject): boolean {
+    if ("animalId" in subject) {
+        return subject.tasks.some(task => !task.complete && hoursSinceDue(task) > 24);
+    } else if ("enclosureId" in subject) {
+        return subject.tasks.some(task => !task.complete && hoursSinceDue(task) > 24) || subject.animals.some(animal => animal.tasks.some(task => !task.complete && hoursSinceDue(task) > 24));
+    }
+    return false;
+}
+
 // TODO: attach tasks to subjects by using the joining table taskSubject
 
 // export function addTaskToSubjects(subjects: Subject[], task: Task) {
