@@ -59,14 +59,14 @@ export default function AddAnythingDrawer() {
         e.preventDefault();
         try {
             // Format the date to include time if provided, otherwise use current time
-            const formattedDob = dob ? `${dob}T00:00:00Z` : new Date().toISOString();
+            // const formattedDob = dob ? `${dob}T00:00:00Z` : new Date().toISOString();
             
             const animal: Animal = {
                 animalId: 0, // Will be set by backend
                 animalName,
                 image: animalImage,
                 gender,
-                dob: formattedDob,
+                dob: dob,
                 personalityDesc,
                 dietDesc,
                 routineDesc,

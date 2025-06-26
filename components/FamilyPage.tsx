@@ -99,7 +99,7 @@ function AnimalList({ animals, enclosures, tasks, habitats, species }: { animals
 function EnclosureItem({ enclosureShort }: { enclosureShort: EnclosureWithData }) {
     return (
         <div className="flex flex-row gap-2 items-center w-full">
-            <SubjectCircle smallAnimalIcons subject={enclosureShort} className="w-16 h-16 min-w-16 min-h-16 aspect-square my-2" />
+            <SubjectCircle smallAnimalIcons enclosureFocus subject={enclosureShort} className="w-16 h-16 min-w-16 min-h-16 aspect-square my-2" />
             <div className="flex flex-col items-start">
                 <h2 className="text-lg font-medium text-nowrap overflow-hidden text-ellipsis max-w-56 flex-nowrap">{enclosureShort.enclosureName}</h2>
                 <p className="text-sm text-stone-400">{enclosureShort.habitat.habitatName}</p>
@@ -112,8 +112,19 @@ function EnclosureDetails({ enclosureLong }: { enclosureLong: EnclosureSubjectLo
     return (
         <div className="flex flex-col bg-stone-800 p-4 rounded-lg justify-between">
             <TasksCard tasks={enclosureLong.tasks} isPending={false} className="mb-2"/>
-            <p><span className="font-bold text-stone-400">Enclosure:</span> {enclosureLong.enclosureName}</p>
-            <div className="flex flex-row gap-2 items-center mb-2">
+            {/* <p><span className="font-bold text-stone-400">Enclosure:</span> {enclosureLong.enclosureName}</p> */}
+            <div className="flex flex-col gap-2 my-1.5 border-b border-stone-500 pb-2">
+                {enclosureLong.animals.map((animal) => (
+                    <div key={animal.animalId} className="flex flex-row gap-2 items-center">
+                        <SubjectCircle smallAnimalIcons subject={animal} className="w-10 h-10 min-w-10 min-h-10 aspect-square" />
+                        <div className="flex flex-col items-start">
+                            <h2 className="text-lg font-medium text-nowrap overflow-hidden text-ellipsis max-w-56 flex-nowrap">{animal.animalName}</h2>
+                            <p className="text-sm text-stone-400">{animal.species.speciesName}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div className="flex flex-row gap-2 items-center">
                 <span className="font-bold text-stone-400">Habitat:</span> {enclosureLong.habitat.habitatName}
                 <Popover>
                     <PopoverTrigger><BookOpenText className="w-4 h-4 inline-block text-emerald-400" /></PopoverTrigger>
@@ -122,7 +133,7 @@ function EnclosureDetails({ enclosureLong }: { enclosureLong: EnclosureSubjectLo
                     </PopoverContent>
                 </Popover>
             </div>
-            <p className="mt-2"><span className="font-bold text-stone-400">Extra Notes:</span> {enclosureLong.notes}</p>
+            <p><span className="font-bold text-stone-400">Extra Notes:</span> {enclosureLong.notes}</p>
         </div>
     )
 }

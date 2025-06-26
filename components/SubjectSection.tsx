@@ -51,7 +51,7 @@ function SubjectNotification({ hasIncomplete, hasOverdue, small }: { hasIncomple
     )
 }
 
-export function SubjectCircle({ subject, shift, placeholder, smallAnimalIcons, className }: { subject?: Subject, shift?: boolean, placeholder?: boolean, smallAnimalIcons?: boolean, className?: string }) {
+export function SubjectCircle({ subject, shift, placeholder, smallAnimalIcons, className, enclosureFocus }: { subject?: Subject, shift?: boolean, placeholder?: boolean, smallAnimalIcons?: boolean, className?: string, enclosureFocus?: boolean }) {
     if (placeholder || !subject ) {
         return (
             <div className={`bg-stone-700 rounded-full aspect-square relative overflow-hidden ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${placeholder ? "opacity-0" : ""} ${className || ""}`}>
@@ -98,7 +98,7 @@ export function SubjectCircle({ subject, shift, placeholder, smallAnimalIcons, c
                         console.error('Image failed to load:', subject.enclosureImage);
                     }}
                     />
-                <AnimalsInEnclosure animals={subject.animals} small={smallAnimalIcons} className="overflow-hidden" />
+                <AnimalsInEnclosure animals={subject.animals} small={smallAnimalIcons} className="overflow-hidden" enclosureFocus={enclosureFocus} />
                 {/* <div className="absolute top-0 left-0 w-full h-full flex flex-wrap gap-1 content-center justify-center">
                     {subject.animals.map((animal, index) => (
                         <SubjectCircle subject={animal} className="w-10 h-10" />

@@ -1,7 +1,7 @@
 import { AnimalWithSpecies } from "@/types/subject-types";
 import Image from "next/image";
 
-export default function AnimalsInEnclosure({ animals, small, className }: { animals: AnimalWithSpecies[], small?: boolean, className?: string }) {
+export default function AnimalsInEnclosure({ animals, small, className, enclosureFocus }: { animals: AnimalWithSpecies[], small?: boolean, className?: string, enclosureFocus?: boolean }) {
     if (animals.length === 0) {
         return null;
     // } else if (animals.length === 1) {
@@ -17,7 +17,7 @@ export default function AnimalsInEnclosure({ animals, small, className }: { anim
                         alt={animal.animalName}
                         fill
                         sizes="(max-width: 512px) 100vw, (max-width: 128px) 50vw, 33vw"
-                        className="object-cover rounded-full"
+                        className={`object-cover rounded-full ${enclosureFocus ? "opacity-[0.4]" : "opacity-100"}`}
                         onError={() => {
                             console.error('Image failed to load:', animal.animalImage);
                         }}
