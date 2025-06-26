@@ -30,6 +30,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function AddAnythingDrawer() {
     const [open, setOpen] = useState(false);
@@ -255,30 +256,32 @@ export default function AddAnythingDrawer() {
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[200px] p-0 bg-stone-600 border-stone-500 text-stone-50">
-                                        <Command className="bg-stone-600 border-stone-500 text-stone-50 max-h-[200px] sm:max-h-[400px] overflow-y-scroll overflow-x-hidden">
+                                        <Command className="bg-stone-600 border-stone-500 text-stone-50">
                                         <CommandInput placeholder="Search species..." />
                                         <CommandList>
-                                            <CommandEmpty>No species found.</CommandEmpty>
-                                            <CommandGroup>
-                                            {species?.map((s) => (
-                                                <CommandItem className="bg-stone-600 border-stone-500 text-stone-50"
-                                                key={`${s.speciesId}-${s.comName}-${s.sciName}-${s.speciesDesc}`}
-                                                value={`${s.speciesId}-${s.comName}-${s.sciName}-${s.speciesDesc}`}
-                                                onSelect={(currentValue) => {
-                                                    setSpeciesId(currentValue.split("-")[0])
-                                                    setOpenSpecies(false)
-                                                }}
-                                                >
-                                                <CheckIcon
-                                                    className={cn(
-                                                    "mr-2 h-4 w-4",
-                                                    speciesId === s.speciesId.toString() ? "opacity-100" : "opacity-0"
-                                                    )}
-                                                />
-                                                {s.comName}
-                                                </CommandItem>
-                                            ))}
-                                            </CommandGroup>
+                                            <ScrollArea className="h-[150px]">
+                                                <CommandEmpty>No species found.</CommandEmpty>
+                                                <CommandGroup>
+                                                {species?.map((s) => (
+                                                    <CommandItem className="bg-stone-600 border-stone-500 text-stone-50"
+                                                    key={`${s.speciesId}-${s.comName}-${s.sciName}-${s.speciesDesc}`}
+                                                    value={`${s.speciesId}-${s.comName}-${s.sciName}-${s.speciesDesc}`}
+                                                    onSelect={(currentValue) => {
+                                                        setSpeciesId(currentValue.split("-")[0])
+                                                        setOpenSpecies(false)
+                                                    }}
+                                                    >
+                                                    <CheckIcon
+                                                        className={cn(
+                                                        "mr-2 h-4 w-4",
+                                                        speciesId === s.speciesId.toString() ? "opacity-100" : "opacity-0"
+                                                        )}
+                                                    />
+                                                    {s.comName}
+                                                    </CommandItem>
+                                                ))}
+                                                </CommandGroup>
+                                            </ScrollArea>
                                         </CommandList>
                                         </Command>
                                     </PopoverContent>
@@ -317,30 +320,32 @@ export default function AddAnythingDrawer() {
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[200px] p-0 bg-stone-600 border-stone-500 text-stone-50">
-                                        <Command className="bg-stone-600 border-stone-500 text-stone-50 max-h-[200px] sm:max-h-[400px] overflow-y-scroll overflow-x-hidden">
+                                        <Command className="bg-stone-600 border-stone-500 text-stone-50">
                                         <CommandInput placeholder="Search enclosures..." />
                                         <CommandList>
-                                            <CommandEmpty>No enclosures found.</CommandEmpty>
-                                            <CommandGroup>
-                                            {enclosures?.map((e: Enclosure) => (
-                                                <CommandItem className="bg-stone-600 border-stone-500 text-stone-50"
-                                                key={`${e.enclosureId}-${e.enclosureName}`}
-                                                value={`${e.enclosureId}-${e.enclosureName}`}
-                                                onSelect={(currentValue) => {
-                                                    setEnclosureId(currentValue.split("-")[0])
-                                                    setOpenEnclosure(false)
-                                                }}
-                                                >
-                                                <CheckIcon
-                                                    className={cn(
-                                                    "mr-2 h-4 w-4",
-                                                    enclosureId === e.enclosureId.toString() ? "opacity-100" : "opacity-0"
-                                                    )}
-                                                />
-                                                {e.enclosureName}
-                                                </CommandItem>
-                                            ))}
-                                            </CommandGroup>
+                                            <ScrollArea className="h-[150px]">
+                                                <CommandEmpty>No enclosures found.</CommandEmpty>
+                                                <CommandGroup>
+                                                {enclosures?.map((e: Enclosure) => (
+                                                    <CommandItem className="bg-stone-600 border-stone-500 text-stone-50"
+                                                    key={`${e.enclosureId}-${e.enclosureName}`}
+                                                    value={`${e.enclosureId}-${e.enclosureName}`}
+                                                    onSelect={(currentValue) => {
+                                                        setEnclosureId(currentValue.split("-")[0])
+                                                        setOpenEnclosure(false)
+                                                    }}
+                                                    >
+                                                    <CheckIcon
+                                                        className={cn(
+                                                        "mr-2 h-4 w-4",
+                                                        enclosureId === e.enclosureId.toString() ? "opacity-100" : "opacity-0"
+                                                        )}
+                                                    />
+                                                    {e.enclosureName}
+                                                    </CommandItem>
+                                                ))}
+                                                </CommandGroup>
+                                            </ScrollArea>
                                         </CommandList>
                                         </Command>
                                     </PopoverContent>
