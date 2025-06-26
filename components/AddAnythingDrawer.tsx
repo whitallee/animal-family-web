@@ -99,7 +99,7 @@ export default function AddAnythingDrawer() {
             <DrawerTrigger asChild>
                 <Plus className="w-6 h-6 text-stone-500" />
             </DrawerTrigger>
-            <DrawerContent className="bg-stone-700 text-stone-50 min-h-[95%]">
+            <DrawerContent className="bg-stone-700 text-stone-50 min-h-[85%]">
                 <DrawerHeader>
                     <DrawerTitle className="text-stone-50">Add New</DrawerTitle>
                     <DrawerDescription className="text-stone-400">Create a new animal, enclosure, or task</DrawerDescription>
