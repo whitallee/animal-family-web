@@ -120,4 +120,10 @@ export type EnclosureWithData = EnclosureBrief & {
 }
 */
 
+export type EnclosureSubjectLong = Enclosure & {
+    animals: AnimalWithSpecies[];
+    tasks: Task[];
+    habitat: Habitat;
+}
+
 export type Subject = AnimalWithSpecies | EnclosureWithData;

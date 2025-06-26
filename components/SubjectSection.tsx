@@ -35,7 +35,23 @@ function SubjectList({ subjects }: { subjects: Subject[] }) {
     )
 }
 
-export function SubjectCircle({ subject, shift, placeholder, className }: { subject?: Subject, shift?: boolean, placeholder?: boolean, className?: string }) {
+function SubjectNotification({ hasIncomplete, hasOverdue, small }: { hasIncomplete: boolean, hasOverdue: boolean, small?: boolean }) {
+    return (
+        <>
+        {hasIncomplete && !hasOverdue ? 
+            <>
+                <div className={`w-4 h-4 absolute bg-emerald-400 rounded-full ${small ? "top-0 right-0" : "top-1.5 right-1.5"}`} />
+                <div className={`w-4 h-4 absolute bg-emerald-400 rounded-full animate-ping ${small ? "top-0 right-0" : "top-1.5 right-1.5"}`} />
+            </> : hasIncomplete && hasOverdue ?
+            <>
+                <div className={`w-4 h-4 absolute bg-red-400 rounded-full ${small ? "top-0 right-0" : "top-1.5 right-1.5"}`} />
+                <div className={`w-4 h-4 absolute bg-red-400 rounded-full animate-ping ${small ? "top-0 right-0" : "top-1.5 right-1.5"}`} />
+            </> : null}
+        </>
+    )
+}
+
+export function SubjectCircle({ subject, shift, placeholder, smallAnimalIcons, className }: { subject?: Subject, shift?: boolean, placeholder?: boolean, smallAnimalIcons?: boolean, className?: string }) {
     if (placeholder || !subject ) {
         return (
             <div className={`bg-stone-700 rounded-full aspect-square relative overflow-hidden ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${placeholder ? "opacity-0" : ""} ${className || ""}`}>
@@ -60,15 +76,7 @@ export function SubjectCircle({ subject, shift, placeholder, className }: { subj
                         console.error('Image failed to load:', subject.animalImage);
                     }}
                     />
-                {hasIncomplete && !hasOverdue ? 
-                <>
-                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-emerald-400 rounded-full" />
-                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-emerald-400 rounded-full animate-ping" />
-                </> : hasIncomplete && hasOverdue ?
-                <>
-                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-red-400 rounded-full" />
-                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-red-400 rounded-full animate-ping" />
-                </> : null}
+                <SubjectNotification hasIncomplete={hasIncomplete} hasOverdue={hasOverdue} small={smallAnimalIcons} />
             </div>
             </>
         )
@@ -90,21 +98,13 @@ export function SubjectCircle({ subject, shift, placeholder, className }: { subj
                         console.error('Image failed to load:', subject.enclosureImage);
                     }}
                     />
-                <AnimalsInEnclosure animals={subject.animals} />
+                <AnimalsInEnclosure animals={subject.animals} small={smallAnimalIcons} className="overflow-hidden" />
                 {/* <div className="absolute top-0 left-0 w-full h-full flex flex-wrap gap-1 content-center justify-center">
                     {subject.animals.map((animal, index) => (
                         <SubjectCircle subject={animal} className="w-10 h-10" />
                     ))}
                 </div> */}
-                {hasIncomplete && !hasOverdue ? 
-                <>
-                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-emerald-400 rounded-full" />
-                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-emerald-400 rounded-full animate-ping" />
-                </> :  hasIncomplete && hasOverdue ?
-                <>
-                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-red-400 rounded-full" />
-                    <div className="w-4 h-4 absolute top-1.5 right-1.5 bg-red-400 rounded-full animate-ping" />
-                </> : null}
+                <SubjectNotification hasIncomplete={hasIncomplete} hasOverdue={hasOverdue} small={smallAnimalIcons} />
 
             </div>
         )

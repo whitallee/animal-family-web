@@ -1,5 +1,5 @@
 import { Animal, Enclosure, Habitat, Species, Task } from "@/types/db-types";
-import { AnimalSubjectLong, AnimalWithSpecies, EnclosureWithData, Subject } from "@/types/subject-types";
+import { AnimalSubjectLong, AnimalWithSpecies, EnclosureSubjectLong, EnclosureWithData, Subject } from "@/types/subject-types";
 
 export function organizeAnimalFamily(enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[], tasks: Task[]): Subject[] {
     const unassignedAnimals: AnimalWithSpecies[] = animals.filter(animal => !animal.enclosureId).map(animal => animalToSubject(animal, species.find(s => s.speciesId === animal.speciesId)!, tasks.filter(task => task.animalId === animal.animalId)));
@@ -56,6 +56,15 @@ export function enclosureToSubject(enclosure: Enclosure, animals: Animal[], habi
             habitatImage: habitats.find(h => h.habitatId === enclosure.habitatId)!.image
         },
         tasks: tasks.filter(task => task.enclosureId === enclosure.enclosureId)
+    }
+}
+
+export function enclosureToSubjectLong(enclosure: Enclosure, animals: Animal[], tasks: Task[], habitats: Habitat[], species: Species[]): EnclosureSubjectLong {
+    return {
+        ...enclosure,
+        animals: animals.filter(animal => animal.enclosureId === enclosure.enclosureId).map(animal => animalToSubject(animal, species.find(s => s.speciesId === animal.speciesId)!, tasks.filter(task => task.animalId === animal.animalId))),
+        tasks: tasks.filter(task => task.enclosureId === enclosure.enclosureId),
+        habitat: habitats.find(h => h.habitatId === enclosure.habitatId)!
     }
 }
 

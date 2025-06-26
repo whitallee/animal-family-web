@@ -1,11 +1,11 @@
 import { useAnimals, useEnclosures, useTasks } from "@/lib/api/fetch-family";
 import { useHabitats, useSpecies } from "@/lib/api/fetch-species-habitats";
-import { BookOpenText } from "lucide-react";
+import { BookOpenText, Loader2 } from "lucide-react";
 import { unstable_ViewTransition as ViewTransition } from 'react'
 import { FamilyListSkeleton } from "@/components/Skeletons";
 import { Animal, Enclosure, Habitat, Species, Task } from "@/types/db-types";
-import { animalToSubject, animalToSubjectLong } from "@/lib/helpers";
-import { AnimalWithSpecies, AnimalSubjectLong } from "@/types/subject-types";
+import { animalToSubject, animalToSubjectLong, enclosureToSubject, enclosureToSubjectLong } from "@/lib/helpers";
+import { AnimalWithSpecies, AnimalSubjectLong, EnclosureSubjectLong, EnclosureWithData } from "@/types/subject-types";
 import { SubjectCircle } from "@/components/SubjectSection";
 import {
     Accordion,
@@ -25,7 +25,7 @@ import TasksCard from "@/components/TasksCard";
 function AnimalItem({ animalShort }: { animalShort: AnimalWithSpecies }) {
     return (
         <div className="flex flex-row gap-2 items-center w-full">
-            <SubjectCircle subject={animalShort} className="w-16 h-16 min-w-16 min-h-16 aspect-square my-2" />
+            <SubjectCircle smallAnimalIcons subject={animalShort} className="w-16 h-16 min-w-16 min-h-16 aspect-square my-2" />
             <div className="flex flex-col items-start">
                 <h2 className="text-lg font-medium text-nowrap overflow-hidden text-ellipsis max-w-56 flex-nowrap">{animalShort.animalName}</h2>
                 <p className="text-sm text-stone-400">{animalShort.species.speciesName}</p>
@@ -36,41 +36,41 @@ function AnimalItem({ animalShort }: { animalShort: AnimalWithSpecies }) {
 
 function AnimalDetails({ animalLong }: { animalLong: AnimalSubjectLong }) {
     return (
-            <div className="flex flex-col bg-stone-800 p-4 rounded-lg justify-between">
-                <TasksCard tasks={animalLong.tasks} isPending={false} className="mb-2"/>
-                <p><span className="font-bold text-stone-400">Common Name:</span> {animalLong.species.comName}</p>
-                <div className="flex flex-row gap-2 items-center mb-2">
-                    <span className="font-bold text-stone-400">Scientific Name:</span> {animalLong.species.sciName}
-                    <Popover>
-                        <PopoverTrigger><BookOpenText className="w-4 h-4 inline-block text-emerald-400" /></PopoverTrigger>
-                        <PopoverContent className="bg-stone-700 text-stone-50 p-2 rounded-lg border-stone-500 text-sm">
-                            <p>{animalLong.species.speciesDesc}</p>
-                        </PopoverContent>
-                    </Popover>
-                </div>
-                <p><span className="font-bold text-stone-400">Gender:</span> {animalLong.gender}</p>
-                <p><span className="font-bold text-stone-400">Date of Birth:</span> {moment(new Date(animalLong.dob)).format('MM/DD/YYYY')} - {moment(new Date(animalLong.dob)).fromNow()}</p>
-                <p className="mb-2"><span className="font-bold text-stone-400">Personality:</span> {animalLong.personalityDesc}</p>
-                <p className=""><span className="font-bold text-stone-400">Diet:</span> {animalLong.dietDesc}</p>
-                <p className=""><span className="font-bold text-stone-400">Routine:</span> {animalLong.routineDesc}</p>
-                {animalLong.enclosure ?
-                    <>
-                        <p><span className="font-bold text-stone-400">Enclosure:</span> {animalLong.enclosure?.enclosureName}</p>
-                        <div className="flex flex-row gap-2 items-center">
-                            <span className="font-bold text-stone-400">Habitat:</span> {animalLong.habitat?.habitatName}
-                            <Popover>
-                                <PopoverTrigger><BookOpenText className="w-4 h-4 inline-block text-emerald-400" /></PopoverTrigger>
-                                <PopoverContent className="bg-stone-700 text-stone-50 p-2 rounded-lg border-stone-500 text-sm">
-                                    <p>{animalLong.habitat?.habitatDesc}</p>
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-                    </>
-                :
-                    null
-                }
-                <p className="mt-2"><span className="font-bold text-stone-400">Extra Notes:</span> {animalLong.extraNotes}</p>
+        <div className="flex flex-col bg-stone-800 p-4 rounded-lg justify-between">
+            <TasksCard tasks={animalLong.tasks} isPending={false} className="mb-2"/>
+            <p><span className="font-bold text-stone-400">Common Name:</span> {animalLong.species.comName}</p>
+            <div className="flex flex-row gap-2 items-center mb-2">
+                <span className="font-bold text-stone-400">Scientific Name:</span> {animalLong.species.sciName}
+                <Popover>
+                    <PopoverTrigger><BookOpenText className="w-4 h-4 inline-block text-emerald-400" /></PopoverTrigger>
+                    <PopoverContent className="bg-stone-700 text-stone-50 p-2 rounded-lg border-stone-500 text-sm">
+                        <p>{animalLong.species.speciesDesc}</p>
+                    </PopoverContent>
+                </Popover>
             </div>
+            <p><span className="font-bold text-stone-400">Gender:</span> {animalLong.gender}</p>
+            <p><span className="font-bold text-stone-400">Date of Birth:</span> {moment(new Date(animalLong.dob)).format('MM/DD/YYYY')} - {moment(new Date(animalLong.dob)).fromNow()}</p>
+            <p className="mb-2"><span className="font-bold text-stone-400">Personality:</span> {animalLong.personalityDesc}</p>
+            <p className=""><span className="font-bold text-stone-400">Diet:</span> {animalLong.dietDesc}</p>
+            <p className=""><span className="font-bold text-stone-400">Routine:</span> {animalLong.routineDesc}</p>
+            {animalLong.enclosure ?
+                <>
+                    <p><span className="font-bold text-stone-400">Enclosure:</span> {animalLong.enclosure?.enclosureName}</p>
+                    <div className="flex flex-row gap-2 items-center">
+                        <span className="font-bold text-stone-400">Habitat:</span> {animalLong.habitat?.habitatName}
+                        <Popover>
+                            <PopoverTrigger><BookOpenText className="w-4 h-4 inline-block text-emerald-400" /></PopoverTrigger>
+                            <PopoverContent className="bg-stone-700 text-stone-50 p-2 rounded-lg border-stone-500 text-sm">
+                                <p>{animalLong.habitat?.habitatDesc}</p>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+                </>
+            :
+                null
+            }
+            <p className="mt-2"><span className="font-bold text-stone-400">Extra Notes:</span> {animalLong.extraNotes}</p>
+        </div>
     )
 }
 
@@ -81,13 +81,66 @@ function AnimalList({ animals, enclosures, tasks, habitats, species }: { animals
                 const animalWithSpeciesLong = animalToSubjectLong(animal, species.find(s => s.speciesId === animal.speciesId)!, tasks, enclosures, habitats);
                 const animalWithSpeciesShort = animalToSubject(animal, species.find(s => s.speciesId === animal.speciesId)!, tasks.filter(task => task.animalId === animal.animalId));
                 return (
-                    <AccordionItem value={animal.animalId.toString()} key={animal.animalId}>
-                        <div className="flex items-center">
+                    <AccordionItem value={animal.animalId.toString()} key={animal.animalId} className="w-full">
+                        <div className="flex items-center w-full">
                             <AnimalItem animalShort={animalWithSpeciesShort} />
                             <AccordionTrigger className="flex-1" />
                         </div>
                         <AccordionContent>
                             <AnimalDetails animalLong={animalWithSpeciesLong} />
+                        </AccordionContent>
+                    </AccordionItem>
+                )
+            })}
+        </Accordion>
+    )
+}
+
+function EnclosureItem({ enclosureShort }: { enclosureShort: EnclosureWithData }) {
+    return (
+        <div className="flex flex-row gap-2 items-center w-full">
+            <SubjectCircle smallAnimalIcons subject={enclosureShort} className="w-16 h-16 min-w-16 min-h-16 aspect-square my-2" />
+            <div className="flex flex-col items-start">
+                <h2 className="text-lg font-medium text-nowrap overflow-hidden text-ellipsis max-w-56 flex-nowrap">{enclosureShort.enclosureName}</h2>
+                <p className="text-sm text-stone-400">{enclosureShort.habitat.habitatName}</p>
+            </div>
+        </div>
+    )
+}
+
+function EnclosureDetails({ enclosureLong }: { enclosureLong: EnclosureSubjectLong }) {
+    return (
+        <div className="flex flex-col bg-stone-800 p-4 rounded-lg justify-between">
+            <TasksCard tasks={enclosureLong.tasks} isPending={false} className="mb-2"/>
+            <p><span className="font-bold text-stone-400">Enclosure:</span> {enclosureLong.enclosureName}</p>
+            <div className="flex flex-row gap-2 items-center mb-2">
+                <span className="font-bold text-stone-400">Habitat:</span> {enclosureLong.habitat.habitatName}
+                <Popover>
+                    <PopoverTrigger><BookOpenText className="w-4 h-4 inline-block text-emerald-400" /></PopoverTrigger>
+                    <PopoverContent className="bg-stone-700 text-stone-50 p-2 rounded-lg border-stone-500 text-sm">
+                        <p>{enclosureLong.habitat.habitatDesc}</p>
+                    </PopoverContent>
+                </Popover>
+            </div>
+            <p className="mt-2"><span className="font-bold text-stone-400">Extra Notes:</span> {enclosureLong.notes}</p>
+        </div>
+    )
+}
+
+function EnclosureList({ enclosures, animals, tasks, habitats, species }: { enclosures: Enclosure[], animals: Animal[], tasks: Task[], habitats: Habitat[], species: Species[] }) {
+    return (
+        <Accordion type="single" collapsible className="w-full">
+            {enclosures.map((enclosure) => {
+                const enclosureWithDataLong = enclosureToSubjectLong(enclosure, animals, tasks, habitats, species);
+                const enclosureWithDataShort = enclosureToSubject(enclosure, animals, habitats, species, tasks);
+                return (
+                    <AccordionItem value={enclosure.enclosureId.toString()} key={enclosure.enclosureId} className="w-full">
+                        <div className="flex items-center w-full">
+                            <EnclosureItem enclosureShort={enclosureWithDataShort} />
+                            <AccordionTrigger className="flex-1" />
+                        </div>
+                        <AccordionContent>
+                            <EnclosureDetails enclosureLong={enclosureWithDataLong} />
                         </AccordionContent>
                     </AccordionItem>
                 )
@@ -106,17 +159,13 @@ export default function FamilyPage() {
     return (
         <ViewTransition name="family">
             <div className="h-[calc(100vh-5rem)] w-[calc(100%-1rem)] flex flex-col gap-4 items-start bg-stone-700 text-stone-50 shadow-lg border-stone-600 rounded-lg p-4 mt-2 overflow-y-scroll">
-                <Tabs defaultValue="animals">
+                <Tabs defaultValue="animals" className="w-full">
                     <TabsList className="bg-stone-800 text-stone-50 w-full">
-                        <TabsTrigger value="animals">Animals ({animals?.length || 0})</TabsTrigger>
-                        <TabsTrigger value="enclosures">Enclosures ({enclosures?.length || 0})</TabsTrigger>
+                        <TabsTrigger value="animals" className="text-stone-400 data-[state=active]:text-stone-900">Animals {animalsPending ? <Loader2 className="animate-spin"/> : ("(" + animals?.length + ")") || "(0)"}</TabsTrigger>
+                        <TabsTrigger value="enclosures" className="text-stone-400 data-[state=active]:text-stone-900">Enclosures {enclosuresPending ? <Loader2 className="animate-spin"/> : ("(" + enclosures?.length + ")") || "(0)"}</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="animals">
-                    {/* <div className="flex flex-row justify-between items-center w-full">
-                        <h1 className="text-2xl font-medium">Family </h1>
-                        <Link href="/" className="w-6 h-6 p-0"><ChevronLeft className="w-6 h-6" /></Link>
-                    </div> */}
                     {animalsPending || enclosuresPending || tasksPending || speciesPending || habitatsPending ?
                         <FamilyListSkeleton />
                         : 
@@ -124,7 +173,11 @@ export default function FamilyPage() {
                     </TabsContent>
 
                     <TabsContent value="enclosures">
-                        <div className="text-center text-stone-400 w-full">Enclosures page under construction</div>
+                        {enclosuresPending || animalsPending || tasksPending || speciesPending || habitatsPending ?
+                            <FamilyListSkeleton />
+                            :
+                            <EnclosureList enclosures={enclosures || []} animals={animals || []} tasks={tasks || []} habitats={habitats || []} species={species || []} />
+                        }
                     </TabsContent>
                 </Tabs>
             </div>
