@@ -9,7 +9,7 @@ import {
     DrawerTrigger,
 } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, CheckIcon, ChevronDownIcon, ChevronsUpDownIcon, Plus } from "lucide-react";
+import { Calendar as CalendarIcon, CheckIcon, ChevronsUpDownIcon, Plus } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,8 +51,8 @@ export default function AddAnythingDrawer() {
     const [enclosureId, setEnclosureId] = useState("");
 
     const createAnimalMutation = useCreateAnimal();
-    const { data: species, isPending: speciesPending } = useSpecies();
-    const { data: enclosures, isPending: enclosuresPending } = useEnclosures();
+    const { data: species } = useSpecies();
+    const { data: enclosures } = useEnclosures();
 
     const handleCreateAnimal = async (e: React.FormEvent) => {
         e.preventDefault();
