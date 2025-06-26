@@ -20,7 +20,7 @@ import { SubjectCircle } from "./SubjectSection";
 import { TaskListSkeleton } from "@/components/Skeletons";
 
 // Icons
-import { CalendarDays, Check, ChevronLeft, Loader2, TriangleAlert } from 'lucide-react';
+import { CalendarDays, Check, Loader2, TriangleAlert } from 'lucide-react';
 
 // API Hooks
 import { useMarkTaskComplete, useMarkTaskIncomplete } from '@/lib/api/task-mutations';
