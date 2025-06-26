@@ -3,8 +3,8 @@
 import { HomeIcon, ListIcon, PawPrintIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import UserDrawer from "@/components/UserDrawer";
-import AddAnythingDrawer from "@/components/AddAnythingDrawer";
+import UserDrawer from "@/components/nav/UserDrawer";
+import AddAnythingDrawer from "@/components/nav/AddAnythingDrawer";
 
 function NavPathItem({ href, children }: { href: string, children: React.ReactNode }) {
     const pathname = usePathname();

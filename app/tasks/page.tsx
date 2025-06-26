@@ -1,7 +1,7 @@
 "use client";
 
-import NavBarGap from "@/components/NavBarGap";
-import BottomNav from "@/components/BottomNav";
+import NavBarGap from "@/components/nav/NavBarGap";
+import BottomNav from "@/components/nav/BottomNav";
 import TasksPage from "@/components/TasksPage";
 
 export default function Tasks() {

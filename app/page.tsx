@@ -1,7 +1,7 @@
 "use client";
 
-import BottomNav from "@/components/BottomNav";
-import NavBarGap from "@/components/NavBarGap";
+import BottomNav from "@/components/nav/BottomNav";
+import NavBarGap from "@/components/nav/NavBarGap";
 import SubjectSection from "@/components/SubjectSection";
 import TasksCard from "@/components/TasksCard";
 import { useEnclosures, useAnimals } from "@/lib/api/fetch-family";

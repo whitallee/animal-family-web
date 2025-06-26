@@ -1,7 +1,7 @@
 "use client";
 
-import BottomNav from "@/components/BottomNav";
-import NavBarGap from "@/components/NavBarGap";
+import BottomNav from "@/components/nav/BottomNav";
+import NavBarGap from "@/components/nav/NavBarGap";
 import FamilyPage from "@/components/FamilyPage";
 
 export default function Family() {

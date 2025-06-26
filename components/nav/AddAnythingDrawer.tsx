@@ -99,7 +99,7 @@ export default function AddAnythingDrawer() {
             <DrawerTrigger asChild>
                 <Plus className="w-6 h-6 text-stone-500" />
             </DrawerTrigger>
-            <DrawerContent className="bg-stone-700 text-stone-50 min-h-[85%]">
+            <DrawerContent className="bg-stone-700 text-stone-50 min-h-[80%]">
                 <DrawerHeader>
                     <DrawerTitle className="text-stone-50">Add New</DrawerTitle>
                     <DrawerDescription className="text-stone-400">Create a new animal, enclosure, or task</DrawerDescription>
@@ -255,7 +255,7 @@ export default function AddAnythingDrawer() {
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[200px] p-0 bg-stone-600 border-stone-500 text-stone-50">
-                                        <Command className="bg-stone-600 border-stone-500 text-stone-50">
+                                        <Command className="bg-stone-600 border-stone-500 text-stone-50 max-h-[200px] sm:max-h-[400px] overflow-y-scroll overflow-x-hidden">
                                         <CommandInput placeholder="Search species..." />
                                         <CommandList>
                                             <CommandEmpty>No species found.</CommandEmpty>
@@ -317,7 +317,7 @@ export default function AddAnythingDrawer() {
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[200px] p-0 bg-stone-600 border-stone-500 text-stone-50">
-                                        <Command className="bg-stone-600 border-stone-500 text-stone-50">
+                                        <Command className="bg-stone-600 border-stone-500 text-stone-50 max-h-[200px] sm:max-h-[400px] overflow-y-scroll overflow-x-hidden">
                                         <CommandInput placeholder="Search enclosures..." />
                                         <CommandList>
                                             <CommandEmpty>No enclosures found.</CommandEmpty>
