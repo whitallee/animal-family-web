@@ -28,7 +28,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-stone-900 text-stone-50`}>
         <Providers>
           {/* emerald, teal, and stone palettes */}
-          <main className="flex flex-col items-center">
+          <main className="flex flex-col items-center max-w-screen-sm mx-auto">
             {children}
           </main>
           {/* <footer className="text-center text-xs text-stone-500">

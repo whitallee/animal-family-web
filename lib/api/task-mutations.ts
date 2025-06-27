@@ -64,3 +64,33 @@ export const useMarkTaskIncomplete = () => {
         }
     });
 };
+
+export const createTask = async (token: string, task: Task) => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/task`, {
+        method: "POST",
+        headers: {
+            "Authorization": `${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            "taskName": task.taskName,
+            "taskDesc": task.taskDesc,
+            "repeatIntervHours": task.repeatIntervHours,
+            "animalId": task.animalId,
+            "enclosureId": task.enclosureId
+        })
+    });
+    return res.json();
+};
+
+export const useCreateTask = () => {
+    const { user, token } = useAuth();
+    const queryClient = getQueryClient();
+    
+    return useMutation({
+        mutationFn: (task: Task) => createTask(token!, task),
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["tasks", { user: user?.userId }] });
+        }
+    });
+};

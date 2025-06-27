@@ -38,12 +38,12 @@ function AnimalDetails({ animalLong }: { animalLong: AnimalSubjectLong }) {
     return (
         <div className="flex flex-col bg-stone-800 p-4 rounded-lg justify-between">
             <TasksCard tasks={animalLong.tasks} isPending={false} className="mb-2"/>
-            <p><span className="font-bold text-stone-400">Common Name:</span> {animalLong.species.comName}</p>
             <div className="flex flex-row gap-2 items-center mb-2">
-                <span className="font-bold text-stone-400">Scientific Name:</span> {animalLong.species.sciName}
+                <span className="font-bold text-stone-400">Species:</span> {animalLong.species.comName}
                 <Popover>
                     <PopoverTrigger><BookOpenText className="w-4 h-4 inline-block text-emerald-400" /></PopoverTrigger>
                     <PopoverContent className="bg-stone-700 text-stone-50 p-2 rounded-lg border-stone-500 text-sm">
+                        <p className="mb-1">Scientific Name: {animalLong.species.sciName}</p>
                         <p>{animalLong.species.speciesDesc}</p>
                     </PopoverContent>
                 </Popover>

@@ -1,7 +1,7 @@
 import { Animal } from "@/types/db-types";
 import { useMutation } from "@tanstack/react-query";
-import { useAuth } from "../AuthContext";
-import { getQueryClient } from "../get-query-client";
+import { useAuth } from "@/lib/AuthContext";
+import { getQueryClient } from "@/lib/get-query-client";
 
 export const createAnimal = async (token: string, animal: Animal) => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/animal`, {

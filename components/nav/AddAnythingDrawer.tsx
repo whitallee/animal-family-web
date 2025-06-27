@@ -14,9 +14,9 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCreateAnimal } from "@/lib/api/animal-mutations";
-import { useSpecies } from "@/lib/api/fetch-species-habitats";
-import { useEnclosures } from "@/lib/api/fetch-family";
-import { Animal, Enclosure } from "@/types/db-types";
+import { useHabitats, useSpecies } from "@/lib/api/fetch-species-habitats";
+import { useAnimals, useEnclosures } from "@/lib/api/fetch-family";
+import { Animal, Enclosure, Task } from "@/types/db-types";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -31,10 +31,17 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useCreateEnclosure } from "@/lib/api/enclosure-mutations";
+import { useCreateTask } from "@/lib/api/task-mutations";
 
 export default function AddAnythingDrawer() {
     const [open, setOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<'animal' | 'enclosure' | 'task'>('animal');
+    const [activeTab, setActiveTab] = useState<'animal' | 'enclosure' | 'task'>('task');
+
+    const { data: species } = useSpecies();
+    const { data: enclosures } = useEnclosures();
+    const { data: habitats } = useHabitats();
+    const { data: animals } = useAnimals();
     
     // Animal form state
     const [animalName, setAnimalName] = useState("");
@@ -51,16 +58,31 @@ export default function AddAnythingDrawer() {
     const [speciesId, setSpeciesId] = useState("");
     const [enclosureId, setEnclosureId] = useState("");
 
+     // Enclosure form state
+     const [enclosureName, setEnclosureName] = useState("");
+     const [enclosureImage, setEnclosureImage] = useState("");
+     const [enclosureNotes, setEnclosureNotes] = useState("");
+     const [openHabitat, setOpenHabitat] = useState(false);
+     const [habitatId, setHabitatId] = useState("");
+
+    // Task form state
+    const [taskName, setTaskName] = useState("");
+    const [taskDesc, setTaskDesc] = useState("");
+    const [repeatIntervUnitAmt, setRepeatIntervUnitAmt] = useState(0);
+    const [repeatIntervUnitType, setRepeatIntervUnitType] = useState("days");
+    const [openAnimalInTask, setOpenAnimalInTask] = useState(false);
+    const [openEnclosureInTask, setOpenEnclosureInTask] = useState(false);
+    const [animalIdSubject, setAnimalIdSubject] = useState(0);
+    const [enclosureIdSubject, setEnclosureIdSubject] = useState(0);
+
+    // Mutations
     const createAnimalMutation = useCreateAnimal();
-    const { data: species } = useSpecies();
-    const { data: enclosures } = useEnclosures();
+    const createEnclosureMutation = useCreateEnclosure();
+    const createTaskMutation = useCreateTask();
 
     const handleCreateAnimal = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            // Format the date to include time if provided, otherwise use current time
-            // const formattedDob = dob ? `${dob}T00:00:00Z` : new Date().toISOString();
-            
             const animal: Animal = {
                 animalId: 0, // Will be set by backend
                 animalName,
@@ -95,6 +117,74 @@ export default function AddAnythingDrawer() {
         }
     };
 
+    const handleCreateEnclosure = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const enclosure: Enclosure = {
+                enclosureId: 0, // Will be set by backend
+                enclosureName: enclosureName,
+                image: enclosureImage,
+                notes: enclosureNotes,
+                habitatId: parseInt(habitatId)
+            };
+
+            console.log(enclosure);
+
+            await createEnclosureMutation.mutateAsync(enclosure);
+            setOpen(false);
+            // Reset form
+            setEnclosureName("");
+            setEnclosureImage("");
+            setEnclosureNotes("");
+            setHabitatId("");
+        } catch (error) {
+            console.error('Failed to create enclosure:', error);
+        }
+    };
+
+    const handleCreateTask = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            let repeatIntervHours = 0;
+            if (repeatIntervUnitType === "hours") {
+                repeatIntervHours = repeatIntervUnitAmt;
+            } else if (repeatIntervUnitType === "days") {
+                repeatIntervHours = repeatIntervUnitAmt * 24;
+            } else if (repeatIntervUnitType === "weeks") {
+                repeatIntervHours = repeatIntervUnitAmt * 24 * 7;
+            } else if (repeatIntervUnitType === "months") {
+                repeatIntervHours = repeatIntervUnitAmt * 24 * 30;
+            } else if (repeatIntervUnitType === "years") {
+                repeatIntervHours = repeatIntervUnitAmt * 24 * 365;
+            }
+
+            const task: Task = {
+                taskId: 0, // Will be set by backend
+                taskName: taskName,
+                taskDesc: taskDesc,
+                complete: false,
+                lastCompleted: "",
+                repeatIntervHours: repeatIntervHours,
+                animalId: animalIdSubject,
+                enclosureId: enclosureIdSubject
+            };
+            
+            console.log(task);
+
+            await createTaskMutation.mutateAsync(task);
+            setOpen(false);
+            // Reset form
+            setTaskName("");
+            setTaskDesc("");
+            setRepeatIntervUnitAmt(0);
+            setRepeatIntervUnitType("days");
+            setAnimalIdSubject(0);
+            setEnclosureIdSubject(0);
+        } catch (error) {
+            console.error('Failed to create task:', error);
+        }
+    };
+
     return (
         <Drawer open={open} onOpenChange={setOpen}>
             <DrawerTrigger asChild>
@@ -109,12 +199,12 @@ export default function AddAnythingDrawer() {
                 {/* Tab Navigation */}
                 <div className="px-4 flex gap-2 mb-4">
                     <Button 
-                        variant={activeTab === 'animal' ? 'default' : 'ghost'}
+                        variant={activeTab === 'task' ? 'default' : 'ghost'}
                         size="sm"
-                        onClick={() => setActiveTab('animal')}
+                        onClick={() => setActiveTab('task')}
                         className="text-stone-50"
                     >
-                        Animal
+                        Task
                     </Button>
                     <Button 
                         variant={activeTab === 'enclosure' ? 'default' : 'ghost'}
@@ -125,12 +215,12 @@ export default function AddAnythingDrawer() {
                         Enclosure
                     </Button>
                     <Button 
-                        variant={activeTab === 'task' ? 'default' : 'ghost'}
+                        variant={activeTab === 'animal' ? 'default' : 'ghost'}
                         size="sm"
-                        onClick={() => setActiveTab('task')}
+                        onClick={() => setActiveTab('animal')}
                         className="text-stone-50"
                     >
-                        Task
+                        Animal
                     </Button>
                 </div>
 
@@ -152,6 +242,7 @@ export default function AddAnythingDrawer() {
                         <div className="space-y-2">
                             <Label htmlFor="animalImage" className="text-stone-50">Image URL</Label>
                             <Input
+                                disabled
                                 id="animalImage"
                                 value={animalImage}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAnimalImage(e.target.value)}
@@ -172,31 +263,9 @@ export default function AddAnythingDrawer() {
                                     required
                                 />
                             </div>
+
                             <div className="space-y-2">
                                 <Label htmlFor="dob" className="text-stone-50">Date of Birth</Label>
-                                {/* <Input
-                                    id="dob"
-                                    type="date"
-                                    value={dob}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDob(e.target.value)}
-                                    className="bg-stone-600 border-stone-500 text-stone-50"
-                                    required
-                                /> */}
-                                {/* <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                        variant="outline"
-                                        data-empty={!dob}
-                                        className="data-[empty=true]:text-muted-foreground w-full justify-start text-left font-normal bg-stone-600 border-stone-500 text-stone-50"
-                                        >
-                                        <CalendarIcon />
-                                        {dob ? format(dob, "PPP") : <span>Pick a date</span>}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0 bg-stone-600 border-stone-500 text-stone-50 min-h-[336px]">
-                                        <Calendar mode="single" selected={dob ? new Date(dob) : undefined} onSelect={(date) => setDob(date?.toISOString() || "")} />
-                                    </PopoverContent>
-                                </Popover> */}
                                 <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                                     <PopoverTrigger asChild>
                                     <Button
@@ -226,21 +295,6 @@ export default function AddAnythingDrawer() {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="speciesId" className="text-stone-50">Species</Label>
-                                {/* <select
-                                    id="speciesId"
-                                    value={speciesId}
-                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSpeciesId(e.target.value)}
-                                    className="bg-stone-600 border-stone-500 text-stone-50 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
-                                    required
-                                    disabled={speciesPending}
-                                >
-                                    <option value="">Select a species</option>
-                                    {species?.map((s) => (
-                                        <option key={s.speciesId} value={s.speciesId}>
-                                            {s.comName} ({s.sciName})
-                                        </option>
-                                    ))}
-                                </select> */}
                                 <Popover open={openSpecies} onOpenChange={setOpenSpecies}>
                                     <PopoverTrigger asChild>
                                         <Button
@@ -287,24 +341,9 @@ export default function AddAnythingDrawer() {
                                     </PopoverContent>
                                 </Popover>
                             </div>
+
                             <div className="space-y-2">
                                 <Label htmlFor="enclosureId" className="text-stone-50">Enclosure</Label>
-                                {/* <select
-                                    id="enclosureId"
-                                    value={enclosureId}
-                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEnclosureId(e.target.value)}
-                                    className="bg-stone-600 border-stone-500 text-stone-50 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
-                                    required
-                                    disabled={enclosuresPending}
-                                >
-                                    <option disabled value="">Select an enclosure</option>
-                                    <option value="0">No Enclosure</option>
-                                    {enclosures?.map((e: Enclosure) => (
-                                        <option key={e.enclosureId} value={e.enclosureId}>
-                                            {e.enclosureName}
-                                        </option>
-                                    ))}
-                                </select> */}
                                 <Popover open={openEnclosure} onOpenChange={setOpenEnclosure}>
                                     <PopoverTrigger asChild>
                                         <Button
@@ -415,20 +454,274 @@ export default function AddAnythingDrawer() {
                     </form>
                 )}
 
-                {/* Enclosure Form - Disabled */}
+                {/* Enclosure Form */}
                 {activeTab === 'enclosure' && (
-                    <div className="px-4 space-y-4">
-                        <p className="text-stone-400 text-center py-8">Enclosure creation coming soon...</p>
-                        <Button disabled className="w-full text-stone-50">Create Enclosure</Button>
+                    <form onSubmit={handleCreateEnclosure} className="px-4 space-y-4 overflow-y-scroll overflow-x-hidden">
+                    <div className="space-y-2">
+                        <Label htmlFor="enclosureName" className="text-stone-50">Enclosure Name</Label>
+                        <Input
+                            id="enclosureName"
+                            value={enclosureName}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEnclosureName(e.target.value)}
+                            className="bg-stone-600 border-stone-500 text-stone-50"
+                            placeholder="Enter enclosure name"
+                            required
+                        />
                     </div>
+                    
+                    <div className="space-y-2">
+                        <Label htmlFor="enclosureImage" className="text-stone-50">Image URL</Label>
+                        <Input
+                            disabled
+                            id="enclosureImage"
+                            value={enclosureImage}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEnclosureImage(e.target.value)}
+                            className="bg-stone-600 border-stone-500 text-stone-50"
+                            placeholder="Enter image URL - currently unavailable"
+                        />
+                    </div>
+                        
+                    <div className="space-y-2">
+                        <Label htmlFor="habitatId" className="text-stone-50">Habitat</Label>
+                        <Popover open={openHabitat} onOpenChange={setOpenHabitat}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={openHabitat}
+                                className="w-full justify-between bg-stone-600 border-stone-500 text-stone-300 font-normal text-md overflow-hidden"
+                                >
+                                {habitatId
+                                    ? habitats?.find((h) => h.habitatId.toString() === habitatId)?.habitatName
+                                    : "Select habitat"}
+                                <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[200px] p-0 bg-stone-600 border-stone-500 text-stone-50">
+                                <Command className="bg-stone-600 border-stone-500 text-stone-50">
+                                <CommandInput placeholder="Search habitats..." />
+                                <CommandList>
+                                    <ScrollArea className="h-[150px]">
+                                        <CommandEmpty>No habitats found.</CommandEmpty>
+                                        <CommandGroup>
+                                        {habitats?.map((h) => (
+                                            <CommandItem className="bg-stone-600 border-stone-500 text-stone-50"
+                                            key={`${h.habitatId}-${h.habitatName}-${h.habitatDesc}`}
+                                            value={`${h.habitatId}-${h.habitatName}-${h.habitatDesc}`}
+                                            onSelect={(currentValue) => {
+                                                setHabitatId(currentValue.split("-")[0])
+                                                setOpenHabitat(false)
+                                            }}
+                                            >
+                                            <CheckIcon
+                                                className={cn(
+                                                "mr-2 h-4 w-4",
+                                                habitatId === h.habitatId.toString() ? "opacity-100" : "opacity-0"
+                                                )}
+                                            />
+                                            {h.habitatName}
+                                            </CommandItem>
+                                        ))}
+                                        </CommandGroup>
+                                    </ScrollArea>
+                                </CommandList>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="enclosureNotes" className="text-stone-50">Notes</Label>
+                        <Textarea
+                            id="enclosureNotes"
+                            value={enclosureNotes}
+                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEnclosureNotes(e.target.value)}
+                            className="bg-stone-600 border-stone-500 text-stone-50"
+                            placeholder="Any additional notes"
+                            rows={3}
+                            required
+                        />
+                    </div>
+
+                    <Button 
+                        type="submit" 
+                        className="w-full text-stone-50"
+                        disabled={createEnclosureMutation.isPending}
+                    >
+                        {createEnclosureMutation.isPending ? "Creating..." : "Create Enclosure"}
+                    </Button>
+                </form>
                 )}
 
-                {/* Task Form - Disabled */}
+                {/* Task Form */}
                 {activeTab === 'task' && (
-                    <div className="px-4 space-y-4">
-                        <p className="text-stone-400 text-center py-8">Task creation coming soon...</p>
-                        <Button disabled className="w-full text-stone-50">Create Task</Button>
+                    <form onSubmit={handleCreateTask} className="px-4 space-y-4 overflow-y-scroll overflow-x-hidden">
+                    <div className="space-y-2">
+                        <Label htmlFor="taskName" className="text-stone-50">Task Name</Label>
+                        <Input
+                            id="taskName"
+                            value={taskName}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTaskName(e.target.value)}
+                            className="bg-stone-600 border-stone-500 text-stone-50"
+                            placeholder="Enter task name"
+                            required
+                        />
                     </div>
+                    
+                    <div className="space-y-2">
+                        <Label htmlFor="taskDesc" className="text-stone-50">Task Notes</Label>
+                        <Textarea
+                            id="taskDesc"
+                            value={taskDesc}
+                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setTaskDesc(e.target.value)}
+                            className="bg-stone-600 border-stone-500 text-stone-50"
+                            placeholder="Enter task notes"
+                            rows={3}
+                            required
+                        />
+                    </div>
+                        
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                        <div className="text-stone-500 col-span-2">Select either an animal or an enclosure</div>
+                        
+                        <div className="space-y-2">
+                            <Label htmlFor="animalId" className="text-stone-50">Animal</Label>
+                            <Popover open={openAnimalInTask} onOpenChange={setOpenAnimalInTask}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={openAnimalInTask}
+                                    className="w-full justify-between bg-stone-600 border-stone-500 text-stone-300 font-normal text-md overflow-hidden"
+                                    >
+                                    {animalIdSubject
+                                        ? animals?.find((a: Animal) => a.animalId === animalIdSubject)?.animalName
+                                        : "Select animal"}
+                                    <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[200px] p-0 bg-stone-600 border-stone-500 text-stone-50">
+                                    <Command className="bg-stone-600 border-stone-500 text-stone-50">
+                                    <CommandInput placeholder="Search animals..." />
+                                    <CommandList>
+                                        <ScrollArea className="h-[150px]">
+                                            <CommandEmpty>No animals found.</CommandEmpty>
+                                            <CommandGroup>
+                                            {animals?.map((a: Animal) => (
+                                                <CommandItem className="bg-stone-600 border-stone-500 text-stone-50"
+                                                key={`${a.animalId}-${a.animalName}`}
+                                                value={`${a.animalId}-${a.animalName}`}
+                                                onSelect={(currentValue) => {
+                                                    setAnimalIdSubject(parseInt(currentValue.split("-")[0]))
+                                                    setEnclosureIdSubject(0)
+                                                    setOpenAnimalInTask(false)
+                                                }}
+                                                >
+                                                <CheckIcon
+                                                    className={cn(
+                                                    "mr-2 h-4 w-4",
+                                                    animalIdSubject === a.animalId ? "opacity-100" : "opacity-0"
+                                                    )}
+                                                />
+                                                {a.animalName}
+                                                </CommandItem>
+                                            ))}
+                                            </CommandGroup>
+                                        </ScrollArea>
+                                    </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="enclosureId" className="text-stone-50">Enclosure</Label>
+                            <Popover open={openEnclosureInTask} onOpenChange={setOpenEnclosureInTask}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={openEnclosureInTask}
+                                    className="w-full justify-between bg-stone-600 border-stone-500 text-stone-300 font-normal text-md overflow-hidden"
+                                    >
+                                    {enclosureIdSubject
+                                        ? enclosures?.find((e: Enclosure) => e.enclosureId === enclosureIdSubject)?.enclosureName
+                                        : "Select enclosure"}
+                                    <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[200px] p-0 bg-stone-600 border-stone-500 text-stone-50">
+                                    <Command className="bg-stone-600 border-stone-500 text-stone-50">
+                                    <CommandInput placeholder="Search enclosures..." />
+                                    <CommandList>
+                                        <ScrollArea className="h-[150px]">
+                                            <CommandEmpty>No enclosures found.</CommandEmpty>
+                                            <CommandGroup>
+                                            {enclosures?.map((e: Enclosure) => (
+                                                <CommandItem className="bg-stone-600 border-stone-500 text-stone-50"
+                                                key={`${e.enclosureId}-${e.enclosureName}-${e.notes}`}
+                                                value={`${e.enclosureId}-${e.enclosureName}-${e.notes}`}
+                                                onSelect={(currentValue) => {
+                                                    setEnclosureIdSubject(parseInt(currentValue.split("-")[0]))
+                                                    setAnimalIdSubject(0)
+                                                    setOpenEnclosureInTask(false)
+                                                }}
+                                                >
+                                                <CheckIcon
+                                                    className={cn(
+                                                    "mr-2 h-4 w-4",
+                                                    enclosureIdSubject === e.enclosureId ? "opacity-100" : "opacity-0"
+                                                    )}
+                                                />
+                                                {e.enclosureName}
+                                                </CommandItem>
+                                            ))}
+                                            </CommandGroup>
+                                        </ScrollArea>
+                                    </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="repeatIntervHours" className="text-stone-50">Repeat Interval</Label>
+                        <div className="text-stone-500 flex flex-row gap-2 items-center">
+                            <div className="text-stone-500">Every</div>
+                            <Input
+                                id="repeatIntervHours"
+                                type="number"
+                                min={1}
+                                value={repeatIntervUnitAmt}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRepeatIntervUnitAmt(parseInt(e.target.value))}
+                                className="bg-stone-600 border-stone-500 text-stone-50"
+                                placeholder="3"
+                                required
+                            />
+                            <select 
+                                id="repeatIntervUnitType"
+                                value={repeatIntervUnitType}
+                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setRepeatIntervUnitType(e.target.value)}
+                                className="bg-stone-600 border-stone-500 text-stone-50 py-1 px-3 rounded-md border h-9"
+                            >
+                                <option value="hours">hours</option>
+                                <option value="days">days</option>
+                                <option value="weeks">weeks</option>
+                                <option value="months">months</option>
+                                <option value="years">years</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <Button 
+                        type="submit" 
+                        className="w-full text-stone-50"
+                        disabled={createTaskMutation.isPending}
+                    >
+                        {createTaskMutation.isPending ? "Creating..." : "Create Task"}
+                    </Button>
+                </form>
                 )}
 
                 <DrawerFooter className="max-w-md min-w-[12rem] sm:min-w-[24rem] mx-auto p-3">
