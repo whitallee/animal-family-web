@@ -129,40 +129,97 @@ function TaskList({ tasks, animals, enclosures, habitats, species }: { tasks: Ta
     if (tasks && tasks.length === 0) {
         return <div>No tasks found... Maybe you&apos;re forgetting something?</div>
     }
+
+    const categorizeTasks = (tasks: Task[]) => {
+        const categories = {
+            'incomplete': [] as Task[],
+            'resets within 6 hours': [] as Task[],
+            '6-12 hours from now': [] as Task[],
+            '12-24 hours from now': [] as Task[],
+            'within a week': [] as Task[],
+            'within a month': [] as Task[],
+            'within 3 months': [] as Task[],
+            'within a year': [] as Task[]
+        };
+
+        tasks.forEach(task => {
+            if (task.complete) {
+                const hoursUntil = hoursUntilDue(task);
+                if (hoursUntil <= 6) {
+                    categories['resets within 6 hours'].push(task);
+                } else if (hoursUntil <= 12) {
+                    categories['6-12 hours from now'].push(task);
+                } else if (hoursUntil <= 24) {
+                    categories['12-24 hours from now'].push(task);
+                } else if (hoursUntil <= 168) { // 7 days
+                    categories['within a week'].push(task);
+                } else if (hoursUntil <= 720) { // 30 days
+                    categories['within a month'].push(task);
+                } else if (hoursUntil <= 2160) { // 90 days
+                    categories['within 3 months'].push(task);
+                } else if (hoursUntil <= 8760) { // 365 days
+                    categories['within a year'].push(task);
+                }
+            } else {
+                // All incomplete tasks go to the incomplete section
+                categories['incomplete'].push(task);
+            }
+        });
+
+        return categories;
+    };
+
+    const renderTaskSection = (title: string, tasksInSection: Task[]) => {
+        if (tasksInSection.length === 0) return null;
+
+        const sortedTasks = [...tasksInSection].sort((a, b) => {
+            // For incomplete tasks, sort by highest hoursSinceDue first (most overdue first)
+            if (!a.complete && !b.complete) {
+                return hoursSinceDue(b) - hoursSinceDue(a);
+            }
+            
+            // For complete tasks, sort by smallest hoursUntilDue first
+            if (a.complete && b.complete) {
+                return hoursUntilDue(a) - hoursUntilDue(b);
+            }
+            
+            return 0;
+        });
+
+        return (
+            <div key={title} className="w-full">
+                <h3 className="text-lg font-semibold text-stone-500 mb-2 mt-4 first:mt-0">{title}</h3>
+                <Accordion type="single" collapsible className="w-full">
+                    {sortedTasks.map((task) => (
+                        <AccordionItem value={task.taskId.toString()} key={task.taskId}>
+                            <div className="flex items-center">
+                                <TaskItem task={task} />
+                                <AccordionTrigger className="flex-1" />
+                            </div>
+                            <AccordionContent>
+                                <TaskDetails task={task} animals={animals} enclosures={enclosures} habitats={habitats} species={species} tasks={tasks} />
+                            </AccordionContent>
+                        </AccordionItem>
+                    ))}
+                </Accordion>
+            </div>
+        );
+    };
+
+    const categorizedTasks = categorizeTasks(tasks || []);
+    
     return (
-        <Accordion type="single" collapsible className="w-full">
-            {tasks && [...tasks]
-                .sort((a, b) => {
-                    // First sort by completion status (incomplete first)
-                    if (a.complete !== b.complete) {
-                        return Number(a.complete) - Number(b.complete);
-                    }
-                    
-                    // For incomplete tasks, sort by highest hoursSinceDue first
-                    if (!a.complete && !b.complete) {
-                        return hoursSinceDue(b) - hoursSinceDue(a);
-                    }
-                    
-                    // For complete tasks, sort by smallest hoursUntilDue first
-                    if (a.complete && b.complete) {
-                        return hoursUntilDue(a) - hoursUntilDue(b);
-                    }
-                    
-                    return 0;
-                })
-                .map((task) => (
-            <AccordionItem value={task.taskId.toString()} key={task.taskId}>
-                <div className="flex items-center">
-                    <TaskItem task={task} />
-                    <AccordionTrigger className="flex-1" />
-                </div>
-                <AccordionContent>
-                    <TaskDetails task={task} animals={animals} enclosures={enclosures} habitats={habitats} species={species} tasks={tasks} />
-                </AccordionContent>
-            </AccordionItem>
-            ))}
-        </Accordion>
-    )
+        <div className="w-full">
+            {renderTaskSection('Incomplete', categorizedTasks['incomplete'])}
+            {renderTaskSection('Resets within 6 hours', categorizedTasks['resets within 6 hours'])}
+            {renderTaskSection('Resets within 6-12 hours', categorizedTasks['6-12 hours from now'])}
+            {renderTaskSection('Resets within 12-24 hours', categorizedTasks['12-24 hours from now'])}
+            {renderTaskSection('Resets within a week', categorizedTasks['within a week'])}
+            {renderTaskSection('Resets within a month', categorizedTasks['within a month'])}
+            {renderTaskSection('Resets within 3 months', categorizedTasks['within 3 months'])}
+            {renderTaskSection('Resets within a year', categorizedTasks['within a year'])}
+        </div>
+    );
 }
 //p-4 flex flex-col gap-3 bg-stone-700 text-stone-50 shadow-lg border-stone-600 transition-all duration-300
 export default function TasksPage() {
