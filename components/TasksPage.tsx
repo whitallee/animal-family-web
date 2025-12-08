@@ -1,6 +1,5 @@
 "use client"
 
-import { unstable_ViewTransition as ViewTransition } from 'react'
 import moment from 'moment';
 
 // UI Components
@@ -231,13 +230,11 @@ export default function TasksPage() {
 
     // console.log(organizeAnimalFamily(enclosures || [], animals || [], habitats || [], species || []));
     return (
-        <ViewTransition name="tasks">
             <div className="h-[calc(100vh-5rem)] w-[calc(100%-1rem)] flex flex-col gap-4 items-start bg-stone-700 text-stone-50 shadow-lg border-stone-600 rounded-lg p-4 mt-2 overflow-y-scroll">
                 <div className="flex flex-row justify-between items-center w-full">
                     <h1 className="text-2xl font-medium">Tasks</h1>
                 </div>
                 {animalsPending || enclosuresPending || tasksPending || speciesPending || habitatsPending ? <TaskListSkeleton /> : <TaskList tasks={tasks} animals={animals} enclosures={enclosures} habitats={habitats} species={species} />}
             </div>
-        </ViewTransition>
     );
 }
