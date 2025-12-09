@@ -1,7 +1,6 @@
 import { useAnimals, useEnclosures, useTasks } from "@/lib/api/fetch-family";
 import { useHabitats, useSpecies } from "@/lib/api/fetch-species-habitats";
 import { BookOpenText, Loader2 } from "lucide-react";
-import { unstable_ViewTransition as ViewTransition } from 'react'
 import { FamilyListSkeleton } from "@/components/Skeletons";
 import { Animal, Enclosure, Habitat, Species, Task } from "@/types/db-types";
 import { animalToSubject, animalToSubjectLong, enclosureToSubject, enclosureToSubjectLong } from "@/lib/helpers";
@@ -168,7 +167,6 @@ export default function FamilyPage() {
     const { data: species, isPending: speciesPending } = useSpecies();
 
     return (
-        <ViewTransition name="family">
             <div className="h-[calc(100vh-5rem)] w-[calc(100%-1rem)] flex flex-col gap-4 items-start bg-stone-700 text-stone-50 shadow-lg border-stone-600 rounded-lg p-4 mt-2 overflow-y-scroll">
                 <Tabs defaultValue="animals" className="w-full">
                     <TabsList className="bg-stone-800 text-stone-50 w-full">
@@ -192,6 +190,5 @@ export default function FamilyPage() {
                     </TabsContent>
                 </Tabs>
             </div>
-        </ViewTransition>
     );
 }
