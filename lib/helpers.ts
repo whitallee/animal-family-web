@@ -2,7 +2,14 @@ import { Animal, Enclosure, Habitat, Species, Task } from "@/types/db-types";
 import { AnimalSubjectLong, AnimalWithSpecies, EnclosureSubjectLong, EnclosureWithData, Subject } from "@/types/subject-types";
 
 export function organizeAnimalFamily(enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[], tasks: Task[]): Subject[] {
-    const unassignedAnimals: AnimalWithSpecies[] = animals.filter(animal => !animal.enclosureId).map(animal => animalToSubject(animal, species.find(s => s.speciesId === animal.speciesId)!, tasks.filter(task => task.animalId === animal.animalId)));
+    const unassignedAnimals: AnimalWithSpecies[] = animals
+        .filter(animal => !animal.enclosureId)
+        .map(animal => {
+            const resolvedSpecies = species.find(s => s.speciesId === animal.speciesId);
+            if (!resolvedSpecies) return null;
+            return animalToSubject(animal, resolvedSpecies, tasks.filter(task => task.animalId === animal.animalId));
+        })
+        .filter((animal): animal is AnimalWithSpecies => animal !== null);
 
     const assignedEnclosures = enclosures.map(enclosure => {
         return enclosureToSubject(enclosure, animals, habitats, species, tasks);
@@ -44,7 +51,12 @@ export function animalToSubjectLong(animal: Animal, species: Species, tasks: Tas
 export function enclosureToSubject(enclosure: Enclosure, animals: Animal[], habitats: Habitat[], species: Species[], tasks: Task[]): EnclosureWithData {
     const enclosureAnimals = animals
         .filter(animal => animal.enclosureId === enclosure.enclosureId)
-        .map(animal => animalToSubject(animal, species.find(s => s.speciesId === animal.speciesId)!, tasks));
+        .map(animal => {
+            const resolvedSpecies = species.find(s => s.speciesId === animal.speciesId);
+            if (!resolvedSpecies) return null;
+            return animalToSubject(animal, resolvedSpecies, tasks);
+        })
+        .filter((animal): animal is AnimalWithSpecies => animal !== null);
     return {
         enclosureId: enclosure.enclosureId,
         enclosureName: enclosure.enclosureName,
@@ -62,7 +74,14 @@ export function enclosureToSubject(enclosure: Enclosure, animals: Animal[], habi
 export function enclosureToSubjectLong(enclosure: Enclosure, animals: Animal[], tasks: Task[], habitats: Habitat[], species: Species[]): EnclosureSubjectLong {
     return {
         ...enclosure,
-        animals: animals.filter(animal => animal.enclosureId === enclosure.enclosureId).map(animal => animalToSubject(animal, species.find(s => s.speciesId === animal.speciesId)!, tasks.filter(task => task.animalId === animal.animalId))),
+        animals: animals
+            .filter(animal => animal.enclosureId === enclosure.enclosureId)
+            .map(animal => {
+                const foundSpecies = species.find(s => s.speciesId === animal.speciesId);
+                if (!foundSpecies) return null;
+                return animalToSubject(animal, foundSpecies, tasks.filter(task => task.animalId === animal.animalId));
+            })
+            .filter((animal): animal is AnimalWithSpecies => animal !== null),
         tasks: tasks.filter(task => task.enclosureId === enclosure.enclosureId),
         habitat: habitats.find(h => h.habitatId === enclosure.habitatId)!
     }

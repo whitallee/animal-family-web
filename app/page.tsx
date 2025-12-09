@@ -63,7 +63,7 @@ export default function Home() {
 
         {/* Family View */}
         <div
-          className="absolute inset-0 transition-transform duration-300 ease-in-out"
+          className="absolute inset-0 transition-transform duration-300 ease-in-out flex flex-col items-center"
           style={{ transform: getViewTransform("family") }}
         >
           <FamilyPage
@@ -78,7 +78,7 @@ export default function Home() {
 
         {/* Tasks View */}
         <div
-          className="absolute inset-0 transition-transform duration-300 ease-in-out"
+          className="absolute inset-0 transition-transform duration-300 ease-in-out flex flex-col items-center"
           style={{ transform: getViewTransform("tasks") }}
         >
           <TasksPage
