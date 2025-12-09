@@ -114,3 +114,5 @@ The application will be available at [http://localhost:3000](http://localhost:30
 - [ ] **Task history** (requires backend implementation first)
   - [ ] Task completion history
   - [ ] Overall action history (for easy reversal of changes)
+
+- [ ] **Lineage** (only if theres enough demand)

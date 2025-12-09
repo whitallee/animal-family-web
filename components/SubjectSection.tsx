@@ -6,7 +6,7 @@ import { hasIncompleteTasks, hasOverdueTasks, organizeAnimalFamily } from "@/lib
 import { SubjectSkeletonList } from "@/components/Skeletons";
 
 
-function SubjectList({ subjects }: { subjects: Subject[] }) {
+function SubjectList({ subjects, onSubjectClick }: { subjects: Subject[], onSubjectClick?: (type: "animal" | "enclosure", id: number) => void }) {
     const modifiedSubjects = subjects.map((subject, index) => ({
         ...subject,
         shift: (index + 1) % 5 === 4 || (index + 1) % 5 === 0
@@ -29,6 +29,15 @@ function SubjectList({ subjects }: { subjects: Subject[] }) {
                     shift={subject.shift} 
                     placeholder={subject.placeholder} 
                     key={subject.enclosureId ? `enclosure-${subject.enclosureId}` : subject.animalId ? `animal-${subject.animalId}` : `placeholder-${index}`}
+                    onClick={subject.enclosureId || subject.animalId ? () => {
+                        if (subject.enclosureId && onSubjectClick) {
+                            onSubjectClick("enclosure", subject.enclosureId);
+                        } else if (subject.animalId && onSubjectClick) {
+                            // All animals in SubjectList are unassigned (not in enclosures)
+                            // Animals inside enclosures are shown via AnimalsInEnclosure and are not clickable
+                            onSubjectClick("animal", subject.animalId);
+                        }
+                    } : undefined}
                 />
             ))}
         </>
@@ -51,7 +60,7 @@ function SubjectNotification({ hasIncomplete, hasOverdue, small }: { hasIncomple
     )
 }
 
-export function SubjectCircle({ subject, shift, placeholder, smallAnimalIcons, className, enclosureFocus }: { subject?: Subject, shift?: boolean, placeholder?: boolean, smallAnimalIcons?: boolean, className?: string, enclosureFocus?: boolean }) {
+export function SubjectCircle({ subject, shift, placeholder, smallAnimalIcons, className, enclosureFocus, onClick }: { subject?: Subject, shift?: boolean, placeholder?: boolean, smallAnimalIcons?: boolean, className?: string, enclosureFocus?: boolean, onClick?: () => void }) {
     if (placeholder || !subject ) {
         return (
             <div className={`bg-stone-700 rounded-full aspect-square relative overflow-hidden ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${placeholder ? "opacity-0" : ""} ${className || ""}`}>
@@ -64,7 +73,8 @@ export function SubjectCircle({ subject, shift, placeholder, smallAnimalIcons, c
         return (
             <>
             <div 
-                className={`bg-transparent aspect-square flex items-center justify-center relative ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${className || ""}`}
+                className={`bg-transparent aspect-square flex items-center justify-center relative ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${onClick ? "cursor-pointer" : ""} ${className || ""}`}
+                onClick={onClick}
             >
                 <Image 
                     src={subject.animalImage === "" ? subject.species.speciesImage : subject.animalImage}
@@ -86,7 +96,8 @@ export function SubjectCircle({ subject, shift, placeholder, smallAnimalIcons, c
         const hasOverdue = hasOverdueTasks(subject);
         return (
             <div 
-                className={`bg-transparent aspect-square flex items-center justify-center relative ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${className || ""}`}
+                className={`bg-transparent aspect-square flex items-center justify-center relative ${shift ? "translate-x-[calc(50%+8px)]" : ""} ${onClick ? "cursor-pointer" : ""} ${className || ""}`}
+                onClick={onClick}
             >
                 <Image 
                     src={subject.enclosureImage === "" ? subject.habitat.habitatImage : subject.enclosureImage}
@@ -111,10 +122,10 @@ export function SubjectCircle({ subject, shift, placeholder, smallAnimalIcons, c
     }
 }
 
-export default function SubjectSection({ tasks, enclosures, animals, habitats, species, isPending }: { tasks: Task[], enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[], isPending: boolean }) {    
+export default function SubjectSection({ tasks, enclosures, animals, habitats, species, isPending, onSubjectClick }: { tasks: Task[], enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[], isPending: boolean, onSubjectClick?: (type: "animal" | "enclosure", id: number) => void }) {    
     return (
         <div className="grid max-w-md my-6 grid-cols-3 w-full content-center gap-x-4 gap-y-0 overflow-y-scroll overflow-x-hidden">
-            {isPending ? <SubjectSkeletonList /> : <SubjectList subjects={organizeAnimalFamily(enclosures, animals, habitats, species, tasks)} />}
+            {isPending ? <SubjectSkeletonList /> : <SubjectList subjects={organizeAnimalFamily(enclosures, animals, habitats, species, tasks)} onSubjectClick={onSubjectClick} />}
         </div>
     )
 }

@@ -65,7 +65,7 @@ function TaskItem({ task }: { task: Task }) {
     )
 }
 
-function TaskDetails({ task, animals, enclosures, habitats, species, tasks }: { task: Task, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined, habitats: Habitat[] | undefined, species: Species[] | undefined, tasks: Task[] | undefined }) {
+function TaskDetails({ task, animals, enclosures, habitats, species, tasks, onSubjectClick }: { task: Task, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined, habitats: Habitat[] | undefined, species: Species[] | undefined, tasks: Task[] | undefined, onSubjectClick?: (type: "animal" | "enclosure", id: number) => void }) {
     let subject: Subject | undefined;
     if (!animals || !enclosures || !habitats || !species) {
         return <div>No subject found...</div>
@@ -84,7 +84,16 @@ function TaskDetails({ task, animals, enclosures, habitats, species, tasks }: { 
     return (
         <>
             <div className="flex flex-row gap-4 bg-stone-800 p-4 rounded-lg">
-                <div className="flex flex-col gap-2 items-center text-center max-w-24">
+                <div 
+                    className="flex flex-col gap-2 items-center text-center max-w-24 cursor-pointer"
+                    onClick={() => {
+                        if ("animalId" in subject && onSubjectClick) {
+                            onSubjectClick("animal", subject.animalId);
+                        } else if ("enclosureId" in subject && onSubjectClick) {
+                            onSubjectClick("enclosure", subject.enclosureId);
+                        }
+                    }}
+                >
                     <SubjectCircle subject={subject as Subject} className="w-24 h-24" />
                     <p className="text-stone-400 font-bold">{"animalName" in subject ? subject.animalName : subject.enclosureName}</p>
                 </div>
@@ -122,7 +131,7 @@ function TaskDetails({ task, animals, enclosures, habitats, species, tasks }: { 
     )
 }
 
-function TaskList({ tasks, animals, enclosures, habitats, species }: { tasks: Task[] | undefined, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined, habitats: Habitat[] | undefined, species: Species[] | undefined }) {
+function TaskList({ tasks, animals, enclosures, habitats, species, onSubjectClick }: { tasks: Task[] | undefined, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined, habitats: Habitat[] | undefined, species: Species[] | undefined, onSubjectClick?: (type: "animal" | "enclosure", id: number) => void }) {
     if (tasks && tasks.length === 0) {
         return <div>No tasks found... Maybe you&apos;re forgetting something?</div>
     }
@@ -194,7 +203,7 @@ function TaskList({ tasks, animals, enclosures, habitats, species }: { tasks: Ta
                                 <AccordionTrigger className="flex-1" />
                             </div>
                             <AccordionContent>
-                                <TaskDetails task={task} animals={animals} enclosures={enclosures} habitats={habitats} species={species} tasks={tasks} />
+                                <TaskDetails task={task} animals={animals} enclosures={enclosures} habitats={habitats} species={species} tasks={tasks} onSubjectClick={onSubjectClick} />
                             </AccordionContent>
                         </AccordionItem>
                     ))}
@@ -225,15 +234,16 @@ interface TasksPageProps {
     habitats: Habitat[] | undefined;
     species: Species[] | undefined;
     isPending: boolean;
+    onSubjectClick?: (type: "animal" | "enclosure", id: number) => void;
 }
 
-export default function TasksPage({ animals, enclosures, tasks, habitats, species, isPending }: TasksPageProps) {
+export default function TasksPage({ animals, enclosures, tasks, habitats, species, isPending, onSubjectClick }: TasksPageProps) {
     return (
             <div className="h-[calc(100vh-6rem)] w-full flex flex-col gap-4 items-start bg-stone-700 text-stone-50 shadow-lg border-stone-600 rounded-lg p-4 overflow-y-scroll">
                 <div className="flex flex-row justify-between items-center w-full">
                     <h1 className="text-2xl font-medium">Tasks</h1>
                 </div>
-                {isPending ? <TaskListSkeleton /> : <TaskList tasks={tasks} animals={animals} enclosures={enclosures} habitats={habitats} species={species} />}
+                {isPending ? <TaskListSkeleton /> : <TaskList tasks={tasks} animals={animals} enclosures={enclosures} habitats={habitats} species={species} onSubjectClick={onSubjectClick} />}
             </div>
     );
 }
