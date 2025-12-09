@@ -87,7 +87,7 @@ export default function UserDrawer() {
                     <p>First Name: {user?.firstName}</p>
                     <p>Last Name: {user?.lastName}</p>
                     <p>Email: {user?.email}</p>
-                    <p>Phone: {"Not provided"}</p>
+                    {/* <p>Phone: {"Not provided"}</p> */}
                     <Button className="mt-4" onClick={() => {logout(); setEmail(""); setPassword(""); setOpen(false);}}>Logout</Button>
                 </div> 
                 : <form onSubmit={isSignupMode ? handleSignup : handleLogin} className="px-4 space-y-4">
