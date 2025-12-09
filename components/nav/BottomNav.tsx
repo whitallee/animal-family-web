@@ -27,7 +27,7 @@ function NavButton({ view, activeView, onViewChange, children }: { view: View, a
 export default function BottomNav({ activeView, onViewChange }: BottomNavProps) {
     return (
         <div className="w-full fixed items-center bottom-0 left-0 right-0">
-        <div className=" max-w-md flex justify-between items-center h-16 px-4 mx-auto bg-stone-800 sm:rounded-full sm:px-8 sm:-translate-y-2">
+        <div className=" max-w-md flex justify-between items-center h-16 px-8 py-2 mx-auto bg-stone-800 sm:rounded-full sm:px-8 sm:-translate-y-2">
             <AddAnythingDrawer />
             <NavButton view="family" activeView={activeView} onViewChange={onViewChange}>
                 <PawPrintIcon className="w-6 h-6" />
