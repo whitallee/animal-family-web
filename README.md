@@ -50,3 +50,67 @@ The application will be available at [http://localhost:3000](http://localhost:30
 - **Styling:** Tailwind CSS
 - **UI Components:** shadcn/ui
 - **State Management:** TanStack Query (React Query)
+
+## 📋 Todo List
+
+### High Priority - Core Features
+
+- [ ] **Edit functionality**
+  - [ ] Edit tasks
+  - [ ] Edit animals
+  - [ ] Edit enclosures
+
+- [ ] **Delete functionality**
+  - [ ] Delete animals
+  - [ ] Delete tasks
+  - [ ] Delete enclosures
+
+- [ ] **Animal lifecycle management**
+  - [ ] Mark animal as passed away (RIP)
+  - [ ] Add "In Memorium" section
+  - [ ] Add settings section in UserDrawer
+  - [ ] Toggle visibility for In Memorium section in settings
+
+- [ ] **Enclosure creation enhancement**
+  - [ ] Create enclosure with animals that already exist in family
+
+- [ ] **Cross-page navigation/jump links**
+  - [ ] Home page: clicking items jump to their info on tasks page or family page
+  - [ ] Family page: clicking a task jumps to that task in tasks page, or subjects jump within the family page
+  - [ ] Tasks page: clicking an animal or enclosure jumps to that subject in family page
+
+### MVP - Transfer Features (Big Goal)
+
+- [ ] **Transfer ownership (adopt out)**
+  - [ ] Backend implementation for transfer ownership
+  - [ ] Generate barcode/link for transfer
+  - [ ] Authentication on both ends (sender and recipient)
+  - [ ] Full ownership transfer functionality
+  - [ ] UI for displaying transfer barcode/link
+  - [ ] UI for scanning/clicking transfer link
+
+- [ ] **Pet sitter transfer (temporary)**
+  - [ ] Make sure structure is setup to handle multiple "owners"
+  - [ ] Backend implementation for temporary transfer
+  - [ ] Generate barcode/link for pet sitter access
+  - [ ] Set time limit for temporary access
+  - [ ] Maintain OG owner access during temporary transfer
+  - [ ] Automatic revocation after time limit expires
+  - [ ] UI for managing temporary transfers
+
+### Future Features
+
+- [ ] **AI-generated content** (requires backend implementation first)
+  - [ ] AI-generated species
+  - [ ] AI-generated habitats
+
+- [ ] **Animal history/timeline** (requires backend implementation first)
+  - [ ] Ownership transfer history
+  - [ ] Vet visits tracking
+  - [ ] Medical history
+  - [ ] Vaccination records
+  - [ ] Timeline UI component
+
+- [ ] **Task history** (requires backend implementation first)
+  - [ ] Task completion history
+  - [ ] Overall action history (for easy reversal of changes)
