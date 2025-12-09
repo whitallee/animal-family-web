@@ -210,7 +210,7 @@ function TaskList({ tasks, animals, enclosures, habitats, species, onSubjectClic
         });
 
         const isTargetInSection = openTaskId !== null && sortedTasks.some(t => t.taskId === openTaskId);
-        const accordionValue = isTargetInSection ? openTaskId.toString() : undefined;
+        const accordionValue = isTargetInSection ? openTaskId.toString() : "";
 
         return (
             <div key={title} className="w-full">

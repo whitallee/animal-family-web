@@ -73,7 +73,7 @@ function AnimalDetails({ animalLong, onTaskClick }: { animalLong: AnimalSubjectL
 }
 
 function AnimalList({ animals, enclosures, tasks, habitats, species, navigationTarget, onNavigationComplete, openAnimalId, onOpenAnimalChange, onTaskClick }: { animals: Animal[], enclosures: Enclosure[], tasks: Task[], habitats: Habitat[], species: Species[], navigationTarget?: { type: "animal" | "enclosure", id: number } | null, onNavigationComplete?: () => void, openAnimalId?: number, onOpenAnimalChange?: (id: number | undefined) => void, onTaskClick?: (taskId: number) => void }) {
-    const [openValue, setOpenValue] = useState<string | undefined>(undefined);
+    const [openValue, setOpenValue] = useState<string>("");
 
     useEffect(() => {
         if (navigationTarget?.type === "animal" && navigationTarget.id) {
@@ -99,6 +99,8 @@ function AnimalList({ animals, enclosures, tasks, habitats, species, navigationT
                     element.scrollIntoView({ behavior: "smooth", block: "center" });
                 }
             }, 100);
+        } else {
+            setOpenValue("");
         }
     }, [openAnimalId]);
 
@@ -170,7 +172,7 @@ function EnclosureDetails({ enclosureLong, onAnimalClick, onTaskClick }: { enclo
 }
 
 function EnclosureList({ enclosures, animals, tasks, habitats, species, navigationTarget, onNavigationComplete, onAnimalClick, onTaskClick }: { enclosures: Enclosure[], animals: Animal[], tasks: Task[], habitats: Habitat[], species: Species[], navigationTarget?: { type: "animal" | "enclosure", id: number } | null, onNavigationComplete?: () => void, onAnimalClick?: (animalId: number) => void, onTaskClick?: (taskId: number) => void }) {
-    const [openValue, setOpenValue] = useState<string | undefined>(undefined);
+    const [openValue, setOpenValue] = useState<string>("");
 
     useEffect(() => {
         if (navigationTarget?.type === "enclosure" && navigationTarget.id) {
