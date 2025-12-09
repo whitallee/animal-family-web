@@ -32,10 +32,10 @@ function AnimalItem({ animalShort }: { animalShort: AnimalWithSpecies }) {
     )
 }
 
-function AnimalDetails({ animalLong }: { animalLong: AnimalSubjectLong }) {
+function AnimalDetails({ animalLong, onTaskClick }: { animalLong: AnimalSubjectLong, onTaskClick?: (taskId: number) => void }) {
     return (
         <div className="flex flex-col bg-stone-800 p-4 rounded-lg justify-between">
-            <TasksCard tasks={animalLong.tasks} isPending={false} className="mb-2"/>
+            <TasksCard tasks={animalLong.tasks} isPending={false} className="mb-2" onTaskClick={onTaskClick}/>
             <div className="flex flex-row gap-2 items-center mb-2">
                 <span className="font-bold text-stone-400">Species:</span> {animalLong.species.comName}
                 <Popover>
@@ -72,7 +72,7 @@ function AnimalDetails({ animalLong }: { animalLong: AnimalSubjectLong }) {
     )
 }
 
-function AnimalList({ animals, enclosures, tasks, habitats, species, navigationTarget, onNavigationComplete, openAnimalId, onOpenAnimalChange }: { animals: Animal[], enclosures: Enclosure[], tasks: Task[], habitats: Habitat[], species: Species[], navigationTarget?: { type: "animal" | "enclosure", id: number } | null, onNavigationComplete?: () => void, openAnimalId?: number, onOpenAnimalChange?: (id: number | undefined) => void }) {
+function AnimalList({ animals, enclosures, tasks, habitats, species, navigationTarget, onNavigationComplete, openAnimalId, onOpenAnimalChange, onTaskClick }: { animals: Animal[], enclosures: Enclosure[], tasks: Task[], habitats: Habitat[], species: Species[], navigationTarget?: { type: "animal" | "enclosure", id: number } | null, onNavigationComplete?: () => void, openAnimalId?: number, onOpenAnimalChange?: (id: number | undefined) => void, onTaskClick?: (taskId: number) => void }) {
     const [openValue, setOpenValue] = useState<string | undefined>(undefined);
 
     useEffect(() => {
@@ -114,7 +114,7 @@ function AnimalList({ animals, enclosures, tasks, habitats, species, navigationT
                             <AccordionTrigger className="flex-1" />
                         </div>
                         <AccordionContent>
-                            <AnimalDetails animalLong={animalWithSpeciesLong} />
+                            <AnimalDetails animalLong={animalWithSpeciesLong} onTaskClick={onTaskClick} />
                         </AccordionContent>
                     </AccordionItem>
                 )
@@ -135,10 +135,10 @@ function EnclosureItem({ enclosureShort }: { enclosureShort: EnclosureWithData }
     )
 }
 
-function EnclosureDetails({ enclosureLong, onAnimalClick }: { enclosureLong: EnclosureSubjectLong, onAnimalClick?: (animalId: number) => void }) {
+function EnclosureDetails({ enclosureLong, onAnimalClick, onTaskClick }: { enclosureLong: EnclosureSubjectLong, onAnimalClick?: (animalId: number) => void, onTaskClick?: (taskId: number) => void }) {
     return (
         <div className="flex flex-col bg-stone-800 p-4 rounded-lg justify-between">
-            <TasksCard tasks={enclosureLong.tasks} isPending={false} className="mb-2"/>
+            <TasksCard tasks={enclosureLong.tasks} isPending={false} className="mb-2" onTaskClick={onTaskClick}/>
             {/* <p><span className="font-bold text-stone-400">Enclosure:</span> {enclosureLong.enclosureName}</p> */}
             <div className="flex flex-col gap-2 my-1.5 border-b border-stone-500 pb-2">
                 {enclosureLong.animals.map((animal) => (
@@ -169,7 +169,7 @@ function EnclosureDetails({ enclosureLong, onAnimalClick }: { enclosureLong: Enc
     )
 }
 
-function EnclosureList({ enclosures, animals, tasks, habitats, species, navigationTarget, onNavigationComplete, onAnimalClick }: { enclosures: Enclosure[], animals: Animal[], tasks: Task[], habitats: Habitat[], species: Species[], navigationTarget?: { type: "animal" | "enclosure", id: number } | null, onNavigationComplete?: () => void, onAnimalClick?: (animalId: number) => void }) {
+function EnclosureList({ enclosures, animals, tasks, habitats, species, navigationTarget, onNavigationComplete, onAnimalClick, onTaskClick }: { enclosures: Enclosure[], animals: Animal[], tasks: Task[], habitats: Habitat[], species: Species[], navigationTarget?: { type: "animal" | "enclosure", id: number } | null, onNavigationComplete?: () => void, onAnimalClick?: (animalId: number) => void, onTaskClick?: (taskId: number) => void }) {
     const [openValue, setOpenValue] = useState<string | undefined>(undefined);
 
     useEffect(() => {
@@ -198,7 +198,7 @@ function EnclosureList({ enclosures, animals, tasks, habitats, species, navigati
                             <AccordionTrigger className="flex-1" />
                         </div>
                         <AccordionContent>
-                            <EnclosureDetails enclosureLong={enclosureWithDataLong} onAnimalClick={onAnimalClick} />
+                            <EnclosureDetails enclosureLong={enclosureWithDataLong} onAnimalClick={onAnimalClick} onTaskClick={onTaskClick} />
                         </AccordionContent>
                     </AccordionItem>
                 )
@@ -217,9 +217,10 @@ interface FamilyPageProps {
     navigationTarget?: { type: "animal" | "enclosure", id: number } | null;
     onNavigationComplete?: () => void;
     onAnimalNavigation?: (animalId: number) => void;
+    onTaskClick?: (taskId: number) => void;
 }
 
-export default function FamilyPage({ animals, enclosures, tasks, habitats, species, isPending, navigationTarget, onNavigationComplete, onAnimalNavigation }: FamilyPageProps) {
+export default function FamilyPage({ animals, enclosures, tasks, habitats, species, isPending, navigationTarget, onNavigationComplete, onAnimalNavigation, onTaskClick }: FamilyPageProps) {
     const [activeTab, setActiveTab] = useState<string>("animals");
     const [openAnimalId, setOpenAnimalId] = useState<number | undefined>(undefined);
 
@@ -253,14 +254,14 @@ export default function FamilyPage({ animals, enclosures, tasks, habitats, speci
                     {isPending ?
                         <FamilyListSkeleton />
                         : 
-                        <AnimalList animals={animals || []} enclosures={enclosures || []} tasks={tasks || []} habitats={habitats || []} species={species || []} navigationTarget={navigationTarget} onNavigationComplete={onNavigationComplete} openAnimalId={openAnimalId} onOpenAnimalChange={setOpenAnimalId} />}
+                        <AnimalList animals={animals || []} enclosures={enclosures || []} tasks={tasks || []} habitats={habitats || []} species={species || []} navigationTarget={navigationTarget} onNavigationComplete={onNavigationComplete} openAnimalId={openAnimalId} onOpenAnimalChange={setOpenAnimalId} onTaskClick={onTaskClick} />}
                     </TabsContent>
 
                     <TabsContent value="enclosures">
                         {isPending ?
                             <FamilyListSkeleton />
                             :
-                            <EnclosureList enclosures={enclosures || []} animals={animals || []} tasks={tasks || []} habitats={habitats || []} species={species || []} navigationTarget={navigationTarget} onNavigationComplete={onNavigationComplete} onAnimalClick={handleAnimalClick} />
+                            <EnclosureList enclosures={enclosures || []} animals={animals || []} tasks={tasks || []} habitats={habitats || []} species={species || []} navigationTarget={navigationTarget} onNavigationComplete={onNavigationComplete} onAnimalClick={handleAnimalClick} onTaskClick={onTaskClick} />
                         }
                     </TabsContent>
                 </Tabs>
