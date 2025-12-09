@@ -1,5 +1,3 @@
-import { useAnimals, useEnclosures, useTasks } from "@/lib/api/fetch-family";
-import { useHabitats, useSpecies } from "@/lib/api/fetch-species-habitats";
 import { BookOpenText, Loader2 } from "lucide-react";
 import { FamilyListSkeleton } from "@/components/Skeletons";
 import { Animal, Enclosure, Habitat, Species, Task } from "@/types/db-types";
@@ -159,30 +157,33 @@ function EnclosureList({ enclosures, animals, tasks, habitats, species }: { encl
     )
 }
 
-export default function FamilyPage() {
-    const { data: animals, isPending: animalsPending } = useAnimals();
-    const { data: enclosures, isPending: enclosuresPending } = useEnclosures();
-    const { data: tasks, isPending: tasksPending } = useTasks();
-    const { data: habitats, isPending: habitatsPending } = useHabitats();
-    const { data: species, isPending: speciesPending } = useSpecies();
+interface FamilyPageProps {
+    animals: Animal[];
+    enclosures: Enclosure[];
+    tasks: Task[];
+    habitats: Habitat[];
+    species: Species[];
+    isPending: boolean;
+}
 
+export default function FamilyPage({ animals, enclosures, tasks, habitats, species, isPending }: FamilyPageProps) {
     return (
             <div className="h-[calc(100vh-5rem)] w-[calc(100%-1rem)] flex flex-col gap-4 items-start bg-stone-700 text-stone-50 shadow-lg border-stone-600 rounded-lg p-4 mt-2 overflow-y-scroll">
                 <Tabs defaultValue="animals" className="w-full">
                     <TabsList className="bg-stone-800 text-stone-50 w-full">
-                        <TabsTrigger value="animals" className="text-stone-400 data-[state=active]:text-stone-900">Animals {animalsPending ? <Loader2 className="animate-spin"/> : ("(" + animals?.length + ")") || "(0)"}</TabsTrigger>
-                        <TabsTrigger value="enclosures" className="text-stone-400 data-[state=active]:text-stone-900">Enclosures {enclosuresPending ? <Loader2 className="animate-spin"/> : ("(" + enclosures?.length + ")") || "(0)"}</TabsTrigger>
+                        <TabsTrigger value="animals" className="text-stone-400 data-[state=active]:text-stone-900">Animals {isPending ? <Loader2 className="animate-spin"/> : ("(" + animals?.length + ")") || "(0)"}</TabsTrigger>
+                        <TabsTrigger value="enclosures" className="text-stone-400 data-[state=active]:text-stone-900">Enclosures {isPending ? <Loader2 className="animate-spin"/> : ("(" + enclosures?.length + ")") || "(0)"}</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="animals">
-                    {animalsPending || enclosuresPending || tasksPending || speciesPending || habitatsPending ?
+                    {isPending ?
                         <FamilyListSkeleton />
                         : 
                         <AnimalList animals={animals || []} enclosures={enclosures || []} tasks={tasks || []} habitats={habitats || []} species={species || []} />}
                     </TabsContent>
 
                     <TabsContent value="enclosures">
-                        {enclosuresPending || animalsPending || tasksPending || speciesPending || habitatsPending ?
+                        {isPending ?
                             <FamilyListSkeleton />
                             :
                             <EnclosureList enclosures={enclosures || []} animals={animals || []} tasks={tasks || []} habitats={habitats || []} species={species || []} />

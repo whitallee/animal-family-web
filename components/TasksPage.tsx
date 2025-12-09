@@ -23,8 +23,6 @@ import { CalendarDays, Check, Loader2, TriangleAlert } from 'lucide-react';
 
 // API Hooks
 import { useMarkTaskComplete, useMarkTaskIncomplete } from '@/lib/api/task-mutations';
-import { useAnimals, useEnclosures, useTasks } from '@/lib/api/fetch-family';
-import { useSpecies, useHabitats } from "@/lib/api/fetch-species-habitats";
 
 // Types
 import { Animal, Enclosure, Habitat, Species, Task } from '@/types/db-types';
@@ -220,21 +218,22 @@ function TaskList({ tasks, animals, enclosures, habitats, species }: { tasks: Ta
         </div>
     );
 }
-//p-4 flex flex-col gap-3 bg-stone-700 text-stone-50 shadow-lg border-stone-600 transition-all duration-300
-export default function TasksPage() {
-    const { data: animals, isPending: animalsPending } = useAnimals();
-    const { data: enclosures, isPending: enclosuresPending } = useEnclosures();
-    const { data: tasks, isPending: tasksPending } = useTasks();
-    const { data: habitats, isPending: habitatsPending } = useHabitats();
-    const { data: species, isPending: speciesPending } = useSpecies();
+interface TasksPageProps {
+    animals: Animal[] | undefined;
+    enclosures: Enclosure[] | undefined;
+    tasks: Task[] | undefined;
+    habitats: Habitat[] | undefined;
+    species: Species[] | undefined;
+    isPending: boolean;
+}
 
-    // console.log(organizeAnimalFamily(enclosures || [], animals || [], habitats || [], species || []));
+export default function TasksPage({ animals, enclosures, tasks, habitats, species, isPending }: TasksPageProps) {
     return (
             <div className="h-[calc(100vh-5rem)] w-[calc(100%-1rem)] flex flex-col gap-4 items-start bg-stone-700 text-stone-50 shadow-lg border-stone-600 rounded-lg p-4 mt-2 overflow-y-scroll">
                 <div className="flex flex-row justify-between items-center w-full">
                     <h1 className="text-2xl font-medium">Tasks</h1>
                 </div>
-                {animalsPending || enclosuresPending || tasksPending || speciesPending || habitatsPending ? <TaskListSkeleton /> : <TaskList tasks={tasks} animals={animals} enclosures={enclosures} habitats={habitats} species={species} />}
+                {isPending ? <TaskListSkeleton /> : <TaskList tasks={tasks} animals={animals} enclosures={enclosures} habitats={habitats} species={species} />}
             </div>
     );
 }
