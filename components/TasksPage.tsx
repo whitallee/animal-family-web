@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from 'react';
 import moment from 'moment';
 
 // UI Components
@@ -65,7 +66,7 @@ function TaskItem({ task }: { task: Task }) {
     )
 }
 
-function TaskDetails({ task, animals, enclosures, habitats, species, tasks }: { task: Task, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined, habitats: Habitat[] | undefined, species: Species[] | undefined, tasks: Task[] | undefined }) {
+function TaskDetails({ task, animals, enclosures, habitats, species, tasks, onSubjectClick }: { task: Task, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined, habitats: Habitat[] | undefined, species: Species[] | undefined, tasks: Task[] | undefined, onSubjectClick?: (type: "animal" | "enclosure", id: number) => void }) {
     let subject: Subject | undefined;
     if (!animals || !enclosures || !habitats || !species) {
         return <div>No subject found...</div>
@@ -84,7 +85,16 @@ function TaskDetails({ task, animals, enclosures, habitats, species, tasks }: { 
     return (
         <>
             <div className="flex flex-row gap-4 bg-stone-800 p-4 rounded-lg">
-                <div className="flex flex-col gap-2 items-center text-center max-w-24">
+                <div 
+                    className="flex flex-col gap-2 items-center text-center max-w-24 cursor-pointer"
+                    onClick={() => {
+                        if ("animalId" in subject && onSubjectClick) {
+                            onSubjectClick("animal", subject.animalId);
+                        } else if ("enclosureId" in subject && onSubjectClick) {
+                            onSubjectClick("enclosure", subject.enclosureId);
+                        }
+                    }}
+                >
                     <SubjectCircle subject={subject as Subject} className="w-24 h-24" />
                     <p className="text-stone-400 font-bold">{"animalName" in subject ? subject.animalName : subject.enclosureName}</p>
                 </div>
@@ -122,7 +132,23 @@ function TaskDetails({ task, animals, enclosures, habitats, species, tasks }: { 
     )
 }
 
-function TaskList({ tasks, animals, enclosures, habitats, species }: { tasks: Task[] | undefined, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined, habitats: Habitat[] | undefined, species: Species[] | undefined }) {
+function TaskList({ tasks, animals, enclosures, habitats, species, onSubjectClick, navigationTarget, onNavigationComplete }: { tasks: Task[] | undefined, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined, habitats: Habitat[] | undefined, species: Species[] | undefined, onSubjectClick?: (type: "animal" | "enclosure", id: number) => void, navigationTarget?: number | null, onNavigationComplete?: () => void }) {
+    const [openTaskId, setOpenTaskId] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (navigationTarget !== null && navigationTarget !== undefined) {
+            setOpenTaskId(navigationTarget);
+            // Scroll to the element after a short delay to ensure it's rendered
+            setTimeout(() => {
+                const element = document.querySelector(`[data-task-item="${navigationTarget}"]`);
+                if (element) {
+                    element.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+                onNavigationComplete?.();
+            }, 100);
+        }
+    }, [navigationTarget, onNavigationComplete]);
+
     if (tasks && tasks.length === 0) {
         return <div>No tasks found... Maybe you&apos;re forgetting something?</div>
     }
@@ -166,7 +192,7 @@ function TaskList({ tasks, animals, enclosures, habitats, species }: { tasks: Ta
         return categories;
     };
 
-    const renderTaskSection = (title: string, tasksInSection: Task[]) => {
+    const renderTaskSection = (title: string, tasksInSection: Task[], openTaskId: number | null, onOpenTaskChange: (id: number | null) => void) => {
         if (tasksInSection.length === 0) return null;
 
         const sortedTasks = [...tasksInSection].sort((a, b) => {
@@ -183,18 +209,27 @@ function TaskList({ tasks, animals, enclosures, habitats, species }: { tasks: Ta
             return 0;
         });
 
+        const isTargetInSection = openTaskId !== null && sortedTasks.some(t => t.taskId === openTaskId);
+        const accordionValue = isTargetInSection ? openTaskId.toString() : "";
+
         return (
             <div key={title} className="w-full">
                 <h3 className="text-lg font-semibold text-stone-500 mb-2 mt-4 first:mt-0">{title}</h3>
-                <Accordion type="single" collapsible className="w-full">
+                <Accordion type="single" collapsible className="w-full" value={accordionValue} onValueChange={(value) => {
+                    if (value) {
+                        onOpenTaskChange(parseInt(value, 10));
+                    } else {
+                        onOpenTaskChange(null);
+                    }
+                }}>
                     {sortedTasks.map((task) => (
-                        <AccordionItem value={task.taskId.toString()} key={task.taskId}>
+                        <AccordionItem value={task.taskId.toString()} key={task.taskId} data-task-item={task.taskId}>
                             <div className="flex items-center">
                                 <TaskItem task={task} />
                                 <AccordionTrigger className="flex-1" />
                             </div>
                             <AccordionContent>
-                                <TaskDetails task={task} animals={animals} enclosures={enclosures} habitats={habitats} species={species} tasks={tasks} />
+                                <TaskDetails task={task} animals={animals} enclosures={enclosures} habitats={habitats} species={species} tasks={tasks} onSubjectClick={onSubjectClick} />
                             </AccordionContent>
                         </AccordionItem>
                     ))}
@@ -207,14 +242,14 @@ function TaskList({ tasks, animals, enclosures, habitats, species }: { tasks: Ta
     
     return (
         <div className="w-full">
-            {renderTaskSection('Incomplete', categorizedTasks['incomplete'])}
-            {renderTaskSection('Resets within 6 hours', categorizedTasks['resets within 6 hours'])}
-            {renderTaskSection('Resets within 6-12 hours', categorizedTasks['6-12 hours from now'])}
-            {renderTaskSection('Resets within 12-24 hours', categorizedTasks['12-24 hours from now'])}
-            {renderTaskSection('Resets within a week', categorizedTasks['within a week'])}
-            {renderTaskSection('Resets within a month', categorizedTasks['within a month'])}
-            {renderTaskSection('Resets within 3 months', categorizedTasks['within 3 months'])}
-            {renderTaskSection('Resets within a year', categorizedTasks['within a year'])}
+            {renderTaskSection('Incomplete', categorizedTasks['incomplete'], openTaskId, setOpenTaskId)}
+            {renderTaskSection('Resets within 6 hours', categorizedTasks['resets within 6 hours'], openTaskId, setOpenTaskId)}
+            {renderTaskSection('Resets within 6-12 hours', categorizedTasks['6-12 hours from now'], openTaskId, setOpenTaskId)}
+            {renderTaskSection('Resets within 12-24 hours', categorizedTasks['12-24 hours from now'], openTaskId, setOpenTaskId)}
+            {renderTaskSection('Resets within a week', categorizedTasks['within a week'], openTaskId, setOpenTaskId)}
+            {renderTaskSection('Resets within a month', categorizedTasks['within a month'], openTaskId, setOpenTaskId)}
+            {renderTaskSection('Resets within 3 months', categorizedTasks['within 3 months'], openTaskId, setOpenTaskId)}
+            {renderTaskSection('Resets within a year', categorizedTasks['within a year'], openTaskId, setOpenTaskId)}
         </div>
     );
 }
@@ -225,15 +260,18 @@ interface TasksPageProps {
     habitats: Habitat[] | undefined;
     species: Species[] | undefined;
     isPending: boolean;
+    onSubjectClick?: (type: "animal" | "enclosure", id: number) => void;
+    navigationTarget?: number | null;
+    onNavigationComplete?: () => void;
 }
 
-export default function TasksPage({ animals, enclosures, tasks, habitats, species, isPending }: TasksPageProps) {
+export default function TasksPage({ animals, enclosures, tasks, habitats, species, isPending, onSubjectClick, navigationTarget, onNavigationComplete }: TasksPageProps) {
     return (
             <div className="h-[calc(100vh-6rem)] w-full flex flex-col gap-4 items-start bg-stone-700 text-stone-50 shadow-lg border-stone-600 rounded-lg p-4 overflow-y-scroll">
                 <div className="flex flex-row justify-between items-center w-full">
                     <h1 className="text-2xl font-medium">Tasks</h1>
                 </div>
-                {isPending ? <TaskListSkeleton /> : <TaskList tasks={tasks} animals={animals} enclosures={enclosures} habitats={habitats} species={species} />}
+                {isPending ? <TaskListSkeleton /> : <TaskList tasks={tasks} animals={animals} enclosures={enclosures} habitats={habitats} species={species} onSubjectClick={onSubjectClick} navigationTarget={navigationTarget} onNavigationComplete={onNavigationComplete} />}
             </div>
     );
 }

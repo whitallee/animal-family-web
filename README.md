@@ -74,11 +74,6 @@ The application will be available at [http://localhost:3000](http://localhost:30
 - [ ] **Enclosure creation enhancement**
   - [ ] Create enclosure with animals that already exist in family
 
-- [ ] **Cross-page navigation/jump links**
-  - [ ] Home page: clicking items jump to their info on tasks page or family page
-  - [ ] Family page: clicking a task jumps to that task in tasks page, or subjects jump within the family page
-  - [ ] Tasks page: clicking an animal or enclosure jumps to that subject in family page
-
 ### MVP - Transfer Features (Big Goal)
 
 - [ ] **Transfer ownership (adopt out)**
@@ -114,3 +109,5 @@ The application will be available at [http://localhost:3000](http://localhost:30
 - [ ] **Task history** (requires backend implementation first)
   - [ ] Task completion history
   - [ ] Overall action history (for easy reversal of changes)
+
+- [ ] **Lineage** (only if theres enough demand)

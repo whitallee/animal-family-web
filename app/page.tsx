@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import BottomNav from "@/components/nav/BottomNav";
 import NavBarGap from "@/components/nav/NavBarGap";
 import SubjectSection from "@/components/SubjectSection";
@@ -11,16 +13,122 @@ import { useEnclosures, useAnimals } from "@/lib/api/fetch-family";
 import { useTasks } from "@/lib/api/fetch-family";
 import { useHabitats } from "@/lib/api/fetch-species-habitats";
 import { useSpecies } from "@/lib/api/fetch-species-habitats";
+import { Animal, Enclosure, Task } from "@/types/db-types";
 
 type View = "home" | "family" | "tasks";
 
-export default function Home() {
+type NavigationTarget = {
+  type: "animal" | "enclosure";
+  id: number;
+} | null;
+
+function HomeContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [activeView, setActiveView] = useState<View>("home");
+  const [navigationTarget, setNavigationTarget] = useState<NavigationTarget>(null);
   const { data: animals, isPending: animalsPending } = useAnimals();
   const { data: enclosures, isPending: enclosuresPending } = useEnclosures();
   const { data: tasks, isPending: tasksPending } = useTasks();
   const { data: species, isPending: speciesPending } = useSpecies();
   const { data: habitats, isPending: habitatsPending } = useHabitats();
+
+  const [taskNavigationTarget, setTaskNavigationTarget] = useState<number | null>(null);
+  const isDataLoaded = !animalsPending && !enclosuresPending && !tasksPending && !speciesPending && !habitatsPending;
+
+  // Handle URL parameters on mount and when data loads
+  useEffect(() => {
+    if (!isDataLoaded) return;
+
+    const animalId = searchParams.get("animal");
+    const enclosureId = searchParams.get("enclosure");
+    const taskId = searchParams.get("task");
+
+    if (animalId) {
+      const id = parseInt(animalId, 10);
+      if (!isNaN(id)) {
+        const animal = animals?.find((a: Animal) => a.animalId === id);
+        if (animal) {
+          setNavigationTarget({ type: "animal", id });
+          setActiveView("family");
+        } else {
+          toast("You don't have access to the requested animal.");
+          // Remove invalid parameter from URL
+          const params = new URLSearchParams(searchParams.toString());
+          params.delete("animal");
+          router.replace(`?${params.toString()}`, { scroll: false });
+        }
+      }
+    } else if (enclosureId) {
+      const id = parseInt(enclosureId, 10);
+      if (!isNaN(id)) {
+        const enclosure = enclosures?.find((e: Enclosure) => e.enclosureId === id);
+        if (enclosure) {
+          setNavigationTarget({ type: "enclosure", id });
+          setActiveView("family");
+        } else {
+          toast("You don't have access to the requested enclosure.");
+          // Remove invalid parameter from URL
+          const params = new URLSearchParams(searchParams.toString());
+          params.delete("enclosure");
+          router.replace(`?${params.toString()}`, { scroll: false });
+        }
+      }
+    } else if (taskId) {
+      const id = parseInt(taskId, 10);
+      if (!isNaN(id)) {
+        const task = tasks?.find((t: Task) => t.taskId === id);
+        if (task) {
+          setTaskNavigationTarget(id);
+          setActiveView("tasks");
+        } else {
+          toast("You don't have access to the requested task.");
+          // Remove invalid parameter from URL
+          const params = new URLSearchParams(searchParams.toString());
+          params.delete("task");
+          router.replace(`?${params.toString()}`, { scroll: false });
+        }
+      }
+    } else {
+      // No URL parameters - clear navigation targets
+      setNavigationTarget(null);
+      setTaskNavigationTarget(null);
+    }
+  }, [searchParams, isDataLoaded, animals, enclosures, tasks, router]);
+
+  // Update URL when navigation target changes
+  const handleNavigation = (type: "animal" | "enclosure", id: number) => {
+    setNavigationTarget({ type, id });
+    setActiveView("family");
+    
+    // Update URL
+    const params = new URLSearchParams();
+    params.set(type, id.toString());
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
+  // Handle task navigation
+  const handleTaskNavigation = (taskId: number) => {
+    setTaskNavigationTarget(taskId);
+    setActiveView("tasks");
+    
+    // Update URL
+    const params = new URLSearchParams();
+    params.set("task", taskId.toString());
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
+  // Handle navigation completion - keep URL params for back/forward navigation
+  const handleNavigationComplete = () => {
+    setNavigationTarget(null);
+    // Don't clear URL parameters - keep them for browser back/forward navigation
+  };
+
+  // Handle task navigation completion
+  const handleTaskNavigationComplete = () => {
+    setTaskNavigationTarget(null);
+    // Don't clear URL parameters - keep them for browser back/forward navigation
+  };
 
   const getViewTransform = (view: View) => {
     if (activeView === view) return "translateX(0)";
@@ -49,14 +157,15 @@ export default function Home() {
           style={{ transform: getViewTransform("home") }}
         >
           <div className="h-full overflow-y-auto">
-            <TasksCard tasks={tasks} isPending={tasksPending} home/>
+            <TasksCard tasks={tasks} isPending={tasksPending} onTaskClick={handleTaskNavigation}/>
             <SubjectSection 
               tasks={tasks ?? []}
               enclosures={enclosures ?? []} 
               animals={animals ?? []} 
               habitats={habitats ?? []} 
               species={species ?? []} 
-              isPending={animalsPending || enclosuresPending || speciesPending || habitatsPending} 
+              isPending={animalsPending || enclosuresPending || speciesPending || habitatsPending}
+              onSubjectClick={handleNavigation}
             />
           </div>
         </div>
@@ -73,6 +182,10 @@ export default function Home() {
             habitats={habitats ?? []}
             species={species ?? []}
             isPending={animalsPending || enclosuresPending || tasksPending || speciesPending || habitatsPending}
+            navigationTarget={navigationTarget}
+            onNavigationComplete={handleNavigationComplete}
+            onAnimalNavigation={(animalId) => handleNavigation("animal", animalId)}
+            onTaskClick={handleTaskNavigation}
           />
         </div>
 
@@ -88,11 +201,22 @@ export default function Home() {
             habitats={habitats}
             species={species}
             isPending={animalsPending || enclosuresPending || tasksPending || speciesPending || habitatsPending}
+            onSubjectClick={handleNavigation}
+            navigationTarget={taskNavigationTarget}
+            onNavigationComplete={handleTaskNavigationComplete}
           />
         </div>
       </div>
       <NavBarGap />
       <BottomNav activeView={activeView} onViewChange={setActiveView} />
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="max-w-md w-full pt-4 px-4">Loading...</div>}>
+      <HomeContent />
+    </Suspense>
   );
 }
