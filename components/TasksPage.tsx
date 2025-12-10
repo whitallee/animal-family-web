@@ -18,7 +18,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { SubjectCircle } from "./SubjectSection";
 import { TaskListSkeleton } from "@/components/Skeletons";
-import { EditTaskButton, DeleteTaskButton } from '@/components/EditComponents';
+import { EditTaskButton } from '@/components/EditComponents';
+import { DeleteTaskButton } from '@/components/DeleteComponents';
 
 // Icons
 import { CalendarDays, Check, Loader2, TriangleAlert } from 'lucide-react';

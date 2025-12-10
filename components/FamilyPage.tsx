@@ -19,6 +19,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import TasksCard from "@/components/TasksCard";
 import { useEffect, useState } from "react";
+import { EditAnimalButton } from "@/components/EditComponents";
+import { DeleteAnimalButton } from "./DeleteComponents";
 
 function AnimalItem({ animalShort }: { animalShort: AnimalWithSpecies }) {
     return (
@@ -32,8 +34,9 @@ function AnimalItem({ animalShort }: { animalShort: AnimalWithSpecies }) {
     )
 }
 
-function AnimalDetails({ animalLong, onTaskClick }: { animalLong: AnimalSubjectLong, onTaskClick?: (taskId: number) => void }) {
+function AnimalDetails({ animalLong, animal, onTaskClick }: { animalLong: AnimalSubjectLong, animal: Animal, onTaskClick?: (taskId: number) => void }) {
     return (
+        <>
         <div className="flex flex-col bg-stone-800 p-4 rounded-lg justify-between">
             <TasksCard tasks={animalLong.tasks} isPending={false} className="mb-2" onTaskClick={onTaskClick}/>
             <div className="flex flex-row gap-2 items-center mb-2">
@@ -69,6 +72,11 @@ function AnimalDetails({ animalLong, onTaskClick }: { animalLong: AnimalSubjectL
             }
             <p className="mt-2"><span className="font-bold text-stone-400">Extra Notes:</span> {animalLong.extraNotes}</p>
         </div>
+        <div className="mt-4 flex gap-2">
+            <EditAnimalButton animal={animal} />
+            <DeleteAnimalButton />
+        </div>
+        </>
     )
 }
 
@@ -116,7 +124,7 @@ function AnimalList({ animals, enclosures, tasks, habitats, species, navigationT
                             <AccordionTrigger className="flex-1" />
                         </div>
                         <AccordionContent>
-                            <AnimalDetails animalLong={animalWithSpeciesLong} onTaskClick={onTaskClick} />
+                            <AnimalDetails animalLong={animalWithSpeciesLong} animal={animal} onTaskClick={onTaskClick} />
                         </AccordionContent>
                     </AccordionItem>
                 )

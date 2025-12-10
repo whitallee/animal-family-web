@@ -37,3 +37,48 @@ export const useCreateAnimal = () => {
         }
     });
 };
+
+interface UpdateAnimalPayload {
+    animalId: number;
+    animalName: string;
+    speciesId: number;
+    enclosureId: number | null;
+    image: string;
+    gender: string;
+    dob: string; // ISO 8601 date string
+    personalityDesc: string;
+    dietDesc: string;
+    routineDesc: string;
+    extraNotes: string;
+}
+
+export const updateAnimal = async (token: string, payload: UpdateAnimalPayload) => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/animal`, {
+        method: "PUT",
+        headers: {
+            "Authorization": `${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    });
+    
+    if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Failed to update animal: ${res.status} - ${errorText}`);
+    }
+    
+    // Returns 204 No Content on success
+    return;
+};
+
+export const useUpdateAnimal = () => {
+    const { user, token } = useAuth();
+    const queryClient = getQueryClient();
+    
+    return useMutation({
+        mutationFn: (payload: UpdateAnimalPayload) => updateAnimal(token!, payload),
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["animals", { user: user?.userId }] });
+        }
+    });
+};

@@ -56,7 +56,6 @@ The application will be available at [http://localhost:3000](http://localhost:30
 ### High Priority - Core Features
 
 - [ ] **Edit functionality**
-  - [ ] Edit animals
   - [ ] Edit enclosures
 
 - [ ] **Delete functionality**
@@ -75,7 +74,8 @@ The application will be available at [http://localhost:3000](http://localhost:30
 
 - [ ] **Fixes**
   - [ ] Glitchy when quick jumping to task
-  - [ ] URL query params leads to jumping to that on every reload (like after saving changes)
+  - [ ] URL query params leads to jumping to that on every reload (like after saving changes) (if user clicks navbar, it should clear query param, and if user opens any accordion, it should update param to be that)
+  - [ ] should have option to show completed tasks underneath animal and enclosure accordion
 
 ### MVP - Transfer Features (Big Goal)
 
@@ -114,3 +114,5 @@ The application will be available at [http://localhost:3000](http://localhost:30
   - [ ] Overall action history (for easy reversal of changes)
 
 - [ ] **Lineage** (only if theres enough demand)
+
+- [ ] **Admin Page**
