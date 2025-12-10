@@ -1,6 +1,6 @@
 "use client";
 
-import { TrashIcon } from "lucide-react";
+import { Flower2, TrashIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import {
     Dialog,
@@ -32,7 +32,7 @@ export function DeleteTaskButton({ taskId }: { taskId: number }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="flex-1">
+                <Button className="flex-1 text-red-200">
                     <TrashIcon />
                     Delete Task
                 </Button>
@@ -81,7 +81,7 @@ export function DeleteAnimalButton({ animalId }: { animalId: number }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="flex-1">
+                <Button className="flex-1 text-red-200">
                     <TrashIcon />
                     Delete Animal
                 </Button>
@@ -108,15 +108,15 @@ export function DeleteAnimalButton({ animalId }: { animalId: number }) {
                     <Button
                         variant="secondary"
                         disabled
-                        className="flex-1"
+                        className="flex-1 bg-emerald-400"
                     >
-                        Memorialize Animal
+                        Memorialize <Flower2 />
                     </Button>
                     <Button
                         variant="destructive"
                         onClick={handleDelete}
                         disabled={deleteAnimal.isPending}
-                        className="flex-1 bg-red-700"
+                        className="flex-1 bg-red-700 mt-6"
                     >
                         {deleteAnimal.isPending ? "Deleting..." : "Delete Animal (and tasks)"}
                     </Button>
@@ -154,7 +154,7 @@ export function DeleteEnclosureButton({ enclosureId }: { enclosureId: number }) 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="flex-1">
+                <Button className="flex-1 text-red-200">
                     <TrashIcon />
                     Delete Enclosure
                 </Button>

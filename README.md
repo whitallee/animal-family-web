@@ -66,9 +66,12 @@ The application will be available at [http://localhost:3000](http://localhost:30
 
 - [ ] **Fixes**
   - [ ] Glitchy when quick jumping to task
+  - [ ] make big home screen scroll bar invisible or pushed more to the right
   - [ ] URL query params leads to jumping to that on every reload (like after saving changes) (if user clicks navbar, it should clear query param, and if user opens any accordion, it should update param to be that)
   - [ ] home screen needs to refresh after deleting enclosure without deleting its animals, because it doesn't show them at first
   - [ ] after user deletes an animal or enclosure or task, if its part of the URL query, it should be removed
+  - [ ] make the family page and task page unnavigable while off the screen
+  - [ ] make delete enclosure options be a radio button selection where the user must choose exactly what they want to delete
 
 - [ ] **Earlier Future Features (unorganized)**
   - [ ] Sort options and preferences for family lists, home page, and tasks
