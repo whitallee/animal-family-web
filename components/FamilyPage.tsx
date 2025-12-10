@@ -74,7 +74,7 @@ function AnimalDetails({ animalLong, animal, onTaskClick }: { animalLong: Animal
         </div>
         <div className="mt-4 flex gap-2">
             <EditAnimalButton animal={animal} />
-            <DeleteAnimalButton />
+            <DeleteAnimalButton animalId={animal.animalId} />
         </div>
         </>
     )
@@ -179,7 +179,7 @@ function EnclosureDetails({ enclosureLong, enclosure, onAnimalClick, onTaskClick
         </div>
         <div className="mt-4 flex gap-2">
             <EditEnclosureButton enclosure={enclosure} />
-            <DeleteEnclosureButton />
+            <DeleteEnclosureButton enclosureId={enclosure.enclosureId} />
         </div>
         </>
     )

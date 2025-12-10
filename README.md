@@ -55,11 +55,6 @@ The application will be available at [http://localhost:3000](http://localhost:30
 
 ### High Priority - Core Features
 
-- [ ] **Delete functionality**
-  - [ ] Delete animals
-  - [ ] Delete tasks
-  - [ ] Delete enclosures
-
 - [ ] **Animal lifecycle management**
   - [ ] Mark animal as passed away (RIP)
   - [ ] Add "In Memorium" section
@@ -72,7 +67,15 @@ The application will be available at [http://localhost:3000](http://localhost:30
 - [ ] **Fixes**
   - [ ] Glitchy when quick jumping to task
   - [ ] URL query params leads to jumping to that on every reload (like after saving changes) (if user clicks navbar, it should clear query param, and if user opens any accordion, it should update param to be that)
+  - [ ] home screen needs to refresh after deleting enclosure without deleting its animals, because it doesn't show them at first
+  - [ ] after user deletes an animal or enclosure or task, if its part of the URL query, it should be removed
+
+- [ ] **Earlier Future Features (unorganized)**
+  - [ ] Sort options and preferences for family lists, home page, and tasks
   - [ ] should have option to show completed tasks underneath animal and enclosure accordion
+  - [ ] add/remove animals in enclosure button
+  - [ ] redo Add Anything drawer to be a dialog box, that walks you step by step thru the creation process, for better UX
+  - [ ] maybe redo the UserDrawer to be a dialog box.
 
 ### MVP - Transfer Features (Big Goal)
 

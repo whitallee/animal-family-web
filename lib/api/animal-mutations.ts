@@ -82,3 +82,35 @@ export const useUpdateAnimal = () => {
         }
     });
 };
+
+export const deleteAnimal = async (token: string, animalId: number): Promise<void> => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/animal/withtasks`, {
+        method: "DELETE",
+        headers: {
+            "Authorization": `${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ animalId })
+    });
+    
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(`Failed to delete animal: ${error.error || res.statusText}`);
+    }
+    
+    // Success - returns 204 No Content
+    return;
+};
+
+export const useDeleteAnimal = () => {
+    const { user, token } = useAuth();
+    const queryClient = getQueryClient();
+    
+    return useMutation({
+        mutationFn: (animalId: number) => deleteAnimal(token!, animalId),
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["animals", { user: user?.userId }] });
+            queryClient.invalidateQueries({ queryKey: ["tasks", { user: user?.userId }] });
+        }
+    });
+};
