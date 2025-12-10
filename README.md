@@ -55,9 +55,6 @@ The application will be available at [http://localhost:3000](http://localhost:30
 
 ### High Priority - Core Features
 
-- [ ] **Edit functionality**
-  - [ ] Edit enclosures
-
 - [ ] **Delete functionality**
   - [ ] Delete animals
   - [ ] Delete tasks

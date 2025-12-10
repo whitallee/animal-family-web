@@ -18,10 +18,11 @@ import { Label } from "./ui/label";
 import { Task, Animal, Enclosure } from "@/types/db-types";
 import { useUpdateTask } from "@/lib/api/task-mutations";
 import { useUpdateAnimal } from "@/lib/api/animal-mutations";
+import { useUpdateEnclosure } from "@/lib/api/enclosure-mutations";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { format } from "date-fns";
-import { useSpecies } from "@/lib/api/fetch-species-habitats";
+import { useSpecies, useHabitats } from "@/lib/api/fetch-species-habitats";
 import { useEnclosures } from "@/lib/api/fetch-family";
 import {
     Command,
@@ -571,6 +572,170 @@ export function EditAnimalButton({ animal }: EditAnimalButtonProps) {
                             disabled={updateAnimal.isPending}
                         >
                             {updateAnimal.isPending ? "Saving..." : "Save"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
+    );
+}
+
+interface EditEnclosureButtonProps {
+    enclosure: Enclosure;
+}
+
+export function EditEnclosureButton({ enclosure }: EditEnclosureButtonProps) {
+    const [open, setOpen] = useState(false);
+    const [enclosureName, setEnclosureName] = useState(enclosure.enclosureName);
+    const [enclosureImage, setEnclosureImage] = useState(enclosure.image);
+    const [notes, setNotes] = useState(enclosure.notes);
+    const [openHabitat, setOpenHabitat] = useState(false);
+    const [habitatId, setHabitatId] = useState(enclosure.habitatId.toString());
+    const updateEnclosure = useUpdateEnclosure();
+    const { data: habitats } = useHabitats();
+
+    const handleOpenChange = (isOpen: boolean) => {
+        setOpen(isOpen);
+        if (isOpen) {
+            // Reset form fields when dialog opens
+            setEnclosureName(enclosure.enclosureName);
+            setEnclosureImage(enclosure.image);
+            setNotes(enclosure.notes);
+            setHabitatId(enclosure.habitatId.toString());
+        }
+    };
+
+    const handleSave = () => {
+        // Validate required fields
+        const invalidFields: string[] = [];
+        
+        if (!enclosureName.trim()) {
+            invalidFields.push("Enclosure Name");
+        }
+        if (!habitatId) {
+            invalidFields.push("Habitat");
+        }
+
+        if (invalidFields.length > 0) {
+            toast.error(`Please fill in the following fields: ${invalidFields.join(", ")}`);
+            return;
+        }
+
+        updateEnclosure.mutate({
+            enclosureId: enclosure.enclosureId,
+            enclosureName: enclosureName.trim(),
+            habitatId: parseInt(habitatId),
+            image: enclosureImage.trim() || undefined,
+            notes: notes.trim() || undefined
+        }, {
+            onSuccess: () => {
+                setOpen(false);
+            }
+        });
+    };
+
+    return (
+        <>
+            <Button className="flex-1" onClick={() => setOpen(true)}>
+                <PencilIcon />
+                Edit Enclosure
+            </Button>
+            <Dialog open={open} onOpenChange={handleOpenChange}>
+                <DialogContent className="max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Edit Enclosure</DialogTitle>
+                        <DialogDescription>
+                            Update the enclosure details below.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-4 py-4">
+                        <div className="flex flex-col gap-2">
+                            <Label htmlFor="enclosureName">Enclosure Name</Label>
+                            <Input
+                                id="enclosureName"
+                                value={enclosureName}
+                                onChange={(e) => setEnclosureName(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <Label htmlFor="enclosureImage">Image URL</Label>
+                            <Input
+                                disabled
+                                id="enclosureImage"
+                                value={enclosureImage}
+                                onChange={(e) => setEnclosureImage(e.target.value)}
+                                placeholder="Enter image URL - currently unavailable"
+                            />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <Label htmlFor="habitatId">Habitat</Label>
+                            <Popover open={openHabitat} onOpenChange={setOpenHabitat}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        aria-expanded={openHabitat}
+                                        className="w-full justify-between bg-stone-600 border-stone-500 text-stone-300 font-normal text-md overflow-hidden"
+                                    >
+                                        {habitatId
+                                            ? habitats?.find((h) => h.habitatId.toString() === habitatId)?.habitatName
+                                            : "Select habitat"}
+                                        <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[200px] p-0 bg-stone-600 border-stone-500 text-stone-50">
+                                    <Command className="bg-stone-600 border-stone-500 text-stone-50">
+                                        <CommandInput placeholder="Search habitats..." />
+                                        <CommandList>
+                                            <ScrollArea className="h-[150px]">
+                                                <CommandEmpty>No habitats found.</CommandEmpty>
+                                                <CommandGroup>
+                                                    {habitats?.map((h) => (
+                                                        <CommandItem
+                                                            className="bg-stone-600 border-stone-500 text-stone-50"
+                                                            key={`${h.habitatId}-${h.habitatName}`}
+                                                            value={`${h.habitatId}-${h.habitatName}`}
+                                                            onSelect={(currentValue) => {
+                                                                setHabitatId(currentValue.split("-")[0])
+                                                                setOpenHabitat(false)
+                                                            }}
+                                                        >
+                                                            <CheckIcon
+                                                                className={cn(
+                                                                    "mr-2 h-4 w-4",
+                                                                    habitatId === h.habitatId.toString() ? "opacity-100" : "opacity-0"
+                                                                )}
+                                                            />
+                                                            {h.habitatName}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </ScrollArea>
+                                        </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <Label htmlFor="notes">Extra Notes</Label>
+                            <Textarea
+                                id="notes"
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                rows={3}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" className="text-stone-800" onClick={() => setOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button 
+                            onClick={handleSave}
+                            disabled={updateEnclosure.isPending}
+                        >
+                            {updateEnclosure.isPending ? "Saving..." : "Save"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

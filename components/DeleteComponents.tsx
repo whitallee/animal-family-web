@@ -18,3 +18,12 @@ export function DeleteAnimalButton() {
         </Button>
     );
 }
+
+export function DeleteEnclosureButton() {
+    return (
+        <Button className="flex-1" disabled>
+            <TrashIcon />
+            Delete Enclosure
+        </Button>
+    );
+}
