@@ -56,7 +56,9 @@ The application will be available at [http://localhost:3000](http://localhost:30
 ### High Priority - Core Features
 
 - [ ] **Edit functionality**
-  - [ ] Edit tasks
+  - [X] Edit tasks
+    - [X] Functionality
+    - [ ] Fix Interval selection UX
   - [ ] Edit animals
   - [ ] Edit enclosures
 
@@ -73,6 +75,10 @@ The application will be available at [http://localhost:3000](http://localhost:30
 
 - [ ] **Enclosure creation enhancement**
   - [ ] Create enclosure with animals that already exist in family
+
+- [ ] **Fixes**
+  - [ ] Glitchy when quick jumping to task
+  - [ ] URL query params leads to jumping to that on every reload (like after saving changes)
 
 ### MVP - Transfer Features (Big Goal)
 
