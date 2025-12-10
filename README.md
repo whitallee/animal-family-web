@@ -72,6 +72,9 @@ The application will be available at [http://localhost:3000](http://localhost:30
 - [ ] **Fixes**
   - [ ] Glitchy when quick jumping to task
   - [ ] URL query params leads to jumping to that on every reload (like after saving changes) (if user clicks navbar, it should clear query param, and if user opens any accordion, it should update param to be that)
+
+- [ ] **Future Features (unorganized)**
+  - [ ] Sort options and preferences for family lists, home page, and tasks
   - [ ] should have option to show completed tasks underneath animal and enclosure accordion
 
 ### MVP - Transfer Features (Big Goal)
