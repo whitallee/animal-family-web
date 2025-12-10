@@ -94,3 +94,43 @@ export const useCreateTask = () => {
         }
     });
 };
+
+interface UpdateTaskPayload {
+    taskId: number;
+    taskName: string;
+    taskDesc: string;
+    complete: boolean;
+    lastCompleted: string;
+    repeatIntervHours: number;
+}
+
+export const updateTask = async (token: string, payload: UpdateTaskPayload) => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/task`, {
+        method: "PUT",
+        headers: {
+            "Authorization": `${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    });
+    
+    if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Failed to update task');
+    }
+    
+    // Returns 204 No Content on success
+    return;
+};
+
+export const useUpdateTask = () => {
+    const { user, token } = useAuth();
+    const queryClient = getQueryClient();
+    
+    return useMutation({
+        mutationFn: (payload: UpdateTaskPayload) => updateTask(token!, payload),
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["tasks", { user: user?.userId }] });
+        }
+    });
+};

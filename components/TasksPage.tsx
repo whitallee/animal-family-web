@@ -18,6 +18,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { SubjectCircle } from "./SubjectSection";
 import { TaskListSkeleton } from "@/components/Skeletons";
+import { EditTaskButton } from '@/components/EditComponents';
+import { DeleteTaskButton } from '@/components/DeleteComponents';
 
 // Icons
 import { CalendarDays, Check, Loader2, TriangleAlert } from 'lucide-react';
@@ -127,6 +129,10 @@ function TaskDetails({ task, animals, enclosures, habitats, species, tasks, onSu
                             </p>
                     }
                 </div>
+            </div>
+            <div className="flex gap-2 mt-4 items-center">
+                <EditTaskButton task={task} />
+                <DeleteTaskButton />
             </div>
         </>
     )
