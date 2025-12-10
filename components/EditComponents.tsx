@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PencilIcon, TrashIcon } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "./ui/button";
 import {
     Dialog,
@@ -41,13 +42,32 @@ export function EditTaskButton({ task }: EditTaskButtonProps) {
     };
 
     const handleSave = () => {
+        // Validate required fields
+        const invalidFields: string[] = [];
+        
+        if (!taskName.trim()) {
+            invalidFields.push("Task Name");
+        }
+        if (!taskDesc.trim()) {
+            invalidFields.push("Description");
+        }
+        const hours = parseInt(repeatIntervHours, 10);
+        if (!repeatIntervHours.trim() || isNaN(hours) || hours <= 0) {
+            invalidFields.push("Repeat Interval");
+        }
+
+        if (invalidFields.length > 0) {
+            toast.error(`Please fill in the following fields: ${invalidFields.join(", ")}`);
+            return;
+        }
+
         updateTask.mutate({
             taskId: task.taskId,
-            taskName,
-            taskDesc,
+            taskName: taskName.trim(),
+            taskDesc: taskDesc.trim(),
             complete,
             lastCompleted: task.lastCompleted,
-            repeatIntervHours: parseInt(repeatIntervHours, 10)
+            repeatIntervHours: hours
         }, {
             onSuccess: () => {
                 setOpen(false);
@@ -57,12 +77,12 @@ export function EditTaskButton({ task }: EditTaskButtonProps) {
 
     return (
         <>
-            <Button onClick={() => setOpen(true)}>
+            <Button className="flex-1" onClick={() => setOpen(true)}>
                 <PencilIcon />
                 Edit Task
             </Button>
             <Dialog open={open} onOpenChange={handleOpenChange}>
-                <DialogContent className="bg-stone-700 text-stone-50 border-stone-600">
+                <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Edit Task</DialogTitle>
                         <DialogDescription>
@@ -76,6 +96,7 @@ export function EditTaskButton({ task }: EditTaskButtonProps) {
                                 id="taskName"
                                 value={taskName}
                                 onChange={(e) => setTaskName(e.target.value)}
+                                required
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -84,6 +105,7 @@ export function EditTaskButton({ task }: EditTaskButtonProps) {
                                 id="taskDesc"
                                 value={taskDesc}
                                 onChange={(e) => setTaskDesc(e.target.value)}
+                                required
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -93,9 +115,10 @@ export function EditTaskButton({ task }: EditTaskButtonProps) {
                                 type="number"
                                 value={repeatIntervHours}
                                 onChange={(e) => setRepeatIntervHours(e.target.value)}
+                                required
                             />
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 mt-2">
                             <input
                                 type="checkbox"
                                 id="complete"
@@ -125,7 +148,7 @@ export function EditTaskButton({ task }: EditTaskButtonProps) {
 
 export function DeleteTaskButton() {
     return (
-        <Button disabled>
+        <Button className="flex-1" disabled>
             <TrashIcon />
             Delete Task
         </Button>

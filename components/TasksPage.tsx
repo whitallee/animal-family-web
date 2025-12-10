@@ -129,7 +129,7 @@ function TaskDetails({ task, animals, enclosures, habitats, species, tasks, onSu
                     }
                 </div>
             </div>
-            <div className="flex gap-2 mt-4 justify-end">
+            <div className="flex gap-2 mt-4 items-center">
                 <EditTaskButton task={task} />
                 <DeleteTaskButton />
             </div>
