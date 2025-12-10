@@ -56,9 +56,6 @@ The application will be available at [http://localhost:3000](http://localhost:30
 ### High Priority - Core Features
 
 - [ ] **Edit functionality**
-  - [X] Edit tasks
-    - [X] Functionality
-    - [ ] Fix Interval selection UX
   - [ ] Edit animals
   - [ ] Edit enclosures
 
