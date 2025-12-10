@@ -134,3 +134,34 @@ export const useUpdateTask = () => {
         }
     });
 };
+
+export const deleteTask = async (token: string, taskId: number): Promise<void> => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/task`, {
+        method: "DELETE",
+        headers: {
+            "Authorization": `${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ taskId })
+    });
+    
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(`Failed to delete task: ${error.error || res.statusText}`);
+    }
+    
+    // Success - returns 204 No Content
+    return;
+};
+
+export const useDeleteTask = () => {
+    const { user, token } = useAuth();
+    const queryClient = getQueryClient();
+    
+    return useMutation({
+        mutationFn: (taskId: number) => deleteTask(token!, taskId),
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["tasks", { user: user?.userId }] });
+        }
+    });
+};

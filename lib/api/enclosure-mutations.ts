@@ -70,3 +70,67 @@ export const useUpdateEnclosure = () => {
         }
     });
 };
+
+export const deleteEnclosure = async (token: string, enclosureId: number): Promise<void> => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/enclosure/id/withtasks`, {
+        method: "DELETE",
+        headers: {
+            "Authorization": `${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ enclosureId })
+    });
+    
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(`Failed to delete enclosure: ${error.error || res.statusText}`);
+    }
+    
+    // Success - returns 204 No Content
+    return;
+};
+
+export const useDeleteEnclosure = () => {
+    const { user, token } = useAuth();
+    const queryClient = getQueryClient();
+    
+    return useMutation({
+        mutationFn: (enclosureId: number) => deleteEnclosure(token!, enclosureId),
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["enclosures", { user: user?.userId }] });
+        }
+    });
+};
+
+export const deleteEnclosureWithAnimals = async (token: string, enclosureId: number): Promise<void> => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/enclosure/id/withanimalsandtasks`, {
+        method: "DELETE",
+        headers: {
+            "Authorization": `${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ enclosureId })
+    });
+    
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(`Failed to delete enclosure with animals: ${error.error || res.statusText}`);
+    }
+    
+    // Success - returns 204 No Content
+    return;
+};
+
+export const useDeleteEnclosureWithAnimals = () => {
+    const { user, token } = useAuth();
+    const queryClient = getQueryClient();
+    
+    return useMutation({
+        mutationFn: (enclosureId: number) => deleteEnclosureWithAnimals(token!, enclosureId),
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["enclosures", { user: user?.userId }] });
+            queryClient.invalidateQueries({ queryKey: ["animals", { user: user?.userId }] });
+            queryClient.invalidateQueries({ queryKey: ["tasks", { user: user?.userId }] });
+        }
+    });
+};
