@@ -1,6 +1,6 @@
 "use client";
 
-import { TrashIcon } from "lucide-react";
+import { Flower2, TrashIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import {
     Dialog,
@@ -11,10 +11,12 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "./ui/dialog";
+import { Textarea } from "./ui/textarea";
 import { useDeleteTask } from "@/lib/api/task-mutations";
-import { useDeleteAnimal } from "@/lib/api/animal-mutations";
+import { useDeleteAnimal, useMemorializeAnimal } from "@/lib/api/animal-mutations";
 import { useDeleteEnclosure, useDeleteEnclosureWithAnimals } from "@/lib/api/enclosure-mutations";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function DeleteTaskButton({ taskId }: { taskId: number }) {
     const [open, setOpen] = useState(false);
@@ -32,7 +34,7 @@ export function DeleteTaskButton({ taskId }: { taskId: number }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="flex-1">
+                <Button className="flex-1 text-red-200">
                     <TrashIcon />
                     Delete Task
                 </Button>
@@ -67,7 +69,10 @@ export function DeleteTaskButton({ taskId }: { taskId: number }) {
 
 export function DeleteAnimalButton({ animalId }: { animalId: number }) {
     const [open, setOpen] = useState(false);
+    const [memorialOpen, setMemorialOpen] = useState(false);
+    const [memorialMessage, setMemorialMessage] = useState("");
     const deleteAnimal = useDeleteAnimal();
+    const memorializeAnimal = useMemorializeAnimal();
 
     const handleDelete = async () => {
         try {
@@ -78,51 +83,106 @@ export function DeleteAnimalButton({ animalId }: { animalId: number }) {
         }
     };
 
+    const handleMemorialize = async () => {
+        try {
+            await memorializeAnimal.mutateAsync({
+                animalId,
+                lastMessage: memorialMessage.trim()
+            });
+            setMemorialOpen(false);
+            setOpen(false);
+            setMemorialMessage("");
+            toast.success("Animal memorialized. You can view your memorialized animals in the user tab.");
+        } catch (error) {
+            console.error("Error memorializing animal:", error);
+        }
+    };
+
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button className="flex-1">
-                    <TrashIcon />
-                    Delete Animal
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Delete Animal</DialogTitle>
-                    <DialogDescription className="text-stone-400">
-                        What would you like to do with this enclosure?
-                        <br/>
-                        <span className="text-red-200">
-                            Deleting an animal will delete all tasks associated with it.
-                        </span>
-                    </DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="flex-col sm:flex-row gap-2">
-                    <Button
-                        variant="outline"
-                        onClick={() => setOpen(false)}
-                        className="flex-1 text-stone-800"
-                    >
-                        Cancel
+        <>
+            <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
+                    <Button className="flex-1 text-red-200">
+                        <TrashIcon />
+                        Delete Animal
                     </Button>
-                    <Button
-                        variant="secondary"
-                        disabled
-                        className="flex-1"
-                    >
-                        Memorialize Animal
-                    </Button>
-                    <Button
-                        variant="destructive"
-                        onClick={handleDelete}
-                        disabled={deleteAnimal.isPending}
-                        className="flex-1 bg-red-700"
-                    >
-                        {deleteAnimal.isPending ? "Deleting..." : "Delete Animal (and tasks)"}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete Animal</DialogTitle>
+                        <DialogDescription className="text-stone-400">
+                            What would you like to do with this enclosure?
+                            <br/>
+                            <span className="text-red-200">
+                                Deleting an animal will delete all tasks associated with it.
+                            </span>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex-col sm:flex-row gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => setOpen(false)}
+                            className="flex-1 text-stone-800"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            onClick={() => setMemorialOpen(true)}
+                            className="flex-1 bg-emerald-400"
+                        >
+                            Memorialize <Flower2 />
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDelete}
+                            disabled={deleteAnimal.isPending}
+                            className="flex-1 bg-red-700 mt-6"
+                        >
+                            {deleteAnimal.isPending ? "Deleting..." : "Delete Animal (and tasks)"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            <Dialog open={memorialOpen} onOpenChange={setMemorialOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Memorialize Animal</DialogTitle>
+                        <DialogDescription className="text-stone-400">
+                            Add a memorial message for this animal.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <Textarea
+                            placeholder="Enter memorial message..."
+                            value={memorialMessage}
+                            onChange={(e) => setMemorialMessage(e.target.value)}
+                            className="min-h-32"
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setMemorialOpen(false);
+                                setMemorialMessage("");
+                            }}
+                            className="text-stone-800"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            onClick={handleMemorialize}
+                            disabled={memorializeAnimal.isPending || !memorialMessage.trim()}
+                            className="bg-emerald-400"
+                        >
+                            {memorializeAnimal.isPending ? "Memorializing..." : "Memorialize"} <Flower2 />
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
     );
 }
 
@@ -154,7 +214,7 @@ export function DeleteEnclosureButton({ enclosureId }: { enclosureId: number }) 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="flex-1">
+                <Button className="flex-1 text-red-200">
                     <TrashIcon />
                     Delete Enclosure
                 </Button>

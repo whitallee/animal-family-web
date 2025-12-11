@@ -22,6 +22,10 @@ export type Animal = {
     extraNotes: string;
     speciesId: number;
     enclosureId: number;
+    isMemorialized?: boolean;
+    lastMessage?: string | null;
+    memorialPhotos?: string[] | null;
+    memorialDate?: string | null; // ISO 8601 date string (YYYY-MM-DD)
 }
 
 export type Enclosure = {
