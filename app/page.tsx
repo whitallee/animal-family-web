@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import BottomNav from "@/components/nav/BottomNav";
@@ -36,6 +36,29 @@ function HomeContent() {
   const [taskNavigationTarget, setTaskNavigationTarget] = useState<number | null>(null);
   const isDataLoaded = !animalsPending && !enclosuresPending && !tasksPending && !speciesPending && !habitatsPending;
 
+  // Filter out memorialized animals and tasks associated with them
+  const memorializedAnimalIds = useMemo(() => 
+    new Set(
+      animals?.filter((animal: Animal) => animal.isMemorialized).map((animal: Animal) => animal.animalId) ?? []
+    ), [animals]
+  );
+  
+  const filteredAnimals = useMemo(() => 
+    animals?.filter((animal: Animal) => !animal.isMemorialized) ?? [], 
+    [animals]
+  );
+  
+  const filteredTasks = useMemo(() => 
+    tasks?.filter((task: Task) => {
+      // Exclude tasks associated with memorialized animals
+      if (task.animalId && memorializedAnimalIds.has(task.animalId)) {
+        return false;
+      }
+      return true;
+    }) ?? [], 
+    [tasks, memorializedAnimalIds]
+  );
+
   // Handle URL parameters on mount and when data loads
   useEffect(() => {
     if (!isDataLoaded) return;
@@ -47,7 +70,7 @@ function HomeContent() {
     if (animalId) {
       const id = parseInt(animalId, 10);
       if (!isNaN(id)) {
-        const animal = animals?.find((a: Animal) => a.animalId === id);
+        const animal = filteredAnimals.find((a: Animal) => a.animalId === id);
         if (animal) {
           setNavigationTarget({ type: "animal", id });
           setActiveView("family");
@@ -77,7 +100,7 @@ function HomeContent() {
     } else if (taskId) {
       const id = parseInt(taskId, 10);
       if (!isNaN(id)) {
-        const task = tasks?.find((t: Task) => t.taskId === id);
+        const task = filteredTasks.find((t: Task) => t.taskId === id);
         if (task) {
           setTaskNavigationTarget(id);
           setActiveView("tasks");
@@ -94,7 +117,7 @@ function HomeContent() {
       setNavigationTarget(null);
       setTaskNavigationTarget(null);
     }
-  }, [searchParams, isDataLoaded, animals, enclosures, tasks, router]);
+  }, [searchParams, isDataLoaded, filteredAnimals, enclosures, filteredTasks, router]);
 
   // Update URL when navigation target changes
   const handleNavigation = (type: "animal" | "enclosure", id: number) => {
@@ -157,11 +180,11 @@ function HomeContent() {
           style={{ transform: getViewTransform("home") }}
         >
           <div className="h-full overflow-y-auto">
-            <TasksCard tasks={tasks} isPending={tasksPending} onTaskClick={handleTaskNavigation}/>
+            <TasksCard tasks={filteredTasks} isPending={tasksPending} onTaskClick={handleTaskNavigation}/>
             <SubjectSection 
-              tasks={tasks ?? []}
+              tasks={filteredTasks}
               enclosures={enclosures ?? []} 
-              animals={animals ?? []} 
+              animals={filteredAnimals} 
               habitats={habitats ?? []} 
               species={species ?? []} 
               isPending={animalsPending || enclosuresPending || speciesPending || habitatsPending}
@@ -176,9 +199,9 @@ function HomeContent() {
           style={{ transform: getViewTransform("family") }}
         >
           <FamilyPage
-            animals={animals ?? []}
+            animals={filteredAnimals}
             enclosures={enclosures ?? []}
-            tasks={tasks ?? []}
+            tasks={filteredTasks}
             habitats={habitats ?? []}
             species={species ?? []}
             isPending={animalsPending || enclosuresPending || tasksPending || speciesPending || habitatsPending}
@@ -195,9 +218,9 @@ function HomeContent() {
           style={{ transform: getViewTransform("tasks") }}
         >
           <TasksPage
-            animals={animals}
+            animals={filteredAnimals}
             enclosures={enclosures}
-            tasks={tasks}
+            tasks={filteredTasks}
             habitats={habitats}
             species={species}
             isPending={animalsPending || enclosuresPending || tasksPending || speciesPending || habitatsPending}
