@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import moment from 'moment';
 
 // UI Components
@@ -138,11 +138,13 @@ function TaskDetails({ task, animals, enclosures, habitats, species, tasks, onSu
     )
 }
 
-function TaskList({ tasks, animals, enclosures, habitats, species, onSubjectClick, navigationTarget, onNavigationComplete }: { tasks: Task[] | undefined, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined, habitats: Habitat[] | undefined, species: Species[] | undefined, onSubjectClick?: (type: "animal" | "enclosure", id: number) => void, navigationTarget?: number | null, onNavigationComplete?: () => void }) {
+function TaskList({ tasks, animals, enclosures, habitats, species, onSubjectClick, navigationTarget, onNavigationComplete, onAccordionChange }: { tasks: Task[] | undefined, animals: Animal[] | undefined, enclosures: Enclosure[] | undefined, habitats: Habitat[] | undefined, species: Species[] | undefined, onSubjectClick?: (type: "animal" | "enclosure", id: number) => void, navigationTarget?: number | null, onNavigationComplete?: () => void, onAccordionChange?: (taskId: number | null) => void }) {
     const [openTaskId, setOpenTaskId] = useState<number | null>(null);
+    const isNavigatingRef = useRef(false);
 
     useEffect(() => {
         if (navigationTarget !== null && navigationTarget !== undefined) {
+            isNavigatingRef.current = true;
             setOpenTaskId(navigationTarget);
             // Scroll to the element after a short delay to ensure it's rendered
             setTimeout(() => {
@@ -151,6 +153,7 @@ function TaskList({ tasks, animals, enclosures, habitats, species, onSubjectClic
                     element.scrollIntoView({ behavior: "smooth", block: "center" });
                 }
                 onNavigationComplete?.();
+                isNavigatingRef.current = false;
             }, 100);
         }
     }, [navigationTarget, onNavigationComplete]);
@@ -198,7 +201,7 @@ function TaskList({ tasks, animals, enclosures, habitats, species, onSubjectClic
         return categories;
     };
 
-    const renderTaskSection = (title: string, tasksInSection: Task[], openTaskId: number | null, onOpenTaskChange: (id: number | null) => void) => {
+    const renderTaskSection = (title: string, tasksInSection: Task[], openTaskId: number | null, onOpenTaskChange: (id: number | null) => void, onAccordionChange?: (taskId: number | null) => void) => {
         if (tasksInSection.length === 0) return null;
 
         const sortedTasks = [...tasksInSection].sort((a, b) => {
@@ -223,9 +226,18 @@ function TaskList({ tasks, animals, enclosures, habitats, species, onSubjectClic
                 <h3 className="text-lg font-semibold text-stone-500 mb-2 mt-4 first:mt-0">{title}</h3>
                 <Accordion type="single" collapsible className="w-full" value={accordionValue} onValueChange={(value) => {
                     if (value) {
-                        onOpenTaskChange(parseInt(value, 10));
+                        const taskId = parseInt(value, 10);
+                        onOpenTaskChange(taskId);
+                        // Update URL when accordion opens (only if manual change, not from navigation)
+                        if (onAccordionChange && !isNavigatingRef.current) {
+                            onAccordionChange(taskId);
+                        }
                     } else {
                         onOpenTaskChange(null);
+                        // Clear URL when accordion closes (only if manual change)
+                        if (onAccordionChange && !isNavigatingRef.current) {
+                            onAccordionChange(null);
+                        }
                     }
                 }}>
                     {sortedTasks.map((task) => (
@@ -248,14 +260,14 @@ function TaskList({ tasks, animals, enclosures, habitats, species, onSubjectClic
     
     return (
         <div className="w-full">
-            {renderTaskSection('Incomplete', categorizedTasks['incomplete'], openTaskId, setOpenTaskId)}
-            {renderTaskSection('Resets within 6 hours', categorizedTasks['resets within 6 hours'], openTaskId, setOpenTaskId)}
-            {renderTaskSection('Resets within 6-12 hours', categorizedTasks['6-12 hours from now'], openTaskId, setOpenTaskId)}
-            {renderTaskSection('Resets within 12-24 hours', categorizedTasks['12-24 hours from now'], openTaskId, setOpenTaskId)}
-            {renderTaskSection('Resets within a week', categorizedTasks['within a week'], openTaskId, setOpenTaskId)}
-            {renderTaskSection('Resets within a month', categorizedTasks['within a month'], openTaskId, setOpenTaskId)}
-            {renderTaskSection('Resets within 3 months', categorizedTasks['within 3 months'], openTaskId, setOpenTaskId)}
-            {renderTaskSection('Resets within a year', categorizedTasks['within a year'], openTaskId, setOpenTaskId)}
+            {renderTaskSection('Incomplete', categorizedTasks['incomplete'], openTaskId, setOpenTaskId, onAccordionChange)}
+            {renderTaskSection('Resets within 6 hours', categorizedTasks['resets within 6 hours'], openTaskId, setOpenTaskId, onAccordionChange)}
+            {renderTaskSection('Resets within 6-12 hours', categorizedTasks['6-12 hours from now'], openTaskId, setOpenTaskId, onAccordionChange)}
+            {renderTaskSection('Resets within 12-24 hours', categorizedTasks['12-24 hours from now'], openTaskId, setOpenTaskId, onAccordionChange)}
+            {renderTaskSection('Resets within a week', categorizedTasks['within a week'], openTaskId, setOpenTaskId, onAccordionChange)}
+            {renderTaskSection('Resets within a month', categorizedTasks['within a month'], openTaskId, setOpenTaskId, onAccordionChange)}
+            {renderTaskSection('Resets within 3 months', categorizedTasks['within 3 months'], openTaskId, setOpenTaskId, onAccordionChange)}
+            {renderTaskSection('Resets within a year', categorizedTasks['within a year'], openTaskId, setOpenTaskId, onAccordionChange)}
         </div>
     );
 }
@@ -269,15 +281,16 @@ interface TasksPageProps {
     onSubjectClick?: (type: "animal" | "enclosure", id: number) => void;
     navigationTarget?: number | null;
     onNavigationComplete?: () => void;
+    onAccordionChange?: (taskId: number | null) => void;
 }
 
-export default function TasksPage({ animals, enclosures, tasks, habitats, species, isPending, onSubjectClick, navigationTarget, onNavigationComplete }: TasksPageProps) {
+export default function TasksPage({ animals, enclosures, tasks, habitats, species, isPending, onSubjectClick, navigationTarget, onNavigationComplete, onAccordionChange }: TasksPageProps) {
     return (
             <div className="h-[calc(100vh-6rem)] w-full flex flex-col gap-4 items-start bg-stone-700 text-stone-50 shadow-lg border-stone-600 rounded-lg p-4 overflow-y-scroll">
                 <div className="flex flex-row justify-between items-center w-full">
                     <h1 className="text-2xl font-medium">Tasks</h1>
                 </div>
-                {isPending ? <TaskListSkeleton /> : <TaskList tasks={tasks} animals={animals} enclosures={enclosures} habitats={habitats} species={species} onSubjectClick={onSubjectClick} navigationTarget={navigationTarget} onNavigationComplete={onNavigationComplete} />}
+                {isPending ? <TaskListSkeleton /> : <TaskList tasks={tasks} animals={animals} enclosures={enclosures} habitats={habitats} species={species} onSubjectClick={onSubjectClick} navigationTarget={navigationTarget} onNavigationComplete={onNavigationComplete} onAccordionChange={onAccordionChange} />}
             </div>
     );
 }
