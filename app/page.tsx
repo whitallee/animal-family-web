@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { useState, useMemo, Suspense } from "react";
 import BottomNav from "@/components/nav/BottomNav";
 import NavBarGap from "@/components/nav/NavBarGap";
 import SubjectSection from "@/components/SubjectSection";
@@ -23,8 +21,6 @@ type NavigationTarget = {
 } | null;
 
 function HomeContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
   const [activeView, setActiveView] = useState<View>("home");
   const [navigationTarget, setNavigationTarget] = useState<NavigationTarget>(null);
   const { data: animals, isPending: animalsPending } = useAnimals();
@@ -34,7 +30,6 @@ function HomeContent() {
   const { data: habitats, isPending: habitatsPending } = useHabitats();
 
   const [taskNavigationTarget, setTaskNavigationTarget] = useState<number | null>(null);
-  const isDataLoaded = !animalsPending && !enclosuresPending && !tasksPending && !speciesPending && !habitatsPending;
 
   // Filter out memorialized animals and tasks associated with them
   const memorializedAnimalIds = useMemo(() => 
@@ -59,98 +54,33 @@ function HomeContent() {
     [tasks, memorializedAnimalIds]
   );
 
-  // Handle URL parameters on mount and when data loads
-  useEffect(() => {
-    if (!isDataLoaded) return;
-
-    const animalId = searchParams.get("animal");
-    const enclosureId = searchParams.get("enclosure");
-    const taskId = searchParams.get("task");
-
-    if (animalId) {
-      const id = parseInt(animalId, 10);
-      if (!isNaN(id)) {
-        const animal = filteredAnimals.find((a: Animal) => a.animalId === id);
-        if (animal) {
-          setNavigationTarget({ type: "animal", id });
-          setActiveView("family");
-        } else {
-          toast("You don't have access to the requested animal.");
-          // Remove invalid parameter from URL
-          const params = new URLSearchParams(searchParams.toString());
-          params.delete("animal");
-          router.replace(`?${params.toString()}`, { scroll: false });
-        }
-      }
-    } else if (enclosureId) {
-      const id = parseInt(enclosureId, 10);
-      if (!isNaN(id)) {
-        const enclosure = enclosures?.find((e: Enclosure) => e.enclosureId === id);
-        if (enclosure) {
-          setNavigationTarget({ type: "enclosure", id });
-          setActiveView("family");
-        } else {
-          toast("You don't have access to the requested enclosure.");
-          // Remove invalid parameter from URL
-          const params = new URLSearchParams(searchParams.toString());
-          params.delete("enclosure");
-          router.replace(`?${params.toString()}`, { scroll: false });
-        }
-      }
-    } else if (taskId) {
-      const id = parseInt(taskId, 10);
-      if (!isNaN(id)) {
-        const task = filteredTasks.find((t: Task) => t.taskId === id);
-        if (task) {
-          setTaskNavigationTarget(id);
-          setActiveView("tasks");
-        } else {
-          toast("You don't have access to the requested task.");
-          // Remove invalid parameter from URL
-          const params = new URLSearchParams(searchParams.toString());
-          params.delete("task");
-          router.replace(`?${params.toString()}`, { scroll: false });
-        }
-      }
-    } else {
-      // No URL parameters - clear navigation targets
-      setNavigationTarget(null);
-      setTaskNavigationTarget(null);
-    }
-  }, [searchParams, isDataLoaded, filteredAnimals, enclosures, filteredTasks, router]);
-
-  // Update URL when navigation target changes
+  // Handle navigation
   const handleNavigation = (type: "animal" | "enclosure", id: number) => {
     setNavigationTarget({ type, id });
     setActiveView("family");
-    
-    // Update URL
-    const params = new URLSearchParams();
-    params.set(type, id.toString());
-    router.push(`?${params.toString()}`, { scroll: false });
   };
 
   // Handle task navigation
   const handleTaskNavigation = (taskId: number) => {
     setTaskNavigationTarget(taskId);
     setActiveView("tasks");
-    
-    // Update URL
-    const params = new URLSearchParams();
-    params.set("task", taskId.toString());
-    router.push(`?${params.toString()}`, { scroll: false });
   };
 
-  // Handle navigation completion - keep URL params for back/forward navigation
+  // Handle navigation completion
   const handleNavigationComplete = () => {
     setNavigationTarget(null);
-    // Don't clear URL parameters - keep them for browser back/forward navigation
   };
 
   // Handle task navigation completion
   const handleTaskNavigationComplete = () => {
     setTaskNavigationTarget(null);
-    // Don't clear URL parameters - keep them for browser back/forward navigation
+  };
+
+  // Handle view change from bottom nav
+  const handleViewChange = (view: View) => {
+    setActiveView(view);
+    setNavigationTarget(null);
+    setTaskNavigationTarget(null);
   };
 
   const getViewTransform = (view: View) => {
@@ -209,6 +139,13 @@ function HomeContent() {
             onNavigationComplete={handleNavigationComplete}
             onAnimalNavigation={(animalId) => handleNavigation("animal", animalId)}
             onTaskClick={handleTaskNavigation}
+            onAccordionChange={(type, id) => {
+              if (id !== null) {
+                handleNavigation(type, id);
+              } else {
+                setNavigationTarget(null);
+              }
+            }}
           />
         </div>
 
@@ -227,11 +164,18 @@ function HomeContent() {
             onSubjectClick={handleNavigation}
             navigationTarget={taskNavigationTarget}
             onNavigationComplete={handleTaskNavigationComplete}
+            onAccordionChange={(taskId) => {
+              if (taskId !== null) {
+                handleTaskNavigation(taskId);
+              } else {
+                setTaskNavigationTarget(null);
+              }
+            }}
           />
         </div>
       </div>
       <NavBarGap />
-      <BottomNav activeView={activeView} onViewChange={setActiveView} />
+      <BottomNav activeView={activeView} onViewChange={handleViewChange} />
     </div>
   );
 }

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/popover"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import TasksCard from "@/components/TasksCard";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { EditAnimalButton, EditEnclosureButton } from "@/components/EditComponents";
 import { DeleteAnimalButton, DeleteEnclosureButton } from "./DeleteComponents";
 
@@ -80,11 +80,13 @@ function AnimalDetails({ animalLong, animal, onTaskClick }: { animalLong: Animal
     )
 }
 
-function AnimalList({ animals, enclosures, tasks, habitats, species, navigationTarget, onNavigationComplete, openAnimalId, onOpenAnimalChange, onTaskClick }: { animals: Animal[], enclosures: Enclosure[], tasks: Task[], habitats: Habitat[], species: Species[], navigationTarget?: { type: "animal" | "enclosure", id: number } | null, onNavigationComplete?: () => void, openAnimalId?: number, onOpenAnimalChange?: (id: number | undefined) => void, onTaskClick?: (taskId: number) => void }) {
+function AnimalList({ animals, enclosures, tasks, habitats, species, navigationTarget, onNavigationComplete, openAnimalId, onOpenAnimalChange, onTaskClick, onAccordionChange }: { animals: Animal[], enclosures: Enclosure[], tasks: Task[], habitats: Habitat[], species: Species[], navigationTarget?: { type: "animal" | "enclosure", id: number } | null, onNavigationComplete?: () => void, openAnimalId?: number, onOpenAnimalChange?: (id: number | undefined) => void, onTaskClick?: (taskId: number) => void, onAccordionChange?: (animalId: number | null) => void }) {
     const [openValue, setOpenValue] = useState<string>("");
+    const isNavigatingRef = useRef(false);
 
     useEffect(() => {
         if (navigationTarget?.type === "animal" && navigationTarget.id) {
+            isNavigatingRef.current = true;
             setOpenValue(navigationTarget.id.toString());
             onOpenAnimalChange?.(navigationTarget.id);
             // Scroll to the element after a short delay to ensure it's rendered
@@ -94,26 +96,39 @@ function AnimalList({ animals, enclosures, tasks, habitats, species, navigationT
                     element.scrollIntoView({ behavior: "smooth", block: "center" });
                 }
                 onNavigationComplete?.();
+                isNavigatingRef.current = false;
             }, 100);
         }
     }, [navigationTarget, onNavigationComplete, onOpenAnimalChange]);
 
     useEffect(() => {
         if (openAnimalId !== undefined) {
+            isNavigatingRef.current = true;
             setOpenValue(openAnimalId.toString());
             setTimeout(() => {
                 const element = document.querySelector(`[data-accordion-item="${openAnimalId}"]`);
                 if (element) {
                     element.scrollIntoView({ behavior: "smooth", block: "center" });
                 }
+                isNavigatingRef.current = false;
             }, 100);
         } else {
             setOpenValue("");
         }
     }, [openAnimalId]);
 
+    const handleValueChange = (value: string) => {
+        setOpenValue(value);
+        const animalId = value ? parseInt(value, 10) : null;
+        onOpenAnimalChange?.(animalId ?? undefined);
+        // Only update URL if this is a manual change, not triggered by navigation
+        if (!isNavigatingRef.current) {
+            onAccordionChange?.(animalId);
+        }
+    };
+
     return (
-        <Accordion type="single" collapsible className="w-full" value={openValue} onValueChange={setOpenValue}>
+        <Accordion type="single" collapsible className="w-full" value={openValue} onValueChange={handleValueChange}>
             {animals.map((animal) => {
                 const animalWithSpeciesLong = animalToSubjectLong(animal, species.find(s => s.speciesId === animal.speciesId)!, tasks, enclosures, habitats);
                 const animalWithSpeciesShort = animalToSubject(animal, species.find(s => s.speciesId === animal.speciesId)!, tasks.filter(task => task.animalId === animal.animalId));
@@ -185,11 +200,13 @@ function EnclosureDetails({ enclosureLong, enclosure, onAnimalClick, onTaskClick
     )
 }
 
-function EnclosureList({ enclosures, animals, tasks, habitats, species, navigationTarget, onNavigationComplete, onAnimalClick, onTaskClick }: { enclosures: Enclosure[], animals: Animal[], tasks: Task[], habitats: Habitat[], species: Species[], navigationTarget?: { type: "animal" | "enclosure", id: number } | null, onNavigationComplete?: () => void, onAnimalClick?: (animalId: number) => void, onTaskClick?: (taskId: number) => void }) {
+function EnclosureList({ enclosures, animals, tasks, habitats, species, navigationTarget, onNavigationComplete, onAnimalClick, onTaskClick, onAccordionChange }: { enclosures: Enclosure[], animals: Animal[], tasks: Task[], habitats: Habitat[], species: Species[], navigationTarget?: { type: "animal" | "enclosure", id: number } | null, onNavigationComplete?: () => void, onAnimalClick?: (animalId: number) => void, onTaskClick?: (taskId: number) => void, onAccordionChange?: (enclosureId: number | null) => void }) {
     const [openValue, setOpenValue] = useState<string>("");
+    const isNavigatingRef = useRef(false);
 
     useEffect(() => {
         if (navigationTarget?.type === "enclosure" && navigationTarget.id) {
+            isNavigatingRef.current = true;
             setOpenValue(navigationTarget.id.toString());
             // Scroll to the element after a short delay to ensure it's rendered
             setTimeout(() => {
@@ -198,12 +215,22 @@ function EnclosureList({ enclosures, animals, tasks, habitats, species, navigati
                     element.scrollIntoView({ behavior: "smooth", block: "center" });
                 }
                 onNavigationComplete?.();
+                isNavigatingRef.current = false;
             }, 100);
         }
     }, [navigationTarget, onNavigationComplete]);
 
+    const handleValueChange = (value: string) => {
+        setOpenValue(value);
+        const enclosureId = value ? parseInt(value, 10) : null;
+        // Only update URL if this is a manual change, not triggered by navigation
+        if (!isNavigatingRef.current) {
+            onAccordionChange?.(enclosureId);
+        }
+    };
+
     return (
-        <Accordion type="single" collapsible className="w-full" value={openValue} onValueChange={setOpenValue}>
+        <Accordion type="single" collapsible className="w-full" value={openValue} onValueChange={handleValueChange}>
             {enclosures.map((enclosure) => {
                 const enclosureWithDataLong = enclosureToSubjectLong(enclosure, animals, tasks, habitats, species);
                 const enclosureWithDataShort = enclosureToSubject(enclosure, animals, habitats, species, tasks);
@@ -234,9 +261,10 @@ interface FamilyPageProps {
     onNavigationComplete?: () => void;
     onAnimalNavigation?: (animalId: number) => void;
     onTaskClick?: (taskId: number) => void;
+    onAccordionChange?: (type: "animal" | "enclosure", id: number | null) => void;
 }
 
-export default function FamilyPage({ animals, enclosures, tasks, habitats, species, isPending, navigationTarget, onNavigationComplete, onAnimalNavigation, onTaskClick }: FamilyPageProps) {
+export default function FamilyPage({ animals, enclosures, tasks, habitats, species, isPending, navigationTarget, onNavigationComplete, onAnimalNavigation, onTaskClick, onAccordionChange }: FamilyPageProps) {
     const [activeTab, setActiveTab] = useState<string>("animals");
     const [openAnimalId, setOpenAnimalId] = useState<number | undefined>(undefined);
 
@@ -270,14 +298,14 @@ export default function FamilyPage({ animals, enclosures, tasks, habitats, speci
                     {isPending ?
                         <FamilyListSkeleton />
                         : 
-                        <AnimalList animals={animals || []} enclosures={enclosures || []} tasks={tasks || []} habitats={habitats || []} species={species || []} navigationTarget={navigationTarget} onNavigationComplete={onNavigationComplete} openAnimalId={openAnimalId} onOpenAnimalChange={setOpenAnimalId} onTaskClick={onTaskClick} />}
+                        <AnimalList animals={animals || []} enclosures={enclosures || []} tasks={tasks || []} habitats={habitats || []} species={species || []} navigationTarget={navigationTarget} onNavigationComplete={onNavigationComplete} openAnimalId={openAnimalId} onOpenAnimalChange={setOpenAnimalId} onTaskClick={onTaskClick} onAccordionChange={(animalId) => onAccordionChange?.("animal", animalId)} />}
                     </TabsContent>
 
                     <TabsContent value="enclosures">
                         {isPending ?
                             <FamilyListSkeleton />
                             :
-                            <EnclosureList enclosures={enclosures || []} animals={animals || []} tasks={tasks || []} habitats={habitats || []} species={species || []} navigationTarget={navigationTarget} onNavigationComplete={onNavigationComplete} onAnimalClick={handleAnimalClick} onTaskClick={onTaskClick} />
+                            <EnclosureList enclosures={enclosures || []} animals={animals || []} tasks={tasks || []} habitats={habitats || []} species={species || []} navigationTarget={navigationTarget} onNavigationComplete={onNavigationComplete} onAnimalClick={handleAnimalClick} onTaskClick={onTaskClick} onAccordionChange={(enclosureId) => onAccordionChange?.("enclosure", enclosureId)} />
                         }
                     </TabsContent>
                 </Tabs>
