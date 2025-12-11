@@ -15,6 +15,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/AuthContext";
+import MemorializedAnimalsDialog from "@/components/MemorializedAnimalsDialog";
 
 export default function UserDrawer() {
     const [email, setEmail] = useState("");
@@ -88,6 +89,7 @@ export default function UserDrawer() {
                     <p>Last Name: {user?.lastName}</p>
                     <p>Email: {user?.email}</p>
                     {/* <p>Phone: {"Not provided"}</p> */}
+                    <MemorializedAnimalsDialog />
                     <Button className="mt-4" onClick={() => {logout(); setEmail(""); setPassword(""); setOpen(false);}}>Logout</Button>
                 </div> 
                 : <form onSubmit={isSignupMode ? handleSignup : handleLogin} className="px-4 space-y-4">
