@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react";
-import { PencilIcon, TrashIcon, Calendar as CalendarIcon, ChevronsUpDownIcon, CheckIcon } from "lucide-react";
+import { PencilIcon, Calendar as CalendarIcon, ChevronsUpDownIcon, CheckIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import {
@@ -731,11 +731,212 @@ export function EditEnclosureButton({ enclosure }: EditEnclosureButtonProps) {
                         <Button variant="outline" className="text-stone-800" onClick={() => setOpen(false)}>
                             Cancel
                         </Button>
-                        <Button 
+                        <Button
                             onClick={handleSave}
                             disabled={updateEnclosure.isPending}
                         >
                             {updateEnclosure.isPending ? "Saving..." : "Save"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
+    );
+}
+
+interface EditMemorialButtonProps {
+    animal: Animal;
+}
+
+interface UpdateMemorialPayload {
+    animalId: number;
+    animalName: string;
+    speciesId: number;
+    enclosureId: number | null;
+    image: string;
+    gender: string;
+    dob: string;
+    personalityDesc: string;
+    dietDesc: string;
+    routineDesc: string;
+    extraNotes: string;
+    isMemorialized: boolean;
+    lastMessage: string;
+    memorialDate: string;
+}
+
+export function EditMemorialButton({ animal }: EditMemorialButtonProps) {
+    const [open, setOpen] = useState(false);
+    const [lastMessage, setLastMessage] = useState(animal.lastMessage || "");
+    const [dob, setDob] = useState(animal.dob || "");
+    const [memorialDate, setMemorialDate] = useState(animal.memorialDate || "");
+    const [dobCalendarOpen, setDobCalendarOpen] = useState(false);
+    const [memorialCalendarOpen, setMemorialCalendarOpen] = useState(false);
+    const updateAnimal = useUpdateAnimal();
+
+    const handleOpenChange = (isOpen: boolean) => {
+        setOpen(isOpen);
+        if (isOpen) {
+            // Reset form fields when dialog opens
+            setLastMessage(animal.lastMessage || "");
+            setDob(animal.dob || "");
+            setMemorialDate(animal.memorialDate || "");
+        }
+    };
+
+    const handleSave = () => {
+        // Validate required fields
+        const invalidFields: string[] = [];
+
+        if (!lastMessage.trim()) {
+            invalidFields.push("Memorial Message");
+        }
+        if (!dob) {
+            invalidFields.push("Date of Birth");
+        }
+        if (!memorialDate) {
+            invalidFields.push("Memorial Date");
+        }
+
+        if (invalidFields.length > 0) {
+            toast.error(`Please fill in the following fields: ${invalidFields.join(", ")}`);
+            return;
+        }
+
+        // Build payload with all animal fields
+        const payload: UpdateMemorialPayload = {
+            animalId: animal.animalId,
+            animalName: animal.animalName,
+            speciesId: animal.speciesId,
+            enclosureId: animal.enclosureId,
+            image: animal.image,
+            gender: animal.gender,
+            dob: dob,
+            personalityDesc: animal.personalityDesc,
+            dietDesc: animal.dietDesc,
+            routineDesc: animal.routineDesc,
+            extraNotes: animal.extraNotes,
+            isMemorialized: true,
+            lastMessage: lastMessage.trim(),
+            memorialDate: memorialDate
+        };
+
+        // Cast to expected type - backend accepts memorial fields (same endpoint as memorializeAnimal)
+        updateAnimal.mutate(payload as {
+            animalId: number;
+            animalName: string;
+            speciesId: number;
+            enclosureId: number | null;
+            image: string;
+            gender: string;
+            dob: string;
+            personalityDesc: string;
+            dietDesc: string;
+            routineDesc: string;
+            extraNotes: string;
+        }, {
+            onSuccess: () => {
+                toast.success("Memorial updated successfully");
+                setOpen(false);
+            }
+        });
+    };
+
+    return (
+        <>
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setOpen(true)}
+                className="h-8 w-8"
+            >
+                <PencilIcon className="h-4 w-4" />
+            </Button>
+            <Dialog open={open} onOpenChange={handleOpenChange}>
+                <DialogContent className="max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Edit Memorial</DialogTitle>
+                        <DialogDescription>
+                            Update memorial information for {animal.animalName}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        {/* Memorial Message */}
+                        <div className="grid gap-2">
+                            <Label htmlFor="lastMessage">Memorial Message</Label>
+                            <Textarea
+                                id="lastMessage"
+                                value={lastMessage}
+                                onChange={(e) => setLastMessage(e.target.value)}
+                                rows={4}
+                                required
+                            />
+                        </div>
+
+                        {/* Date of Birth */}
+                        <div className="grid gap-2">
+                            <Label>Date of Birth</Label>
+                            <Popover open={dobCalendarOpen} onOpenChange={setDobCalendarOpen}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        className="w-full justify-start text-left font-normal bg-stone-600 border-stone-500 text-stone-50 hover:bg-stone-700 hover:text-stone-50"
+                                    >
+                                        {dob ? format(new Date(dob), "PPP") : "Select date"}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0 bg-stone-600 border-stone-500 text-stone-50 min-h-[336px]" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={dob ? new Date(dob) : undefined}
+                                        onSelect={(date) => {
+                                            setDob(date?.toISOString().split('T')[0] || "");
+                                            setDobCalendarOpen(false);
+                                        }}
+                                        captionLayout="dropdown"
+                                        fromYear={1900}
+                                        toYear={new Date().getFullYear()}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+
+                        {/* Memorial Date */}
+                        <div className="grid gap-2">
+                            <Label>Memorial Date</Label>
+                            <Popover open={memorialCalendarOpen} onOpenChange={setMemorialCalendarOpen}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        className="w-full justify-start text-left font-normal bg-stone-600 border-stone-500 text-stone-50 hover:bg-stone-700 hover:text-stone-50"
+                                    >
+                                        {memorialDate ? format(new Date(memorialDate), "PPP") : "Select date"}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0 bg-stone-600 border-stone-500 text-stone-50 min-h-[336px]" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={memorialDate ? new Date(memorialDate) : undefined}
+                                        onSelect={(date) => {
+                                            setMemorialDate(date?.toISOString().split('T')[0] || "");
+                                            setMemorialCalendarOpen(false);
+                                        }}
+                                        captionLayout="dropdown"
+                                        fromYear={1900}
+                                        toYear={new Date().getFullYear()}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleSave} disabled={updateAnimal.isPending}>
+                            {updateAnimal.isPending ? "Saving..." : "Save Changes"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

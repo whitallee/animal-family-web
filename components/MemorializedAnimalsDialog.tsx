@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import Image from "next/image";
+import { EditMemorialButton } from "@/components/EditComponents";
 
 export default function MemorializedAnimalsDialog() {
     const [open, setOpen] = useState(false);
@@ -62,16 +63,21 @@ export default function MemorializedAnimalsDialog() {
                                     }}
                                 />
                             </div>
-                            <div className="flex flex-col flex-1 min-w-0">
-                                <h3 className="text-lg font-semibold text-stone-50 mb-1">{animal.animalName}</h3>
-                                {animal.lastMessage && (
-                                    <p className="text-stone-300 text-sm whitespace-pre-wrap break-words">{animal.lastMessage}</p>
-                                )}
-                                {(animal.dob || animal.memorialDate) && (
-                                    <p className="text-stone-400 text-xs mt-2">
-                                        {animal.dob ? new Date(animal.dob).toLocaleDateString() : "?"} - {animal.memorialDate ? new Date(animal.memorialDate).toLocaleDateString() : "?"}
-                                    </p>
-                                )}
+                            <div className="flex gap-2 flex-1 min-w-0">
+                                <div className="flex flex-col flex-1 min-w-0">
+                                    <h3 className="text-lg font-semibold text-stone-50 mb-1">{animal.animalName}</h3>
+                                    {animal.lastMessage && (
+                                        <p className="text-stone-300 text-sm whitespace-pre-wrap break-words">{animal.lastMessage}</p>
+                                    )}
+                                    {(animal.dob || animal.memorialDate) && (
+                                        <p className="text-stone-400 text-xs mt-2">
+                                            {animal.dob ? new Date(animal.dob).toLocaleDateString() : "?"} - {animal.memorialDate ? new Date(animal.memorialDate).toLocaleDateString() : "?"}
+                                        </p>
+                                    )}
+                                </div>
+                                <div className="flex-shrink-0 self-start">
+                                    <EditMemorialButton animal={animal} />
+                                </div>
                             </div>
                         </div>
                     ))}

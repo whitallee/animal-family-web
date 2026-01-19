@@ -31,6 +31,6 @@ export default isDev
         skipWaiting: true,
         clientsClaim: true,
         swDest: "sw.js",
-        importScripts: ['/sw-helpers.js'],
+        importScripts: ['/sw-helpers.js', '/push-notifications.js'],
       },
     })(nextConfig);

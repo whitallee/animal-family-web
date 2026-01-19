@@ -56,8 +56,8 @@ The application will be available at [http://localhost:3000](http://localhost:30
 ### High Priority - Core Features
 
 - [ ] **Animal lifecycle management**
-  - [ ] Mark animal as passed away (RIP)
-  - [ ] Add "In Memorium" section
+  - [X] Mark animal as passed away (RIP)
+  - [X] Add "In Memorium" section
   - [ ] Add settings section in UserDrawer
   - [ ] Toggle visibility for In Memorium section in settings
 
@@ -75,7 +75,7 @@ The application will be available at [http://localhost:3000](http://localhost:30
 
 - [ ] **Earlier Future Features (unorganized)**
   - [ ] Sort options and preferences for family lists, home page, and tasks
-  - [ ] should have option to show completed tasks underneath animal and enclosure accordion
+  - [ ] should have option (default actually) to show completed tasks underneath animal and enclosure accordion
   - [ ] add/remove animals in enclosure button
   - [ ] redo Add Anything drawer to be a dialog box, that walks you step by step thru the creation process, for better UX
   - [ ] maybe redo the UserDrawer to be a dialog box.
