@@ -11,7 +11,7 @@ import { useEnclosures, useAnimals } from "@/lib/api/fetch-family";
 import { useTasks } from "@/lib/api/fetch-family";
 import { useHabitats } from "@/lib/api/fetch-species-habitats";
 import { useSpecies } from "@/lib/api/fetch-species-habitats";
-import { Animal, Enclosure, Task } from "@/types/db-types";
+import { Animal, Task } from "@/types/db-types";
 
 type View = "home" | "family" | "tasks";
 
