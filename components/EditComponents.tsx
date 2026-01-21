@@ -609,7 +609,7 @@ export function EditAnimalButton({ animal }: EditAnimalButtonProps) {
                         </Button>
                     </DialogFooter>
                 </DialogContent>
-            </Dialog>Dog’s Gabapentin
+            </Dialog>
         </>
     );
 }
