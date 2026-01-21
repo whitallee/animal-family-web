@@ -105,28 +105,37 @@ function TaskDetails({ task, animals, enclosures, habitats, species, tasks, onSu
                     <p><span className="font-bold text-stone-400">Repeats every </span> {ReadableTime(task.repeatIntervHours)}</p>
 
                     {
-                        task.complete ?
-                            <p className="w-full"><span className="font-bold text-stone-400">Resets in</span> {ReadableTime(hoursUntilDue(task))}
-                                <Popover>
-                                    <PopoverTrigger><CalendarDays className="w-4 h-4 inline-block -translate-y-0.5 text-emerald-400 ml-2" /></PopoverTrigger>
-                                    <PopoverContent className="bg-stone-700 text-stone-50 p-2 rounded-lg border-stone-500 w-fit">
-                                        <span className="text-nowrap">Resets on {moment(dateDue(task)).format('MMMM Do YYYY, h:mm a')}</span>
-                                        <br />
-                                        <span className="text-nowrap">Completed {moment(task.lastCompleted).format('MMMM Do YYYY, h:mm a')}</span>
-                                    </PopoverContent>
-                                </Popover>
-                            </p>
-                        :
-                            <p><span className="font-bold text-stone-400">Reset</span><span className="ml-1">{ReadableTime(hoursSinceDue(task))} ago</span>
-                                <Popover>
-                                    <PopoverTrigger><CalendarDays className="w-4 h-4 inline-block -translate-y-0.5 text-emerald-400 ml-2" /></PopoverTrigger>
-                                    <PopoverContent className="bg-stone-700 text-stone-50 p-2 rounded-lg border-stone-500 w-fit">
-                                        <span className="text-nowrap">Reset on {moment(dateDue(task)).format('MMMM Do YYYY, h:mm a')}</span>
-                                        <br />
-                                        <span className="text-nowrap">Completed {moment(task.lastCompleted).format('MMMM Do YYYY, h:mm a')}</span>
-                                    </PopoverContent>
-                                </Popover>
-                            </p>
+                        task.complete ? (
+                            hoursUntilDue(task) < 0 || isNaN(hoursUntilDue(task)) ? (
+                                <p className="w-full"><span className="font-bold text-stone-400">Resets in</span> {ReadableTime(hoursUntilDue(task))}</p>
+                            ) : (
+                                <p className="w-full"><span className="font-bold text-stone-400">Resets in</span> {ReadableTime(hoursUntilDue(task))}
+                                    <Popover>
+                                        <PopoverTrigger><CalendarDays className="w-4 h-4 inline-block -translate-y-0.5 text-emerald-400 ml-2" /></PopoverTrigger>
+                                        <PopoverContent className="bg-stone-700 text-stone-50 p-2 rounded-lg border-stone-500 w-fit">
+                                            <span className="text-nowrap">Resets on {moment(dateDue(task)).format('MMMM Do YYYY, h:mm a')}</span>
+                                            <br />
+                                            <span className="text-nowrap">Completed {moment(task.lastCompleted).format('MMMM Do YYYY, h:mm a')}</span>
+                                        </PopoverContent>
+                                    </Popover>
+                                </p>
+                            )
+                        ) : (
+                            hoursSinceDue(task) < 0 || isNaN(hoursSinceDue(task)) ? (
+                                <p><span className="font-bold text-stone-400">Reset</span> {ReadableTime(hoursSinceDue(task))}</p>
+                            ) : (
+                                <p><span className="font-bold text-stone-400">Reset</span><span className="ml-1">{ReadableTime(hoursSinceDue(task))} ago</span>
+                                    <Popover>
+                                        <PopoverTrigger><CalendarDays className="w-4 h-4 inline-block -translate-y-0.5 text-emerald-400 ml-2" /></PopoverTrigger>
+                                        <PopoverContent className="bg-stone-700 text-stone-50 p-2 rounded-lg border-stone-500 w-fit">
+                                            <span className="text-nowrap">Reset on {moment(dateDue(task)).format('MMMM Do YYYY, h:mm a')}</span>
+                                            <br />
+                                            <span className="text-nowrap">Completed {moment(task.lastCompleted).format('MMMM Do YYYY, h:mm a')}</span>
+                                        </PopoverContent>
+                                    </Popover>
+                                </p>
+                            )
+                        )
                     }
                 </div>
             </div>
