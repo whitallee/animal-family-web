@@ -51,13 +51,21 @@ function TaskItem({ task, onTaskClick }: { task: Task, onTaskClick?: (taskId: nu
     )
 }
 
-function TaskList({ tasks, onTaskClick }: { tasks: Task[] | undefined, onTaskClick?: (taskId: number) => void }) {
+function TaskList({ tasks, onTaskClick, showCompleted }: { tasks: Task[] | undefined, onTaskClick?: (taskId: number) => void, showCompleted: boolean }) {
     if (tasks && tasks.length === 0) {
         return <div className="text-center text-stone-400">No tasks assigned!</div>
     }
+
+    // Filter out completed tasks if showCompleted is false
+    const filteredTasks = showCompleted ? tasks : tasks?.filter(task => !task.complete);
+
+    if (filteredTasks && filteredTasks.length === 0) {
+        return <div className="text-center text-stone-400">No tasks assigned!</div>
+    }
+
     return (
         <>
-            {tasks && [...tasks]
+            {filteredTasks && [...filteredTasks]
                 .sort((a, b) => {
                     // First sort by completion status (incomplete first)
                     if (a.complete !== b.complete) {
@@ -82,11 +90,11 @@ function TaskList({ tasks, onTaskClick }: { tasks: Task[] | undefined, onTaskCli
     )
 }
 
-export default function TasksCard({ tasks, isPending, className, onTaskClick }: { tasks: Task[] | undefined, isPending: boolean, className?: string, onTaskClick?: (taskId: number) => void }) {
+export default function TasksCard({ tasks, isPending, className, onTaskClick, showCompleted = false }: { tasks: Task[] | undefined, isPending: boolean, className?: string, onTaskClick?: (taskId: number) => void, showCompleted?: boolean }) {
     return (
         <div className="w-full flex flex-col items-center">
             <Card className={`w-full max-w-md max-h-[30vh] overflow-y-scroll p-4 flex flex-col gap-3 bg-stone-700 text-stone-50 shadow-lg border-stone-600 transition-all duration-300 ${className}`}>
-                {isPending ? <ShortTaskListSkeleton /> : <TaskList tasks={tasks} onTaskClick={onTaskClick} />}
+                {isPending ? <ShortTaskListSkeleton /> : <TaskList tasks={tasks} onTaskClick={onTaskClick} showCompleted={showCompleted} />}
             </Card>
         </div>
     )

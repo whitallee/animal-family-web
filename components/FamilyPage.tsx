@@ -38,7 +38,7 @@ function AnimalDetails({ animalLong, animal, onTaskClick }: { animalLong: Animal
     return (
         <>
         <div className="flex flex-col bg-stone-800 p-4 rounded-lg justify-between">
-            <TasksCard tasks={animalLong.tasks} isPending={false} className="mb-2" onTaskClick={onTaskClick}/>
+            <TasksCard tasks={animalLong.tasks} isPending={false} className="mb-2" onTaskClick={onTaskClick} showCompleted={true} />
             <div className="flex flex-row gap-2 items-center mb-2">
                 <span className="font-bold text-stone-400">Species:</span> {animalLong.species.comName}
                 <Popover>
@@ -164,7 +164,7 @@ function EnclosureDetails({ enclosureLong, enclosure, onAnimalClick, onTaskClick
     return (
         <>
         <div className="flex flex-col bg-stone-800 p-4 rounded-lg justify-between">
-            <TasksCard tasks={enclosureLong.tasks} isPending={false} className="mb-2" onTaskClick={onTaskClick}/>
+            <TasksCard tasks={enclosureLong.tasks} isPending={false} className="mb-2" onTaskClick={onTaskClick} showCompleted={true} />
             {/* <p><span className="font-bold text-stone-400">Enclosure:</span> {enclosureLong.enclosureName}</p> */}
             <div className="flex flex-col gap-2 my-1.5 border-b border-stone-500 pb-2">
                 {enclosureLong.animals.map((animal) => (
