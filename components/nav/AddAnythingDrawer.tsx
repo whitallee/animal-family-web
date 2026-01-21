@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon, CheckIcon, ChevronsUpDownIcon, Plus } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCreateAnimal } from "@/lib/api/animal-mutations";
@@ -144,6 +145,25 @@ export default function AddAnythingDrawer() {
 
     const handleCreateTask = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Validate required fields
+        const invalidFields: string[] = [];
+
+        if (!taskName.trim()) {
+            invalidFields.push("Task Name");
+        }
+        if (!taskDesc.trim()) {
+            invalidFields.push("Description");
+        }
+        if (!repeatIntervUnitAmt || repeatIntervUnitAmt <= 0) {
+            invalidFields.push("Repeat Interval");
+        }
+
+        if (invalidFields.length > 0) {
+            toast.error(`Please fill in the following fields: ${invalidFields.join(", ")}`);
+            return;
+        }
+
         try {
             let repeatIntervHours = 0;
             if (repeatIntervUnitType === "hours") {
@@ -160,8 +180,8 @@ export default function AddAnythingDrawer() {
 
             const task: Task = {
                 taskId: 0, // Will be set by backend
-                taskName: taskName,
-                taskDesc: taskDesc,
+                taskName: taskName.trim(),
+                taskDesc: taskDesc.trim(),
                 complete: false,
                 lastCompleted: "",
                 repeatIntervHours: repeatIntervHours,

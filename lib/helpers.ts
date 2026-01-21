@@ -88,6 +88,11 @@ export function enclosureToSubjectLong(enclosure: Enclosure, animals: Animal[], 
 }
 
 export function ReadableTime(interval: number) {
+    // Handle negative values or invalid numbers
+    if (interval < 0 || isNaN(interval)) {
+        return "N/A";
+    }
+
     if (Math.round((interval/8760)*10)/10 > 1) {
         return `${(interval / 8760).toFixed(1)} years`;
     } else if ((interval/8760).toFixed(1) === "1.0") {
