@@ -40,7 +40,7 @@ function TaskItem({ task, onTaskClick }: { task: Task, onTaskClick?: (taskId: nu
                      ) : null}
                 </Button>
                 <h3
-                    className={`${onTaskClick ? "cursor-pointer hover:underline" : ""} ${task.complete ? "line-through text-stone-400" : ""}`}
+                    className={`${onTaskClick ? "cursor-pointer hover:underline" : ""} ${task.complete ? "text-stone-400" : ""}`}
                     onClick={() => onTaskClick?.(task.taskId)}
                 >
                     {task.taskName}
@@ -55,9 +55,6 @@ function TaskList({ tasks, onTaskClick }: { tasks: Task[] | undefined, onTaskCli
     if (tasks && tasks.length === 0) {
         return <div className="text-center text-stone-400">No tasks assigned!</div>
     }
-    // if (tasks && tasks.every(task => task.complete)) {
-    //     return <div className="text-center text-stone-400">All tasks are complete!</div>
-    // }
     return (
         <>
             {tasks && [...tasks]

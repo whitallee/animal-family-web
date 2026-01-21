@@ -63,6 +63,13 @@ export function EditTaskButton({ task }: EditTaskButtonProps) {
     const [repeatIntervUnitType, setRepeatIntervUnitType] = useState(initialUnit.unit);
     const [complete, setComplete] = useState(task.complete);
     const [lastCompleted, setLastCompleted] = useState(task.lastCompleted || "");
+    const [completedTime, setCompletedTime] = useState(() => {
+        if (task.lastCompleted) {
+            const date = new Date(task.lastCompleted);
+            return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+        }
+        return "12:00";
+    });
     const [calendarOpen, setCalendarOpen] = useState(false);
     const updateTask = useUpdateTask();
 
@@ -77,6 +84,12 @@ export function EditTaskButton({ task }: EditTaskButtonProps) {
             setRepeatIntervUnitType(unit.unit);
             setComplete(task.complete);
             setLastCompleted(task.lastCompleted || "");
+            if (task.lastCompleted) {
+                const date = new Date(task.lastCompleted);
+                setCompletedTime(`${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`);
+            } else {
+                setCompletedTime("12:00");
+            }
         }
     };
 
@@ -113,12 +126,21 @@ export function EditTaskButton({ task }: EditTaskButtonProps) {
             repeatIntervHours = repeatIntervUnitAmt * 24 * 365;
         }
 
+        // Combine date and time into a single ISO string
+        let finalLastCompleted = lastCompleted;
+        if (lastCompleted && completedTime) {
+            const [hours, minutes] = completedTime.split(':').map(Number);
+            const date = new Date(lastCompleted);
+            date.setHours(hours, minutes, 0, 0);
+            finalLastCompleted = date.toISOString();
+        }
+
         updateTask.mutate({
             taskId: task.taskId,
             taskName: taskName.trim(),
             taskDesc: taskDesc.trim(),
             complete,
-            lastCompleted: lastCompleted,
+            lastCompleted: finalLastCompleted,
             repeatIntervHours: repeatIntervHours
         }, {
             onSuccess: () => {
@@ -188,30 +210,42 @@ export function EditTaskButton({ task }: EditTaskButtonProps) {
                             </div>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="lastCompleted">Last Completed</Label>
-                            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        id="lastCompleted"
-                                        className="w-full justify-between font-normal bg-stone-600 border-stone-500 text-stone-50 overflow-hidden"
-                                    >
-                                        {lastCompleted ? format(new Date(lastCompleted), "PPP") : "Select date"}
-                                        <CalendarIcon />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto overflow-hidden p-0 bg-stone-600 border-stone-500 text-stone-50 min-h-[336px]" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={lastCompleted ? new Date(lastCompleted) : undefined}
-                                        captionLayout="dropdown"
-                                        onSelect={(date) => {
-                                            setLastCompleted(date?.toISOString() || "")
-                                            setCalendarOpen(false)
-                                        }}
+                            <Label htmlFor="lastCompleted">Last Completed Date</Label>
+                            <div className="flex flex-col gap-2">
+                                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            id="lastCompleted"
+                                            className="w-full justify-between font-normal bg-stone-600 border-stone-500 text-stone-50 overflow-hidden text-[16px]"
+                                        >
+                                            {lastCompleted ? format(new Date(lastCompleted), "PPP") : "Select date"}
+                                            <CalendarIcon />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto overflow-hidden p-0 bg-stone-600 border-stone-500 text-stone-50 min-h-[336px]" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={lastCompleted ? new Date(lastCompleted) : undefined}
+                                            captionLayout="dropdown"
+                                            onSelect={(date) => {
+                                                setLastCompleted(date?.toISOString() || "")
+                                                setCalendarOpen(false)
+                                            }}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="completedTime" className="text-stone-50 text-sm">Last Completed Time</Label>
+                                    <Input
+                                        id="completedTime"
+                                        type="time"
+                                        value={completedTime}
+                                        onChange={(e) => setCompletedTime(e.target.value)}
+                                        className="w-auto bg-stone-600 border-stone-500 text-stone-50"
                                     />
-                                </PopoverContent>
-                            </Popover>
+                                </div>
+                            </div>
                         </div>
                         <div className="flex items-center gap-2 mt-2">
                             <input
@@ -575,7 +609,7 @@ export function EditAnimalButton({ animal }: EditAnimalButtonProps) {
                         </Button>
                     </DialogFooter>
                 </DialogContent>
-            </Dialog>
+            </Dialog>Dog’s Gabapentin
         </>
     );
 }
