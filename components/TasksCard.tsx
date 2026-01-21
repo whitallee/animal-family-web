@@ -14,7 +14,7 @@ import { useMarkTaskComplete, useMarkTaskIncomplete } from "@/lib/api/task-mutat
 import type { Task } from "@/types/db-types";
 
 // Utilities
-import { hoursSinceDue } from "@/lib/helpers";
+import { hoursSinceDue, hoursUntilDue } from "@/lib/helpers";
 
 function TaskItem({ task, onTaskClick }: { task: Task, onTaskClick?: (taskId: number) => void }) {
     const markComplete = useMarkTaskComplete();
@@ -39,8 +39,8 @@ function TaskItem({ task, onTaskClick }: { task: Task, onTaskClick?: (taskId: nu
                          <Check />
                      ) : null}
                 </Button>
-                <h3 
-                    className={onTaskClick ? "cursor-pointer hover:underline" : ""}
+                <h3
+                    className={`${onTaskClick ? "cursor-pointer hover:underline" : ""} ${task.complete ? "line-through text-stone-400" : ""}`}
                     onClick={() => onTaskClick?.(task.taskId)}
                 >
                     {task.taskName}
@@ -55,9 +55,9 @@ function TaskList({ tasks, onTaskClick }: { tasks: Task[] | undefined, onTaskCli
     if (tasks && tasks.length === 0) {
         return <div className="text-center text-stone-400">No tasks assigned!</div>
     }
-    if (tasks && tasks.every(task => task.complete)) {
-        return <div className="text-center text-stone-400">All tasks are complete!</div>
-    }
+    // if (tasks && tasks.every(task => task.complete)) {
+    //     return <div className="text-center text-stone-400">All tasks are complete!</div>
+    // }
     return (
         <>
             {tasks && [...tasks]
@@ -66,19 +66,20 @@ function TaskList({ tasks, onTaskClick }: { tasks: Task[] | undefined, onTaskCli
                     if (a.complete !== b.complete) {
                         return Number(a.complete) - Number(b.complete);
                     }
-                    
+
                     // For incomplete tasks, sort by highest hoursSinceDue first
                     if (!a.complete && !b.complete) {
                         return hoursSinceDue(b) - hoursSinceDue(a);
                     }
-                    
+
+                    // For complete tasks, sort by lowest hoursUntilDue first
+                    if (a.complete && b.complete) {
+                        return hoursUntilDue(a) - hoursUntilDue(b);
+                    }
+
                     return 0;
                 }).map((task) => (
-                task.complete ? (
-                    null
-                ) : (
                     <TaskItem key={task.taskId} task={task} onTaskClick={onTaskClick} />
-                )
             ))}
         </>
     )
