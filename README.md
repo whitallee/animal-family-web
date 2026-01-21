@@ -54,6 +54,9 @@ The application will be available at [http://localhost:3000](http://localhost:30
 ## 📋 Todo List
 
 ### High Priority - Core Features
+- [ ] **Most Important**
+  - [ ] transfer animals feature
+  - [ ] change creation drawer to modal
 
 - [ ] **Animal lifecycle management**
   - [X] Mark animal as passed away (RIP)
