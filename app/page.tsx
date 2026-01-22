@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, Suspense } from "react";
+import { useState, useMemo, Suspense, useEffect } from "react";
 import BottomNav from "@/components/nav/BottomNav";
 import NavBarGap from "@/components/nav/NavBarGap";
 import SubjectSection from "@/components/SubjectSection";
@@ -12,6 +12,8 @@ import { useTasks } from "@/lib/api/fetch-family";
 import { useHabitats } from "@/lib/api/fetch-species-habitats";
 import { useSpecies } from "@/lib/api/fetch-species-habitats";
 import { Animal, Task } from "@/types/db-types";
+import { useAuth } from "@/lib/AuthContext";
+import { getQueryClient } from "@/lib/get-query-client";
 
 type View = "home" | "family" | "tasks";
 
@@ -28,8 +30,71 @@ function HomeContent() {
   const { data: tasks, isPending: tasksPending } = useTasks();
   const { data: species, isPending: speciesPending } = useSpecies();
   const { data: habitats, isPending: habitatsPending } = useHabitats();
+  const { user, token } = useAuth();
 
   const [taskNavigationTarget, setTaskNavigationTarget] = useState<number | null>(null);
+
+  // Listen for service worker messages (push notification actions)
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      const handleMessage = async (event: MessageEvent) => {
+        console.log('[App] Received message from service worker:', event.data);
+
+        if (event.data.type === 'complete-task') {
+          const taskId = event.data.taskId;
+          console.log('[App] Completing task:', taskId);
+
+          try {
+            // Find the task to get its full data
+            const task = tasks?.find((t: Task) => t.taskId === taskId);
+            if (!task) {
+              console.error('[App] Task not found:', taskId);
+              return;
+            }
+
+            // Call the API to complete the task (using raw token, no Bearer prefix)
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/task`, {
+              method: 'PUT',
+              headers: {
+                'Authorization': `${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                taskId: task.taskId,
+                taskName: task.taskName,
+                taskDesc: task.taskDesc,
+                complete: true,
+                lastCompleted: new Date().toISOString(),
+                repeatIntervHours: task.repeatIntervHours
+              })
+            });
+
+            if (response.ok) {
+              console.log('[App] Task completed successfully');
+              // Refresh the task list
+              const queryClient = getQueryClient();
+              queryClient.invalidateQueries({ queryKey: ["tasks", { user: user?.userId }] });
+            } else {
+              console.error('[App] Failed to complete task:', response.statusText);
+            }
+          } catch (error) {
+            console.error('[App] Error completing task:', error);
+          }
+        } else if (event.data.type === 'navigate-to-task') {
+          const taskId = event.data.taskId;
+          console.log('[App] Navigating to task:', taskId);
+          // Navigate to the task in the Tasks view
+          handleTaskNavigation(taskId);
+        }
+      };
+
+      navigator.serviceWorker.addEventListener('message', handleMessage);
+
+      return () => {
+        navigator.serviceWorker.removeEventListener('message', handleMessage);
+      };
+    }
+  }, [tasks, token, user]);
 
   // Filter out memorialized animals and tasks associated with them
   const memorializedAnimalIds = useMemo(() => 

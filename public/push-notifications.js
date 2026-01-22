@@ -52,30 +52,47 @@ self.addEventListener('push', (event) => {
   );
 });
 
-// Handle notification clicks
+// Handle notification clicks (including action buttons)
 self.addEventListener('notificationclick', (event) => {
   console.log('[Service Worker] Notification clicked!', event);
   event.notification.close();
 
-  const urlToOpen = event.notification.data?.url || '/';
-  console.log('[Service Worker] Opening URL:', urlToOpen);
+  const taskId = event.notification.data.taskId;
+  const action = event.action; // 'complete', 'view', or empty string (clicked body)
+
+  console.log('[Service Worker] Task ID:', taskId, 'Action:', action);
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then((clientList) => {
         console.log('[Service Worker] Found clients:', clientList.length);
-        // Focus existing window if open
-        for (const client of clientList) {
-          if (client.url === urlToOpen && 'focus' in client) {
-            console.log('[Service Worker] Focusing existing client');
-            return client.focus();
+
+        // If a window is already open, use it
+        if (clientList.length > 0) {
+          const client = clientList[0];
+
+          if (action === 'complete') {
+            // Message the app to complete the task
+            console.log('[Service Worker] Sending complete-task message');
+            client.postMessage({
+              type: 'complete-task',
+              taskId: taskId
+            });
+          } else {
+            // 'view' or body click - just focus and navigate
+            console.log('[Service Worker] Sending navigate-to-task message');
+            client.postMessage({
+              type: 'navigate-to-task',
+              taskId: taskId
+            });
           }
+
+          return client.focus();
         }
-        // Open new window if not open
-        if (clients.openWindow) {
-          console.log('[Service Worker] Opening new window');
-          return clients.openWindow(urlToOpen);
-        }
+
+        // No window open, open a new one
+        console.log('[Service Worker] Opening new window');
+        return clients.openWindow('/');
       })
       .catch((error) => {
         console.error('[Service Worker] Error handling notification click:', error);
