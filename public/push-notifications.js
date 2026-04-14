@@ -35,6 +35,7 @@ self.addEventListener('push', (event) => {
     badge: '/icon-192.png',
     tag: data.tag || 'task-notification',
     data: data.data || {},
+    actions: data.actions || [],
     requireInteraction: data.requireInteraction ?? false,
     vibrate: [200, 100, 200]
   };
