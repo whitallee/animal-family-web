@@ -2,7 +2,7 @@
 
 import { HomeIcon, ListIcon, PawPrintIcon } from "lucide-react";
 import UserDrawer from "@/components/nav/UserDrawer";
-import AddAnythingDrawer from "@/components/nav/AddAnythingDrawer";
+import AddAnythingModal from "@/components/nav/AddAnythingModal";
 
 type View = "home" | "family" | "tasks";
 
@@ -28,7 +28,7 @@ export default function BottomNav({ activeView, onViewChange }: BottomNavProps) 
     return (
         <div className="w-full fixed items-center bottom-0 left-0 right-0">
         <div className=" max-w-md flex justify-between items-center h-16 px-8 py-2 mx-auto bg-stone-800 sm:rounded-full sm:px-8 sm:-translate-y-2">
-            <AddAnythingDrawer />
+            <AddAnythingModal />
             <NavButton view="family" activeView={activeView} onViewChange={onViewChange}>
                 <PawPrintIcon className="w-6 h-6" />
             </NavButton>
