@@ -1,7 +1,7 @@
 "use client";
 
 import { HomeIcon, ListIcon, PawPrintIcon } from "lucide-react";
-import UserDrawer from "@/components/nav/UserDrawer";
+import UserModal from "@/components/nav/UserModal";
 import AddAnythingModal from "@/components/nav/AddAnythingModal";
 
 type View = "home" | "family" | "tasks";
@@ -38,7 +38,7 @@ export default function BottomNav({ activeView, onViewChange }: BottomNavProps) 
             <NavButton view="tasks" activeView={activeView} onViewChange={onViewChange}>
                 <ListIcon className="w-6 h-6" />
             </NavButton>
-            <UserDrawer />
+            <UserModal />
         </div>
         </div>
     );
