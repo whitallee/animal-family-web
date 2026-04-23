@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon, LogOutIcon, UserIcon, XIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/AuthContext";
@@ -44,6 +44,21 @@ export default function UserModal() {
     const registerMutation = useRegister();
 
     const isPending = loginMutation.isPending || registerMutation.isPending;
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("login") === "true") {
+            setOpen(true);
+            setMode("login");
+            setStep(1);
+            window.history.replaceState({}, "", "/");
+        } else if (params.get("signup") === "true") {
+            setOpen(true);
+            setMode("signup");
+            setStep(1);
+            window.history.replaceState({}, "", "/");
+        }
+    }, []);
 
     const totalSteps = mode ? STEPS_PER_MODE[mode] + 1 : 1;
     const isLastStep = mode ? step === STEPS_PER_MODE[mode] : false;
@@ -312,7 +327,7 @@ export default function UserModal() {
                     {step > 0 ? (
                         <button
                             onClick={goBack}
-                            className="p-1 -ml-1 rounded-md text-stone-400 hover:text-stone-50 transition-colors"
+                            className="p-1 -ml-1 rounded-md text-stone-400 hover:text-stone-50  transition-colors"
                             aria-label="Go back"
                         >
                             <ArrowLeftIcon className="w-5 h-5" />
@@ -375,7 +390,7 @@ export default function UserModal() {
                     {step === 0 ? (
                         <Button
                             variant="outline"
-                            className="flex-1 border-stone-500 text-stone-700 hover:text-stone-50"
+                            className="flex-1 border-stone-500 text-stone-700 hover:text-stone-500"
                             onClick={() => handleOpenChange(false)}
                         >
                             Cancel
@@ -384,7 +399,7 @@ export default function UserModal() {
                         <>
                             <Button
                                 variant="ghost"
-                                className="text-stone-400 hover:text-stone-50"
+                                className="text-stone-400 hover:text-stone-500"
                                 onClick={goBack}
                             >
                                 Back
@@ -403,7 +418,7 @@ export default function UserModal() {
                         <>
                             <Button
                                 variant="ghost"
-                                className="text-stone-400 hover:text-stone-50"
+                                className="text-stone-400 hover:text-stone-500"
                                 onClick={goBack}
                             >
                                 Back
