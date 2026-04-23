@@ -62,8 +62,16 @@ export default function WelcomePage() {
                 ))}
             </div>
 
+            {/* Preview link */}
+            <Link
+                href="/welcome/demo"
+                className="flex items-center justify-center w-full py-3 px-6 rounded-xl border border-dashed border-stone-600 text-stone-400 hover:text-stone-200 hover:border-stone-500 transition-colors mb-2"
+            >
+                See what it looks like →
+            </Link>
+
             {/* CTAs */}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-6">
                 <Link
                     href="/?signup=true"
                     className="flex items-center justify-center w-full py-3 px-6 rounded-xl bg-emerald-700 hover:bg-emerald-600 active:bg-emerald-800 text-stone-50 font-semibold transition-colors"
