@@ -15,13 +15,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Brindle - Animal Family",
-  description: "Brindle helps you manage your countless pets' needs.",
+  title: "Brindl - Animal Family",
+  description: "Brindl helps you manage your countless pets' needs.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Brindle",
+    title: "Brindl",
   },
   formatDetection: {
     telephone: false,
@@ -51,7 +51,7 @@ export default function RootLayout({
           </main>
           {/* <footer className="text-center text-xs text-stone-500">
             <p>
-              &copy; {new Date().getFullYear()} Brindle - Animal Family. All rights reserved.
+              &copy; {new Date().getFullYear()} Brindl - Animal Family. All rights reserved.
             </p>
           </footer> */}
           <Toaster />

@@ -2,8 +2,8 @@ import Link from "next/link";
 import { BellIcon, HomeIcon, ListIcon, PawPrintIcon } from "lucide-react";
 
 export const metadata = {
-    title: "Brindle — Welcome",
-    description: "Brindle helps you manage your animals, enclosures, and care tasks all in one place.",
+    title: "Brindl — Welcome",
+    description: "Brindl helps you manage your animals, enclosures, and care tasks all in one place.",
 };
 
 const features = [
@@ -38,7 +38,7 @@ export default function WelcomePage() {
                 <div className="flex items-center justify-center w-20 h-20 rounded-3xl bg-emerald-800 border border-emerald-600 mb-2">
                     <PawPrintIcon className="w-10 h-10 text-emerald-300" />
                 </div>
-                <h1 className="text-4xl font-bold tracking-tight text-stone-50">Brindle</h1>
+                <h1 className="text-4xl font-bold tracking-tight text-stone-50">Brindl</h1>
                 <p className="text-lg text-stone-300 max-w-xs leading-snug">
                     All your animals, organized.
                 </p>
@@ -88,7 +88,7 @@ export default function WelcomePage() {
 
             {/* Footer */}
             <p className="text-center text-xs text-stone-600 mt-10">
-                Brindle — Animal Family &copy; {new Date().getFullYear()}
+                Brindl — Animal Family &copy; {new Date().getFullYear()}
             </p>
         </div>
     );

@@ -17,14 +17,14 @@ self.addEventListener('push', (event) => {
   let data;
   try {
     data = event.data?.json() ?? {
-      title: 'Brindle Notification',
+      title: 'Brindl Notification',
       body: 'You have a new notification'
     };
     console.log('[Service Worker] Push data:', data);
   } catch (error) {
     console.error('[Service Worker] Error parsing push data:', error);
     data = {
-      title: 'Brindle Notification',
+      title: 'Brindl Notification',
       body: 'You have a new notification'
     };
   }
