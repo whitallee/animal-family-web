@@ -1,7 +1,7 @@
 {
-  "name": "Brindle - Animal Family",
-  "short_name": "Brindle",
-  "description": "Brindle helps you manage your countless pets' needs.",
+  "name": "Brindl - Animal Family",
+  "short_name": "Brindl",
+  "description": "Brindl helps you manage your countless pets' needs.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1c1917",
