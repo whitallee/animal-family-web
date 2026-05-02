@@ -31,7 +31,8 @@ const features = [
 
 export default function WelcomePage() {
     return (
-        <div className="flex flex-col min-h-dvh w-full px-6 pb-12">
+        <div className="flex flex-col items-center min-h-dvh w-full">
+        <div className="flex flex-col w-full max-w-4xl px-6 pb-12">
 
             {/* Hero */}
             <div className="flex flex-col items-center text-center pt-20 pb-12 gap-4">
@@ -90,6 +91,7 @@ export default function WelcomePage() {
             <p className="text-center text-xs text-stone-600 mt-10">
                 Brindl — Animal Family &copy; {new Date().getFullYear()}
             </p>
+        </div>
         </div>
     );
 }
