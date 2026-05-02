@@ -121,6 +121,13 @@
   }
 }
 
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @keyframes wiggle {
   0%,
   100% {

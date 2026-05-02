@@ -122,9 +122,9 @@ export function SubjectCircle({ subject, shift, placeholder, smallAnimalIcons, c
     }
 }
 
-export default function SubjectSection({ tasks, enclosures, animals, habitats, species, isPending, onSubjectClick }: { tasks: Task[], enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[], isPending: boolean, onSubjectClick?: (type: "animal" | "enclosure", id: number) => void }) {    
+export default function SubjectSection({ tasks, enclosures, animals, habitats, species, isPending, onSubjectClick, className }: { tasks: Task[], enclosures: Enclosure[], animals: Animal[], habitats: Habitat[], species: Species[], isPending: boolean, onSubjectClick?: (type: "animal" | "enclosure", id: number) => void, className?: string }) {
     return (
-        <div className="grid max-w-md my-6 grid-cols-3 w-full content-center gap-x-4 gap-y-0 overflow-y-scroll overflow-x-hidden">
+        <div className={`grid max-w-md my-6 grid-cols-3 w-full content-center gap-x-4 gap-y-0 overflow-y-scroll overflow-x-hidden ${className ?? ""}`}>
             {isPending ? <SubjectSkeletonList /> : <SubjectList subjects={organizeAnimalFamily(enclosures, animals, habitats, species, tasks)} onSubjectClick={onSubjectClick} />}
         </div>
     )
