@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'raw.githubusercontent.com',
+        hostname: 'brindl-assets.s3.us-east-1.amazonaws.com',
         port: '',
         pathname: '/**',
       },
