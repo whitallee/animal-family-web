@@ -6,7 +6,7 @@ import SubjectSection from "@/components/SubjectSection";
 import TasksCard from "@/components/TasksCard";
 import { Animal, Enclosure, Habitat, Species, Task } from "@/types/db-types";
 
-const R = "https://raw.githubusercontent.com/whitallee/brindle-assets/main";
+const R = "https://brindl-assets.s3.us-east-1.amazonaws.com";
 
 // ─── Static demo data ──────────────────────────────────────────────────────────
 
