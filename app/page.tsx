@@ -38,11 +38,8 @@ function HomeContent() {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       const handleMessage = async (event: MessageEvent) => {
-        console.log('[App] Received message from service worker:', event.data);
-
         if (event.data.type === 'complete-task') {
           const taskId = event.data.taskId;
-          console.log('[App] Completing task:', taskId);
 
           try {
             // Find the task to get its full data
@@ -70,7 +67,6 @@ function HomeContent() {
             });
 
             if (response.ok) {
-              console.log('[App] Task completed successfully');
               // Refresh the task list
               const queryClient = getQueryClient();
               queryClient.invalidateQueries({ queryKey: ["tasks", { user: user?.userId }] });
@@ -82,7 +78,6 @@ function HomeContent() {
           }
         } else if (event.data.type === 'navigate-to-task') {
           const taskId = event.data.taskId;
-          console.log('[App] Navigating to task:', taskId);
           // Navigate to the task in the Tasks view
           handleTaskNavigation(taskId);
         }

@@ -8,7 +8,7 @@ A Next.js web application for managing animal families, enclosures, and tasks.
 
 ## Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 22+ (see `.nvmrc`) and npm
 - Backend API running (see [Backend Repository](https://github.com/whitallee/animal-family-backend))
 
 ## Running Locally
@@ -24,9 +24,9 @@ cd animal-family-web
 npm install
 ```
 
-3. Create a `.env.local` file in the root directory:
-```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+3. Copy `.env.example` to `.env.local`:
+```bash
+cp .env.example .env.local
 ```
 
 4. Start the development server:
