@@ -8,9 +8,7 @@ interface LoginResponse {
 
 export async function loginUser(email: string, password: string): Promise<LoginResponse> {
   const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/user/login`;
-  console.log('Attempting to fetch from:', url);
-  console.log('API Base URL:', process.env.NEXT_PUBLIC_API_BASE_URL);
-  
+
   try {
     const response = await fetch(url, {
       method: 'POST',
