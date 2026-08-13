@@ -41,7 +41,9 @@ The application will be available at [http://localhost:3000](http://localhost:30
 - `npm run dev` - Start development server with Turbopack
 - `npm run build` - Build for production
 - `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+- `npm run lint` - Run ESLint (fails on any warning, not just errors)
+
+`npm install` also sets up a pre-commit hook (via Husky) that runs ESLint on staged files — no separate setup step needed.
 
 ## Tech Stack
 
