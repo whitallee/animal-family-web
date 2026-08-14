@@ -14,11 +14,14 @@ export const fetchAnimals = async (token: string) => {
 };
 
 export const useAnimals = () => {
-    const { token } = useAuth();
-    return useQuery({ 
-        queryKey: ["animals", { token }], 
-        queryFn: () => fetchAnimals(token!), 
-        enabled: !!token 
+    const { token, user } = useAuth();
+    return useQuery({
+        // Must match the key the animal mutations invalidate. Keying on the
+        // token instead meant every ["animals", { user }] invalidation silently
+        // matched nothing, so the list only refreshed once staleTime expired.
+        queryKey: ["animals", { user: user?.userId }],
+        queryFn: () => fetchAnimals(token!),
+        enabled: !!token
     });
 };
 
@@ -34,11 +37,13 @@ export const fetchEnclosures = async (token: string) => {
 };
 
 export const useEnclosures = () => {
-    const { token } = useAuth();
-    return useQuery({ 
-        queryKey: ["enclosures", { token }], 
-        queryFn: () => fetchEnclosures(token!), 
-        enabled: !!token 
+    const { token, user } = useAuth();
+    return useQuery({
+        // See the note on useAnimals: this must match the key the enclosure
+        // mutations invalidate.
+        queryKey: ["enclosures", { user: user?.userId }],
+        queryFn: () => fetchEnclosures(token!),
+        enabled: !!token
     });
 };
 

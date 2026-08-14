@@ -9,11 +9,22 @@
  * OpenAPI spec version: 2.0
  */
 
+export * from './animalResponse';
+export * from './createAnimalV2Payload';
+export * from './createEnclosureV2Payload';
 export * from './createHabitatPayload';
 export * from './createSpeciesPayload';
+export * from './deleteAnimalCascade';
+export * from './deleteAnimalParams';
+export * from './deleteEnclosureCascade';
+export * from './deleteEnclosureParams';
+export * from './enclosure';
 export * from './errorResponse';
 export * from './generateSpeciesPayload';
 export * from './habitat';
+export * from './listAnimalsParams';
 export * from './species';
+export * from './updateAnimalV2Payload';
+export * from './updateEnclosureV2Payload';
 export * from './updateHabitatV2Payload';
 export * from './updateSpeciesV2Payload';

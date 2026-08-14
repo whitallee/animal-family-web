@@ -5,7 +5,8 @@
 - [ ] Glitchy when quick jumping to task
 - [ ] Make home screen scrollbar invisible or pushed further right
 - [ ] URL query params cause jumping on every reload — clicking navbar should clear param, opening an accordion should update it
-- [ ] Home screen doesn't show animals after deleting their enclosure without deleting them — needs refresh
+- [x] Home screen doesn't show animals after deleting their enclosure without deleting them — needs refresh
+  - Root cause was a query-key mismatch, not a UI issue: `useAnimals`/`useEnclosures` keyed on `{ token }` while their mutations invalidated `{ user }`, so those invalidations matched nothing and the lists only refreshed once `staleTime` expired. Keys now agree (2026-08-14).
 - [ ] After deleting an animal, enclosure, or task, remove it from URL query if present
 - [ ] Make Family and Tasks pages unnavigable while off screen
 - [ ] Make delete enclosure options a radio button selection (user must choose exactly one action)
