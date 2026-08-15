@@ -10,10 +10,12 @@
  */
 
 export * from './animalResponse';
+export * from './authResponse';
 export * from './createAnimalV2Payload';
 export * from './createEnclosureV2Payload';
 export * from './createHabitatPayload';
 export * from './createSpeciesPayload';
+export * from './createTaskV2Payload';
 export * from './deleteAnimalCascade';
 export * from './deleteAnimalParams';
 export * from './deleteEnclosureCascade';
@@ -23,8 +25,24 @@ export * from './errorResponse';
 export * from './generateSpeciesPayload';
 export * from './habitat';
 export * from './listAnimalsParams';
+export * from './listTasksParams';
+export * from './loginUserPayload';
+export * from './messageResponse';
+export * from './pushSubscriptionResponse';
+export * from './registerUserPayload';
 export * from './species';
+export * from './subscribePayload';
+export * from './subscribePayloadKeys';
+export * from './task';
+export * from './taskCompletionResponse';
+export * from './taskWithSubject';
+export * from './testNotificationResponse';
+export * from './testNotificationResult';
+export * from './unsubscribePayload';
 export * from './updateAnimalV2Payload';
 export * from './updateEnclosureV2Payload';
 export * from './updateHabitatV2Payload';
 export * from './updateSpeciesV2Payload';
+export * from './updateTaskV2Payload';
+export * from './userResponse';
+export * from './vAPIDKeyResponse';
