@@ -11,15 +11,15 @@
 
 export interface UpdateAnimalV2Payload {
   animalName: string;
-  dietDesc: string;
-  dob: string;
+  dietDesc?: string;
+  dob?: string;
   /**
      * @minimum 1
      * @nullable
      */
   enclosureId?: number | null;
-  extraNotes: string;
-  gender: string;
+  extraNotes?: string;
+  gender?: string;
   image?: string;
   /** @nullable */
   isMemorialized?: boolean | null;
@@ -28,8 +28,8 @@ export interface UpdateAnimalV2Payload {
   memorialDate?: string;
   /** @nullable */
   memorialPhotos?: string[] | null;
-  personalityDesc: string;
-  routineDesc: string;
+  personalityDesc?: string;
+  routineDesc?: string;
   /** @minimum 1 */
   speciesId: number;
 }
