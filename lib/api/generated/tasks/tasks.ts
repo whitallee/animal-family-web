@@ -682,7 +682,7 @@ export const getUpdateTaskUrl = (id: number,) => {
 }
 
 /**
- * Also used to mark a task complete or incomplete, and to move it to a different subject. Leaving both subject fields null keeps the current subject.
+ * A full replace, also used to mark a task complete or incomplete. Supply the subject (animalId or enclosureId) on every update, not only when moving the task.
  * @summary Update one of the caller's tasks
  */
 export const updateTask = async (id: number,

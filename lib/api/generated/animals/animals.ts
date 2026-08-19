@@ -33,6 +33,7 @@ import type {
   DeleteAnimalParams,
   ErrorResponse,
   ListAnimalsParams,
+  SetAnimalMemorialPayload,
   UpdateAnimalV2Payload
 } from '../model';
 
@@ -570,7 +571,7 @@ export const getUpdateAnimalUrl = (id: number,) => {
 }
 
 /**
- * Memorial fields left out of the request keep their stored values. This is also how an animal is memorialised.
+ * A full replace: every field is set to the value sent, and an omitted field is reset rather than left alone. Memorial state is not affected — use /animals/{id}/memorial for that.
  * @summary Update one of the caller's animals
  */
 export const updateAnimal = async (id: number,
@@ -632,4 +633,205 @@ export const useUpdateAnimal = <TError = ErrorResponse,
         TContext
       > => {
       return useMutation(getUpdateAnimalMutationOptions(options), queryClient);
+    }
+    export type clearAnimalMemorialResponse204 = {
+  data: void
+  status: 204
+}
+
+export type clearAnimalMemorialResponse400 = {
+  data: ErrorResponse
+  status: 400
+}
+
+export type clearAnimalMemorialResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type clearAnimalMemorialResponse500 = {
+  data: ErrorResponse
+  status: 500
+}
+
+export type clearAnimalMemorialResponseSuccess = (clearAnimalMemorialResponse204) & {
+  headers: Headers;
+};
+export type clearAnimalMemorialResponseError = (clearAnimalMemorialResponse400 | clearAnimalMemorialResponse403 | clearAnimalMemorialResponse500) & {
+  headers: Headers;
+};
+
+export type clearAnimalMemorialResponse = (clearAnimalMemorialResponseSuccess | clearAnimalMemorialResponseError)
+
+export const getClearAnimalMemorialUrl = (id: number,) => {
+
+
+
+
+  return `/api/v2/animals/${id}/memorial`
+}
+
+/**
+ * Returns a memorialised animal to the living roster, discarding its message and photos.
+ * @summary Remove an animal's memorial
+ */
+export const clearAnimalMemorial = async (id: number, options?: Parameters<typeof apiFetch>[1]): Promise<clearAnimalMemorialResponse> => {
+
+  return apiFetch<clearAnimalMemorialResponse>(getClearAnimalMemorialUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getClearAnimalMemorialMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof clearAnimalMemorial>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof apiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof clearAnimalMemorial>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['clearAnimalMemorial'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof clearAnimalMemorial>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  clearAnimalMemorial(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ClearAnimalMemorialMutationResult = NonNullable<Awaited<ReturnType<typeof clearAnimalMemorial>>>
+
+    export type ClearAnimalMemorialMutationError = ErrorResponse
+
+    /**
+ * @summary Remove an animal's memorial
+ */
+export const useClearAnimalMemorial = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof clearAnimalMemorial>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof clearAnimalMemorial>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getClearAnimalMemorialMutationOptions(options), queryClient);
+    }
+    export type setAnimalMemorialResponse204 = {
+  data: void
+  status: 204
+}
+
+export type setAnimalMemorialResponse400 = {
+  data: ErrorResponse
+  status: 400
+}
+
+export type setAnimalMemorialResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type setAnimalMemorialResponse500 = {
+  data: ErrorResponse
+  status: 500
+}
+
+export type setAnimalMemorialResponseSuccess = (setAnimalMemorialResponse204) & {
+  headers: Headers;
+};
+export type setAnimalMemorialResponseError = (setAnimalMemorialResponse400 | setAnimalMemorialResponse403 | setAnimalMemorialResponse500) & {
+  headers: Headers;
+};
+
+export type setAnimalMemorialResponse = (setAnimalMemorialResponseSuccess | setAnimalMemorialResponseError)
+
+export const getSetAnimalMemorialUrl = (id: number,) => {
+
+
+
+
+  return `/api/v2/animals/${id}/memorial`
+}
+
+/**
+ * Records that an animal has died, along with a message, any photos, and the date. Memorialised animals are filtered out of the main views. Sending this again replaces the stored memorial.
+ * @summary Memorialise one of the caller's animals
+ */
+export const setAnimalMemorial = async (id: number,
+    setAnimalMemorialPayload: SetAnimalMemorialPayload, options?: Parameters<typeof apiFetch>[1]): Promise<setAnimalMemorialResponse> => {
+
+  return apiFetch<setAnimalMemorialResponse>(getSetAnimalMemorialUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(setAnimalMemorialPayload)
+  }
+);}
+
+
+
+
+
+export const getSetAnimalMemorialMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setAnimalMemorial>>, TError,{id: number;data: SetAnimalMemorialPayload}, TContext>, request?: SecondParameter<typeof apiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setAnimalMemorial>>, TError,{id: number;data: SetAnimalMemorialPayload}, TContext> => {
+
+const mutationKey = ['setAnimalMemorial'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setAnimalMemorial>>, {id: number;data: SetAnimalMemorialPayload}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  setAnimalMemorial(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetAnimalMemorialMutationResult = NonNullable<Awaited<ReturnType<typeof setAnimalMemorial>>>
+    export type SetAnimalMemorialMutationBody = SetAnimalMemorialPayload
+    export type SetAnimalMemorialMutationError = ErrorResponse
+
+    /**
+ * @summary Memorialise one of the caller's animals
+ */
+export const useSetAnimalMemorial = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setAnimalMemorial>>, TError,{id: number;data: SetAnimalMemorialPayload}, TContext>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof setAnimalMemorial>>,
+        TError,
+        {id: number;data: SetAnimalMemorialPayload},
+        TContext
+      > => {
+      return useMutation(getSetAnimalMemorialMutationOptions(options), queryClient);
     }

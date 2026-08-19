@@ -30,6 +30,7 @@ export * from './loginUserPayload';
 export * from './messageResponse';
 export * from './pushSubscriptionResponse';
 export * from './registerUserPayload';
+export * from './setAnimalMemorialPayload';
 export * from './species';
 export * from './subscribePayload';
 export * from './subscribePayloadKeys';

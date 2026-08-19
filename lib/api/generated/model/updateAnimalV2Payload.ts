@@ -21,13 +21,6 @@ export interface UpdateAnimalV2Payload {
   extraNotes?: string;
   gender?: string;
   image?: string;
-  /** @nullable */
-  isMemorialized?: boolean | null;
-  /** @nullable */
-  lastMessage?: string | null;
-  memorialDate?: string;
-  /** @nullable */
-  memorialPhotos?: string[] | null;
   personalityDesc?: string;
   routineDesc?: string;
   /** @minimum 1 */
