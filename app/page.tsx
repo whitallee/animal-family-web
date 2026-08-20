@@ -13,7 +13,7 @@ import { useHabitats } from "@/lib/api/fetch-species-habitats";
 import { useSpecies } from "@/lib/api/fetch-species-habitats";
 import { Animal, Task } from "@/types/db-types";
 import { useAuth } from "@/lib/AuthContext";
-import { getQueryClient } from "@/lib/get-query-client";
+import { useMarkTaskComplete } from "@/lib/api/task-mutations";
 
 type View = "home" | "family" | "tasks";
 
@@ -31,6 +31,7 @@ function HomeContent() {
   const { data: species, isPending: speciesPending } = useSpecies();
   const { data: habitats, isPending: habitatsPending } = useHabitats();
   const { user, token } = useAuth();
+  const markTaskComplete = useMarkTaskComplete();
 
   const [taskNavigationTarget, setTaskNavigationTarget] = useState<number | null>(null);
 
@@ -49,30 +50,11 @@ function HomeContent() {
               return;
             }
 
-            // Call the API to complete the task (using raw token, no Bearer prefix)
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/task`, {
-              method: 'PUT',
-              headers: {
-                'Authorization': `${token}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                taskId: task.taskId,
-                taskName: task.taskName,
-                taskDesc: task.taskDesc,
-                complete: true,
-                lastCompleted: new Date().toISOString(),
-                repeatIntervHours: task.repeatIntervHours
-              })
-            });
-
-            if (response.ok) {
-              // Refresh the task list
-              const queryClient = getQueryClient();
-              queryClient.invalidateQueries({ queryKey: ["tasks", { user: user?.userId }] });
-            } else {
-              console.error('[App] Failed to complete task:', response.statusText);
-            }
+            // Goes through the same mutation the Tasks view uses, so completing
+            // from a notification and completing in the app cannot drift apart.
+            // This was previously a hand-rolled fetch that duplicated the
+            // request and invalidated the task list itself.
+            await markTaskComplete.mutateAsync(task);
           } catch (error) {
             console.error('[App] Error completing task:', error);
           }
@@ -89,7 +71,7 @@ function HomeContent() {
         navigator.serviceWorker.removeEventListener('message', handleMessage);
       };
     }
-  }, [tasks, token, user]);
+  }, [tasks, token, user, markTaskComplete]);
 
   // Filter out memorialized animals and tasks associated with them
   const memorializedAnimalIds = useMemo(() => 

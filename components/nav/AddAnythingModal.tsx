@@ -22,7 +22,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useCreateAnimal } from "@/lib/api/animal-mutations";
+import { useCreateAnimal, type CreateAnimalInput } from "@/lib/api/animal-mutations";
 import { useHabitats, useSpecies } from "@/lib/api/fetch-species-habitats";
 import { useAnimals, useEnclosures } from "@/lib/api/fetch-family";
 import { Animal, Enclosure, Task } from "@/types/db-types";
@@ -44,7 +44,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useCreateEnclosure } from "@/lib/api/enclosure-mutations";
+import { useCreateEnclosure, type CreateEnclosureInput } from "@/lib/api/enclosure-mutations";
 import { useCreateTask } from "@/lib/api/task-mutations";
 
 type WizardType = "task" | "animal" | "enclosure";
@@ -205,8 +205,7 @@ export default function AddAnythingModal() {
                 };
                 await createTaskMutation.mutateAsync(task);
             } else if (type === "animal") {
-                const animal: Animal = {
-                    animalId: 0,
+                const animal: CreateAnimalInput = {
                     animalName: animalName.trim(),
                     image: "",
                     gender,
@@ -216,12 +215,11 @@ export default function AddAnythingModal() {
                     routineDesc: routineDesc.trim(),
                     extraNotes: extraNotes.trim(),
                     speciesId: parseInt(speciesId),
-                    enclosureId: animalEnclosureId ? parseInt(animalEnclosureId) : 0,
+                    enclosureId: animalEnclosureId ? parseInt(animalEnclosureId) : null,
                 };
                 await createAnimalMutation.mutateAsync(animal);
             } else if (type === "enclosure") {
-                const enclosure: Enclosure = {
-                    enclosureId: 0,
+                const enclosure: CreateEnclosureInput = {
                     enclosureName: enclosureName.trim(),
                     image: "",
                     notes: enclosureNotes.trim(),

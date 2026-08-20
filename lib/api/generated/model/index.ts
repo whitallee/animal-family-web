@@ -34,7 +34,6 @@ export * from './setAnimalMemorialPayload';
 export * from './species';
 export * from './subscribePayload';
 export * from './subscribePayloadKeys';
-export * from './task';
 export * from './taskCompletionResponse';
 export * from './taskWithSubject';
 export * from './testNotificationResponse';

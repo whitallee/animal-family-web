@@ -35,14 +35,14 @@ const enclosures: Enclosure[] = [
 ];
 
 const animals: Animal[] = [
-    { animalId: 1, animalName: "Rio",    image: "", gender: "Male",   dob: "2023-01-01", speciesId: 5, enclosureId: 1, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "" },
-    { animalId: 2, animalName: "Marina", image: "", gender: "Female", dob: "2023-01-01", speciesId: 5, enclosureId: 1, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "" },
-    { animalId: 3, animalName: "Clyde",  image: "", gender: "Male",   dob: "2022-06-01", speciesId: 6, enclosureId: 1, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "" },
-    { animalId: 4, animalName: "Luna",   image: "", gender: "Female", dob: "2022-03-15", speciesId: 3, enclosureId: 2, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "" },
-    { animalId: 5, animalName: "Nova",   image: "", gender: "Female", dob: "2022-03-15", speciesId: 3, enclosureId: 2, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "" },
-    { animalId: 6, animalName: "Pepper", image: "", gender: "Female", dob: "2021-08-20", speciesId: 2, enclosureId: 3, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "" },
-    { animalId: 7, animalName: "Zara",   image: "", gender: "Female", dob: "2023-05-10", speciesId: 4, enclosureId: 4, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "" },
-    { animalId: 8, animalName: "Cleo",   image: "", gender: "Female", dob: "2022-11-30", speciesId: 1, enclosureId: 5, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "" },
+    { animalId: 1, animalName: "Rio",    image: "", gender: "Male",   dob: "2023-01-01", speciesId: 5, enclosureId: 1, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "", isMemorialized: false, lastMessage: null, memorialPhotos: null, memorialDate: "" },
+    { animalId: 2, animalName: "Marina", image: "", gender: "Female", dob: "2023-01-01", speciesId: 5, enclosureId: 1, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "", isMemorialized: false, lastMessage: null, memorialPhotos: null, memorialDate: "" },
+    { animalId: 3, animalName: "Clyde",  image: "", gender: "Male",   dob: "2022-06-01", speciesId: 6, enclosureId: 1, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "", isMemorialized: false, lastMessage: null, memorialPhotos: null, memorialDate: "" },
+    { animalId: 4, animalName: "Luna",   image: "", gender: "Female", dob: "2022-03-15", speciesId: 3, enclosureId: 2, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "", isMemorialized: false, lastMessage: null, memorialPhotos: null, memorialDate: "" },
+    { animalId: 5, animalName: "Nova",   image: "", gender: "Female", dob: "2022-03-15", speciesId: 3, enclosureId: 2, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "", isMemorialized: false, lastMessage: null, memorialPhotos: null, memorialDate: "" },
+    { animalId: 6, animalName: "Pepper", image: "", gender: "Female", dob: "2021-08-20", speciesId: 2, enclosureId: 3, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "", isMemorialized: false, lastMessage: null, memorialPhotos: null, memorialDate: "" },
+    { animalId: 7, animalName: "Zara",   image: "", gender: "Female", dob: "2023-05-10", speciesId: 4, enclosureId: 4, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "", isMemorialized: false, lastMessage: null, memorialPhotos: null, memorialDate: "" },
+    { animalId: 8, animalName: "Cleo",   image: "", gender: "Female", dob: "2022-11-30", speciesId: 1, enclosureId: 5, personalityDesc: "", dietDesc: "", routineDesc: "", extraNotes: "", isMemorialized: false, lastMessage: null, memorialPhotos: null, memorialDate: "" },
 ];
 
 // Compute relative timestamps so the demo always looks right
@@ -50,15 +50,15 @@ const ago = (hours: number) => new Date(Date.now() - hours * 3_600_000).toISOStr
 
 const tasks: Task[] = [
     // Overdue: last fed 3 days ago on a daily schedule → 48h past due
-    { taskId: 1, taskName: "Feed cichlids",              taskDesc: "", complete: false, lastCompleted: ago(72),  repeatIntervHours: 24,  enclosureId: 1 },
+    { taskId: 1, taskName: "Feed cichlids",              taskDesc: "", complete: false, lastCompleted: ago(72),  repeatIntervHours: 24,  animalId: null, enclosureId: 1 },
     // Upcoming: filter cleaned yesterday, next due in ~6 days
-    { taskId: 2, taskName: "Clean tank filter",          taskDesc: "", complete: false, lastCompleted: ago(24),  repeatIntervHours: 168, enclosureId: 1 },
+    { taskId: 2, taskName: "Clean tank filter",          taskDesc: "", complete: false, lastCompleted: ago(24),  repeatIntervHours: 168, animalId: null, enclosureId: 1 },
     // Due but not yet overdue: dust bath due ~12h ago
-    { taskId: 3, taskName: "Give chinchillas dust bath", taskDesc: "", complete: false, lastCompleted: ago(180), repeatIntervHours: 168, enclosureId: 2 },
+    { taskId: 3, taskName: "Give chinchillas dust bath", taskDesc: "", complete: false, lastCompleted: ago(180), repeatIntervHours: 168, animalId: null, enclosureId: 2 },
     // Complete: fed an hour ago
-    { taskId: 4, taskName: "Feed Pepper",                taskDesc: "", complete: true,  lastCompleted: ago(1),   repeatIntervHours: 48,  animalId: 6 },
+    { taskId: 4, taskName: "Feed Pepper",                taskDesc: "", complete: true,  lastCompleted: ago(1),   repeatIntervHours: 48,  enclosureId: null, animalId: 6 },
     // Due but not yet overdue: misted ~14h ago on a daily schedule
-    { taskId: 5, taskName: "Mist Zara's enclosure",      taskDesc: "", complete: false, lastCompleted: ago(38),  repeatIntervHours: 24,  enclosureId: 4 },
+    { taskId: 5, taskName: "Mist Zara's enclosure",      taskDesc: "", complete: false, lastCompleted: ago(38),  repeatIntervHours: 24,  animalId: null, enclosureId: 4 },
 ];
 
 // ─── Page ──────────────────────────────────────────────────────────────────────

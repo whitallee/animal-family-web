@@ -1,6 +1,11 @@
 import { User } from '@/types/db-types';
 import { createContext, useContext, useState, useEffect } from 'react';
 import { getQueryClient } from '@/lib/get-query-client';
+import { refreshToken } from '@/lib/api/generated/users/users';
+import { unwrap } from '@/lib/api/unwrap';
+import type { AuthResponse } from '@/lib/api/generated/model';
+
+const AUTH_TOKEN_KEY = 'auth_token';
 
 type AuthContextType = {
   token: string | null;
@@ -17,27 +22,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const queryClient = getQueryClient();
 
+  // Restore the session from a stored token on first load.
   useEffect(() => {
-    const storedToken = localStorage.getItem('auth_token');
-    if (storedToken) {
-      fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/user/refresh-token`, {
-        method: 'POST',
-        headers: {
-          'Authorization': storedToken
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.token && data.user) {
-          setToken(data.token);
-          setUser(data.user);
-          localStorage.setItem('auth_token', data.token);
-        }
-      })
-      .catch(() => {
-        localStorage.removeItem('auth_token');
-      });
-    }
+    if (!localStorage.getItem(AUTH_TOKEN_KEY)) return;
+
+    let cancelled = false;
+
+    const restore = async () => {
+      try {
+        // The generated client reads the stored token itself and throws on a
+        // rejected refresh. The hand-written version called res.json() without
+        // checking the status, so an expired token produced an error body,
+        // left data.token undefined, and silently did nothing — stranding the
+        // stale token in localStorage and the app in a half-signed-in state.
+        const auth = unwrap<AuthResponse>(await refreshToken());
+        if (cancelled) return;
+
+        setToken(auth.token);
+        setUser(auth.user);
+        localStorage.setItem(AUTH_TOKEN_KEY, auth.token);
+      } catch {
+        if (cancelled) return;
+
+        localStorage.removeItem(AUTH_TOKEN_KEY);
+      }
+    };
+
+    void restore();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const login = (newToken: string, newUser: User) => {
@@ -48,7 +63,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('auth_token');
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    // Drops every cached query so the next account cannot see this one's data.
     queryClient.clear();
   };
 

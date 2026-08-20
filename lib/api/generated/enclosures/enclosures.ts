@@ -327,7 +327,7 @@ export const getDeleteEnclosureUrl = (id: number,
 }
 
 /**
- * By default only the enclosure is removed and its animals are left without one. Pass cascade=tasks to also delete the enclosure's tasks, or cascade=animals,tasks to delete its animals and their tasks as well.
+ * By default only the enclosure is removed and its animals are left without one. Pass cascade=tasks to also delete the enclosure's tasks, or cascade=animals to delete its animals and their tasks as well.
  * @summary Delete one of the caller's enclosures
  */
 export const deleteEnclosure = async (id: number,

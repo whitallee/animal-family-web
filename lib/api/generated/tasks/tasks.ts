@@ -31,7 +31,6 @@ import type {
   CreateTaskV2Payload,
   ErrorResponse,
   ListTasksParams,
-  Task,
   TaskCompletionResponse,
   TaskWithSubject,
   UpdateTaskV2Payload
@@ -516,7 +515,7 @@ export const useDeleteTask = <TError = ErrorResponse,
       return useMutation(getDeleteTaskMutationOptions(options), queryClient);
     }
     export type getTaskResponse200 = {
-  data: Task
+  data: TaskWithSubject
   status: 200
 }
 

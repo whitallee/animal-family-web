@@ -1,36 +1,32 @@
-import { useQuery } from '@tanstack/react-query';
-import { Species, Habitat } from '@/types/db-types';
+import { useQuery } from "@tanstack/react-query";
+import { listSpecies } from "@/lib/api/generated/species/species";
+import { listHabitats } from "@/lib/api/generated/habitats/habitats";
+import type { Species, Habitat } from "@/lib/api/generated/model";
+import { queryKeys } from "./keys";
+import { unwrap } from "./unwrap";
 
-async function fetchSpecies(): Promise<Species[]> {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/species`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch species');
-  }
-  return response.json();
-}
-
-async function fetchHabitats(): Promise<Habitat[]> {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/habitat`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch habitats');
-  }
-  return response.json();
-}
+/**
+ * Reference data: global, public, and effectively static.
+ *
+ * Cached for a week because species and habitats only change when an admin adds
+ * one, and kept indefinitely so navigating away does not force a refetch.
+ */
+const REFERENCE_DATA_STALE_TIME = 7 * 24 * 60 * 60 * 1000;
 
 export function useSpecies() {
   return useQuery({
-    queryKey: ['species'],
-    queryFn: fetchSpecies,
-    staleTime: 7 * 24 * 60 * 60 * 1000, // 1 week
+    queryKey: queryKeys.species(),
+    queryFn: async () => unwrap<Species[]>(await listSpecies()),
+    staleTime: REFERENCE_DATA_STALE_TIME,
     gcTime: Infinity,
   });
 }
 
 export function useHabitats() {
   return useQuery({
-    queryKey: ['habitats'],
-    queryFn: fetchHabitats,
-    staleTime: 7 * 24 * 60 * 60 * 1000, // 1 week
+    queryKey: queryKeys.habitats(),
+    queryFn: async () => unwrap<Habitat[]>(await listHabitats()),
+    staleTime: REFERENCE_DATA_STALE_TIME,
     gcTime: Infinity,
   });
 }

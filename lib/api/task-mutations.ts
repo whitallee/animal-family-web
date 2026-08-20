@@ -1,167 +1,131 @@
 import { useMutation } from "@tanstack/react-query";
-import { useAuth } from "../AuthContext";
-import { Task } from "@/types/db-types";
+import { useAuth } from "@/lib/AuthContext";
 import { getQueryClient } from "@/lib/get-query-client";
+import {
+  createTask as createTaskRequest,
+  deleteTask as deleteTaskRequest,
+  updateTask as updateTaskRequest,
+} from "@/lib/api/generated/tasks/tasks";
+import type { Task } from "@/types/db-types";
+import { queryKeys } from "./keys";
 
-export const markTaskComplete = async (token: string, task: Task) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/task`, {
-        method: "PUT",
-        headers: {
-            "Authorization": `${token}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            "taskId": task.taskId,
-            "taskName": task.taskName,
-            "taskDesc": task.taskDesc,
-            "complete": true,
-            "lastCompleted": new Date().toISOString(),
-            "repeatIntervHours": task.repeatIntervHours
-        })
-    });
-    return res.json();
-};
+/**
+ * Task mutations over the generated v2 client.
+ *
+ * A task belongs to exactly one subject, an animal or an enclosure, and v2
+ * requires that subject on every update rather than only when it changes. So
+ * every input here carries it. Callers already hold it: the task list returns
+ * animalId and enclosureId on each task, and so does GET /tasks/{id}.
+ */
 
-export const useMarkTaskComplete = () => {
-    const { user, token } = useAuth();
-    const queryClient = getQueryClient();
-    
-    return useMutation({
-        mutationFn: (task: Task) => markTaskComplete(token!, task),
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["tasks", { user: user?.userId }] });
-        }
-    });
-};
-
-export const markTaskIncomplete = async (token: string, task: Task) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/task`, {
-        method: "PUT",
-        headers: {
-            "Authorization": `${token}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            "taskId": task.taskId,
-            "taskName": task.taskName,
-            "taskDesc": task.taskDesc,
-            "complete": false,
-            "lastCompleted": task.lastCompleted,
-            "repeatIntervHours": task.repeatIntervHours
-        })
-    });
-    return res.json();
-};
-
-export const useMarkTaskIncomplete = () => {
-    const { user, token } = useAuth();
-    const queryClient = getQueryClient();
-    
-    return useMutation({
-        mutationFn: (task: Task) => markTaskIncomplete(token!, task),
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["tasks", { user: user?.userId }] });
-        }
-    });
-};
-
-export const createTask = async (token: string, task: Task) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/task`, {
-        method: "POST",
-        headers: {
-            "Authorization": `${token}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            "taskName": task.taskName,
-            "taskDesc": task.taskDesc,
-            "repeatIntervHours": task.repeatIntervHours,
-            "animalId": task.animalId,
-            "enclosureId": task.enclosureId
-        })
-    });
-    return res.json();
-};
-
-export const useCreateTask = () => {
-    const { user, token } = useAuth();
-    const queryClient = getQueryClient();
-    
-    return useMutation({
-        mutationFn: (task: Task) => createTask(token!, task),
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["tasks", { user: user?.userId }] });
-        }
-    });
-};
-
-interface UpdateTaskPayload {
-    taskId: number;
-    taskName: string;
-    taskDesc: string;
-    complete: boolean;
-    lastCompleted: string;
-    repeatIntervHours: number;
+/** Identifies the animal or enclosure a task belongs to. Exactly one is set. */
+export interface TaskSubject {
+  animalId?: number | null;
+  enclosureId?: number | null;
 }
 
-export const updateTask = async (token: string, payload: UpdateTaskPayload) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/task`, {
-        method: "PUT",
-        headers: {
-            "Authorization": `${token}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-    });
-    
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || 'Failed to update task');
-    }
-    
-    // Returns 204 No Content on success
-    return;
+export interface CreateTaskInput extends TaskSubject {
+  taskName: string;
+  taskDesc: string;
+  repeatIntervHours: number;
+}
+
+export interface UpdateTaskInput extends TaskSubject {
+  taskId: number;
+  taskName: string;
+  taskDesc: string;
+  complete: boolean;
+  lastCompleted: string;
+  repeatIntervHours: number;
+}
+
+/**
+ * v1 used 0 for "not this kind of subject"; v2 uses null, which is what the
+ * nullable foreign keys behind it actually hold.
+ */
+function subjectOf(task: TaskSubject): TaskSubject {
+  return {
+    animalId: task.animalId ? task.animalId : null,
+    enclosureId: task.enclosureId ? task.enclosureId : null,
+  };
+}
+
+export const useCreateTask = () => {
+  const { user } = useAuth();
+  const queryClient = getQueryClient();
+
+  return useMutation({
+    mutationFn: (task: CreateTaskInput) =>
+      createTaskRequest({
+        taskName: task.taskName,
+        taskDesc: task.taskDesc,
+        repeatIntervHours: task.repeatIntervHours,
+        ...subjectOf(task),
+      }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks(user?.id) });
+    },
+  });
 };
 
 export const useUpdateTask = () => {
-    const { user, token } = useAuth();
-    const queryClient = getQueryClient();
-    
-    return useMutation({
-        mutationFn: (payload: UpdateTaskPayload) => updateTask(token!, payload),
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["tasks", { user: user?.userId }] });
-        }
-    });
-};
+  const { user } = useAuth();
+  const queryClient = getQueryClient();
 
-export const deleteTask = async (token: string, taskId: number): Promise<void> => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/task`, {
-        method: "DELETE",
-        headers: {
-            "Authorization": `${token}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ taskId })
-    });
-    
-    if (!res.ok) {
-        const error = await res.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(`Failed to delete task: ${error.error || res.statusText}`);
-    }
-    
-    // Success - returns 204 No Content
-    return;
+  return useMutation({
+    mutationFn: ({ taskId, ...task }: UpdateTaskInput) =>
+      updateTaskRequest(taskId, {
+        taskName: task.taskName,
+        taskDesc: task.taskDesc,
+        complete: task.complete,
+        lastCompleted: task.lastCompleted,
+        repeatIntervHours: task.repeatIntervHours,
+        ...subjectOf(task),
+      }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks(user?.id) });
+    },
+  });
 };
 
 export const useDeleteTask = () => {
-    const { user, token } = useAuth();
-    const queryClient = getQueryClient();
-    
-    return useMutation({
-        mutationFn: (taskId: number) => deleteTask(token!, taskId),
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["tasks", { user: user?.userId }] });
-        }
-    });
+  const { user } = useAuth();
+  const queryClient = getQueryClient();
+
+  return useMutation({
+    mutationFn: (taskId: number) => deleteTaskRequest(taskId),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks(user?.id) });
+    },
+  });
 };
+
+/**
+ * Marking complete and incomplete are the same update with a different flag;
+ * v1 had them as separate functions hitting the same endpoint.
+ */
+function useSetTaskCompletion(complete: boolean) {
+  const { user } = useAuth();
+  const queryClient = getQueryClient();
+
+  return useMutation({
+    mutationFn: (task: Task) =>
+      updateTaskRequest(task.taskId, {
+        taskName: task.taskName,
+        taskDesc: task.taskDesc,
+        complete,
+        // Completing stamps the moment; un-completing keeps whatever was there
+        // so the task's original due cycle is preserved.
+        lastCompleted: complete ? new Date().toISOString() : task.lastCompleted,
+        repeatIntervHours: task.repeatIntervHours,
+        ...subjectOf(task),
+      }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks(user?.id) });
+    },
+  });
+}
+
+export const useMarkTaskComplete = () => useSetTaskCompletion(true);
+
+export const useMarkTaskIncomplete = () => useSetTaskCompletion(false);

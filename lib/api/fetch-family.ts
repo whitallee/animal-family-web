@@ -1,69 +1,55 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/AuthContext";
+import { listAnimals } from "@/lib/api/generated/animals/animals";
+import { listEnclosures } from "@/lib/api/generated/enclosures/enclosures";
+import { listTasks } from "@/lib/api/generated/tasks/tasks";
+import type {
+  AnimalResponse,
+  Enclosure,
+  TaskWithSubject,
+} from "@/lib/api/generated/model";
+import { queryKeys } from "./keys";
+import { unwrap } from "./unwrap";
 
-
-// Animals
-export const fetchAnimals = async (token: string) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/animal`, {
-        method: "GET",
-        headers: {
-            "Authorization": `${token}`
-        }
-    });
-    return res.json();
-};
+/**
+ * Read hooks for the family data.
+ *
+ * These wrap the generated v2 client rather than calling fetch directly. The
+ * hook names and return shapes are unchanged so the components consuming them
+ * did not have to change; what has changed is that the request, its URL and the
+ * shape of what comes back are all derived from the backend's OpenAPI contract
+ * instead of being retyped by hand.
+ *
+ * Authentication is applied by the mutator in ./fetcher.ts, so no token is
+ * threaded through here.
+ */
 
 export const useAnimals = () => {
-    const { token, user } = useAuth();
-    return useQuery({
-        // Must match the key the animal mutations invalidate. Keying on the
-        // token instead meant every ["animals", { user }] invalidation silently
-        // matched nothing, so the list only refreshed once staleTime expired.
-        queryKey: ["animals", { user: user?.userId }],
-        queryFn: () => fetchAnimals(token!),
-        enabled: !!token
-    });
-};
+  const { token, user } = useAuth();
 
-// Enclosures
-export const fetchEnclosures = async (token: string) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/enclosure`, {
-        method: "GET",
-        headers: {
-            "Authorization": `${token}`
-        }
-    });
-    return res.json();
+  return useQuery({
+    queryKey: queryKeys.animals(user?.id),
+    queryFn: async () => unwrap<AnimalResponse[]>(await listAnimals()),
+    enabled: !!token,
+  });
 };
 
 export const useEnclosures = () => {
-    const { token, user } = useAuth();
-    return useQuery({
-        // See the note on useAnimals: this must match the key the enclosure
-        // mutations invalidate.
-        queryKey: ["enclosures", { user: user?.userId }],
-        queryFn: () => fetchEnclosures(token!),
-        enabled: !!token
-    });
-};
+  const { token, user } = useAuth();
 
-// Tasks
-export const fetchTasks = async (token: string) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/task`, {
-        method: "GET",
-        headers: {
-            "Authorization": `${token}`
-        }
-    });
-    
-    return res.json();
+  return useQuery({
+    queryKey: queryKeys.enclosures(user?.id),
+    queryFn: async () => unwrap<Enclosure[]>(await listEnclosures()),
+    enabled: !!token,
+  });
 };
 
 export const useTasks = () => {
-    const { user, token } = useAuth();
-    return useQuery({ 
-        queryKey: ["tasks", { user: user?.userId }], 
-        queryFn: () => fetchTasks(token!), 
-        enabled: !!token 
-    });
+  const { token, user } = useAuth();
+
+  return useQuery({
+    queryKey: queryKeys.tasks(user?.id),
+    queryFn: async () => unwrap<TaskWithSubject[]>(await listTasks()),
+    enabled: !!token,
+  });
 };
